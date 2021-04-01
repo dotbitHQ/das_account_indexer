@@ -1,4 +1,4 @@
-# github.com/DA-Services/das_commonlib v0.0.0-20210401093529-9c93fc9a0d2e
+# github.com/DA-Services/das_commonlib v0.0.0-20210401102520-5a02674eca86
 github.com/DA-Services/das_commonlib/ckb/celltype
 github.com/DA-Services/das_commonlib/common
 github.com/DA-Services/das_commonlib/common/dascode
@@ -25,7 +25,6 @@ github.com/elastic/gosigar/sys/windows
 # github.com/ethereum/go-ethereum v1.9.14
 github.com/ethereum/go-ethereum/common
 github.com/ethereum/go-ethereum/common/hexutil
-github.com/ethereum/go-ethereum/rlp
 github.com/ethereum/go-ethereum/rpc
 github.com/ethereum/go-ethereum/log
 github.com/ethereum/go-ethereum/metrics
@@ -90,8 +89,6 @@ github.com/spf13/jwalterweatherman
 github.com/spf13/pflag
 # github.com/spf13/viper v1.4.0
 github.com/spf13/viper
-# github.com/tecbot/gorocksdb v0.0.0-20191217155057-f0fad39f321c
-github.com/tecbot/gorocksdb
 # github.com/urfave/cli v1.22.1
 github.com/urfave/cli
 # go.uber.org/atomic v1.4.0
