@@ -2,12 +2,16 @@
 
 #### build
 
-`make rpc`
+`make rpc-win`
+
+`make rpc-mac`
+
+`make rpc-linux`
 
 #### run
 
 ```
-cd bin
+cd bin/mac
 ./rpc_server -config="local_server.yaml"
 ```
 
