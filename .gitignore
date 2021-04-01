@@ -1,0 +1,7 @@
+bin/*
+.idea
+log/*
+*.pem
+build/*
+testdb
+data

@@ -1,0 +1,29 @@
+# The config file of this project
+server:
+  name:    "DAS-Account-Indexer"
+  version: 1.0
+  debug:   false
+log:
+rpc:
+  port: "8111"
+chain:
+  ckb:
+    node_url: "http://localhost:8114"
+    indexer_url: "http://localhost:8116"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
