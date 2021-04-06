@@ -29,10 +29,10 @@ import (
  * Description:
  */
 
-var rpcImpl *dasrpc.JsonrpcServiceImpl
-var log = elog.NewLogger("rpc", elog.NoticeLevel)
 var (
-	exit = make(chan bool)
+	rpcImpl *dasrpc.JsonrpcServiceImpl
+	log     = elog.NewLogger("server", elog.NoticeLevel)
+	exit    = make(chan bool)
 )
 
 func main() {
@@ -83,6 +83,7 @@ func runServer(ctx *cli.Context) error {
 			rpcImpl.Stop()
 		}
 		log.Info("exist server success!")
+		exit <- true
 	})
 	rpcClient, err := rpc.DialWithIndexer(config.Cfg.Chain.CKB.NodeUrl, config.Cfg.Chain.CKB.IndexerUrl)
 	if err != nil {
@@ -91,7 +92,7 @@ func runServer(ctx *cli.Context) error {
 	if err = runRpcServer(rpcClient); err != nil {
 		return err
 	}
-	exit <- true
+	<-exit
 	return nil
 }
 
@@ -103,7 +104,7 @@ func runRpcServer(client rpc.Client) error {
 		Name:    methodPrefix,
 		Element: rpcHandler,
 	})
-	log.Info("rpc serve at:",publicPort)
+	log.Info("rpc serve at:", publicPort)
 	if err := rpcImpl.Start(func(w http.ResponseWriter, r *http.Request) {
 		// todo
 	}); err != nil {
@@ -120,16 +121,3 @@ func readConfigFilePath(ctx *cli.Context) string {
 		return defaultCfgFilePath
 	}
 }
-
-
-
-
-
-
-
-
-
-
-
-
-

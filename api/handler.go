@@ -25,12 +25,12 @@ import (
  */
 
 var (
-	log = elog.NewLogger("handler", elog.NoticeLevel)
+	log      = elog.NewLogger("rpc_handler", elog.NoticeLevel)
 	emptyErr = errors.New("not exist")
 )
 
 type RpcHandler struct {
-	rpcClient  rpc.Client
+	rpcClient rpc.Client
 }
 
 func NewRpcHandler(client rpc.Client) *RpcHandler {
@@ -42,19 +42,19 @@ func (r *RpcHandler) Hello() string {
 }
 
 func (r *RpcHandler) SearchAccount(account string) common.ReqResp {
-	log.Info("accept SearchAccount:",account)
+	log.Info("accept SearchAccount:", account)
 	dasAccount := celltype.DasAccountFromStr(account)
 	if err := dasAccount.ValidErr(); err != nil {
-		return common.ReqResp{ErrNo: dascode.Err_AccountFormatInvalid,ErrMsg: err.Error()}
+		return common.ReqResp{ErrNo: dascode.Err_AccountFormatInvalid, ErrMsg: err.Error()}
 	}
-	accountInfo,err := r.loadOneAccountCell(dasAccount.AccountId())
+	accountInfo, err := r.loadOneAccountCell(dasAccount.AccountId())
 	if err != nil {
 		if err == emptyErr {
-			return common.ReqResp{ErrNo: dascode.Err_AccountNotExist,ErrMsg: err.Error()}
+			return common.ReqResp{ErrNo: dascode.Err_AccountNotExist, ErrMsg: err.Error()}
 		}
-		return common.ReqResp{ErrNo: dascode.Err_BaseParamInvalid,ErrMsg: err.Error()}
+		return common.ReqResp{ErrNo: dascode.Err_BaseParamInvalid, ErrMsg: err.Error()}
 	}
-	return common.ReqResp{ErrNo: dascode.DAS_SUCCESS,Data: accountInfo}
+	return common.ReqResp{ErrNo: dascode.DAS_SUCCESS, Data: accountInfo}
 }
 
 func (r *RpcHandler) loadOneAccountCell(targetAccountId celltype.DasAccountId) (*model.AccountReturnObj, error) {
@@ -113,30 +113,30 @@ func (r *RpcHandler) loadOneAccountCell(targetAccountId celltype.DasAccountId) (
 	if err != nil {
 		return nil, err
 	}
-	nextAccountId,err := celltype.NextAccountIdFromOutputData(cell.OutputData)
+	nextAccountId, err := celltype.NextAccountIdFromOutputData(cell.OutputData)
 	if err != nil {
 		return nil, err
 	}
-	registerAt,err := celltype.MoleculeU64ToGo(thisAccountCellData.RegisteredAt().RawData())
+	registerAt, err := celltype.MoleculeU64ToGo(thisAccountCellData.RegisteredAt().RawData())
 	if err != nil {
-		return nil, fmt.Errorf("parse registerAt err: %s",err.Error())
+		return nil, fmt.Errorf("parse registerAt err: %s", err.Error())
 	}
-	expiredAt,err := celltype.ExpiredAtFromOutputData(cell.OutputData)
+	expiredAt, err := celltype.ExpiredAtFromOutputData(cell.OutputData)
 	if err != nil {
-		return nil, fmt.Errorf("parse expiredAt err: %s",err.Error())
+		return nil, fmt.Errorf("parse expiredAt err: %s", err.Error())
 	}
-	accountStatus,_ := celltype.MoleculeU8ToGo(thisAccountCellData.Status().RawData())
-	ownerLock,err := celltype.MoleculeScriptToGo(*thisAccountCellData.OwnerLock())
+	accountStatus, _ := celltype.MoleculeU8ToGo(thisAccountCellData.Status().RawData())
+	ownerLock, err := celltype.MoleculeScriptToGo(*thisAccountCellData.OwnerLock())
 	if err != nil {
-		return nil, fmt.Errorf("parse ownerLock err: %s",err.Error())
+		return nil, fmt.Errorf("parse ownerLock err: %s", err.Error())
 	}
-	managerLock,err := celltype.MoleculeScriptToGo(*thisAccountCellData.ManagerLock())
+	managerLock, err := celltype.MoleculeScriptToGo(*thisAccountCellData.ManagerLock())
 	if err != nil {
-		return nil, fmt.Errorf("parse managerLock err: %s",err.Error())
+		return nil, fmt.Errorf("parse managerLock err: %s", err.Error())
 	}
 	return &model.AccountReturnObj{
-		OutPoint:    *cell.OutPoint,
-		WitnessHex:  hex.EncodeToString(witnessData),
+		OutPoint:   *cell.OutPoint,
+		WitnessHex: hex.EncodeToString(witnessData),
 		AccountData: model.AccountData{
 			Account:           celltype.AccountCharsToAccount(*thisAccountCellData.Account()).Str(),
 			AccountIdHex:      celltype.DasAccountIdFromBytes(thisAccountCellData.Id().RawData()).HexStr(),
@@ -150,10 +150,3 @@ func (r *RpcHandler) loadOneAccountCell(targetAccountId celltype.DasAccountId) (
 		},
 	}, err
 }
-
-
-
-
-
-
-
