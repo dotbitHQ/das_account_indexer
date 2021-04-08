@@ -1,4 +1,4 @@
-# github.com/DA-Services/das_commonlib v0.0.0-20210406073811-799c19851ecc
+# github.com/DA-Services/das_commonlib v0.0.0-20210407100830-e2dc233c07b6
 github.com/DA-Services/das_commonlib/ckb/celltype
 github.com/DA-Services/das_commonlib/common
 github.com/DA-Services/das_commonlib/common/dascode
@@ -106,6 +106,8 @@ go.uber.org/zap/internal/exit
 golang.org/x/crypto/sha3
 # golang.org/x/net v0.0.0-20200904194848-62affa334b73
 golang.org/x/net/context
+# golang.org/x/sync v0.0.0-20190423024810-112230192c58
+golang.org/x/sync/syncmap
 # golang.org/x/sys v0.0.0-20200323222414-85ca7c5b95cd
 golang.org/x/sys/unix
 golang.org/x/sys/cpu

@@ -30,6 +30,18 @@ const (
 	PwLockTestNetCodeHash = "0x58c5f491aba6d61678b7cf7edf4910b1f5e00ec0cde2f42e0abb4fd9aff25a63"
 )
 
+// type cell's args
+const (
+	ContractCodeHash = "00000000000000000000000000000000000000000000000000545950455f4944"
+	ConfigCellCodeArgs    = "05a2994f75ecbcdf871b719c5a2902b285649a541b10f3b1e3040b4c03f2179e"
+	WalletCellCodeArgs    = "c591ed61e58538d81361c76a19af20d5a4d787b2e1fdf24622d52cbd903833d6"
+	ApplyRegisterCellCodeArgs = "81f60a6a28add9f0df59d6448b13e89ac530829af3f1e45dff3930e216a3cf81"
+	RefCellCodeArgs = "b638c0bfb91a1ee94ec6c5c4bbe7093cabeef6a6afffbc3e9c2a7cf2535fdfe7"
+	PreAccountCellCodeArgs = "ca0b1cb902a46adb59ffad2666157ab2a06bb7acce9a59c8ef6d2fb4b022d4b9"
+	ProposeCellCodeArgs = "67df6b5183e29a9d4f63f7682746ac66f3f944b5df8bacbf23415dfd91e1001f"
+	AccountCellCodeArgs = "b96273084d063d9c1f1b8a7b165dea65a8eeb23712f45fbcb25023b73799b57a"
+)
+
 type PwCoreLockScriptType uint8
 
 const (

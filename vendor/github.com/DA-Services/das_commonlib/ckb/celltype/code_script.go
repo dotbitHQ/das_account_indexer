@@ -3,9 +3,15 @@ package celltype
 import (
 	"encoding/hex"
 	"encoding/json"
+	"fmt"
+	"github.com/DA-Services/das_commonlib/common"
+	"github.com/nervosnetwork/ckb-sdk-go/indexer"
+	"github.com/nervosnetwork/ckb-sdk-go/rpc"
 	"github.com/nervosnetwork/ckb-sdk-go/types"
 	"github.com/nervosnetwork/ckb-sdk-go/utils"
+	"golang.org/x/sync/syncmap"
 	"strings"
+	"time"
 )
 
 /**
@@ -15,6 +21,7 @@ import (
  * Date:     2020/12/22 3:01 下午
  * Description:
  */
+
 
 var (
 	TestNetLockScriptDep = DASCellBaseInfoDep{
@@ -69,10 +76,16 @@ var (
 			CodeHashType: types.HashTypeType,
 			Args:         emptyHexToArgsBytes(),
 		},
+		ContractTypeScript: types.Script{
+			CodeHash: types.HexToHash(""),
+			HashType: "",
+			Args:     nil,
+		},
 	}
 	DasWalletCellScript = DASCellBaseInfo{
+		Name: "wallet_cell",
 		Dep: DASCellBaseInfoDep{
-			TxHash:  types.HexToHash("0xaac18fd80a6f9265913518e303fe57d1c93d961e7badbc1289b9dbe667a8ab42"), //"0x440b323f2821aa808c1bad365c10ffb451058864a11f63b5669a5597ac0e8e0f"
+			TxHash:  types.HexToHash("0xaac18fd80a6f9265913518e303fe57d1c93d961ef7badbc1289b9dbe667a8ab42"), //"0x440b323f2821aa808c1bad365c10ffb451058864a11f63b5669a5597ac0e8e0f"
 			TxIndex: 0,
 			DepType: types.DepTypeCode,
 		},
@@ -81,8 +94,14 @@ var (
 			CodeHashType: types.HashTypeType,
 			Args:         emptyHexToArgsBytes(),
 		},
+		ContractTypeScript: types.Script{
+			CodeHash: types.HexToHash(ContractCodeHash),
+			HashType: types.HashTypeType,
+			Args:     types.HexToHash(WalletCellCodeArgs).Bytes(),
+		},
 	}
 	DasApplyRegisterCellScript = DASCellBaseInfo{
+		Name: "apply_register_cell",
 		Dep: DASCellBaseInfoDep{
 			TxHash:  types.HexToHash("0xbc4dec1c2a3b1a9bf76df3a66357c62ec4b543abb595b3ed10fe64e126efc509"),
 			TxIndex: 0,
@@ -93,8 +112,14 @@ var (
 			CodeHashType: types.HashTypeType,
 			Args:         emptyHexToArgsBytes(),
 		},
+		ContractTypeScript: types.Script{
+			CodeHash: types.HexToHash(ContractCodeHash),
+			HashType: types.HashTypeType,
+			Args:     types.HexToHash(ApplyRegisterCellCodeArgs).Bytes(),
+		},
 	}
 	DasRefCellScript = DASCellBaseInfo{
+		Name: "ref_cell",
 		Dep: DASCellBaseInfoDep{
 			TxHash:  types.HexToHash("0x86a83fc53d64e0cfbc94ccc003b8eee00617c8aa16a2aa1188d41842ee97dc15"),
 			TxIndex: 0,
@@ -105,8 +130,14 @@ var (
 			CodeHashType: types.HashTypeType,
 			Args:         emptyHexToArgsBytes(),
 		},
+		ContractTypeScript: types.Script{
+			CodeHash: types.HexToHash(ContractCodeHash),
+			HashType: types.HashTypeType,
+			Args:     types.HexToHash(RefCellCodeArgs).Bytes(),
+		},
 	}
 	DasPreAccountCellScript = DASCellBaseInfo{
+		Name: "preAccount_cell",
 		Dep: DASCellBaseInfoDep{
 			TxHash:  types.HexToHash("0xb4353dd3ada2b41b8932edbd853a853e81d50b4c8648c1afd93384b946425d15"), //"0x21b25ab337cbbc7aad691f0f767ec5a852bbb8f6b9ff53dd00e0505f72f1f89a"
 			TxIndex: 0,
@@ -117,8 +148,14 @@ var (
 			CodeHashType: types.HashTypeType,
 			Args:         emptyHexToArgsBytes(),
 		},
+		ContractTypeScript: types.Script{
+			CodeHash: types.HexToHash(ContractCodeHash),
+			HashType: types.HashTypeType,
+			Args:     types.HexToHash(PreAccountCellCodeArgs).Bytes(),
+		},
 	}
 	DasProposeCellScript = DASCellBaseInfo{
+		Name: "propose_cell",
 		Dep: DASCellBaseInfoDep{
 			TxHash:  types.HexToHash("0xf3cf92357436e6b6438e33c5d68521cac816baff6ef60e9bfc733453a335a8d4"),
 			TxIndex: 0,
@@ -129,8 +166,14 @@ var (
 			CodeHashType: types.HashTypeType,
 			Args:         emptyHexToArgsBytes(),
 		},
+		ContractTypeScript: types.Script{
+			CodeHash: types.HexToHash(ContractCodeHash),
+			HashType: types.HashTypeType,
+			Args:     types.HexToHash(ProposeCellCodeArgs).Bytes(),
+		},
 	}
 	DasAccountCellScript = DASCellBaseInfo{
+		Name: "account_cell",
 		Dep: DASCellBaseInfoDep{
 			TxHash:  types.HexToHash("0x9e867e0b7bcbd329b8fe311c8839e10bacac7303280b8124932c66f726c38d8a"),
 			TxIndex: 0,
@@ -140,6 +183,11 @@ var (
 			CodeHash:     types.HexToHash("0x274775e475c1252b5333c20e1512b7b1296c4c5b52a25aa2ebd6e41f5894c41f"),
 			CodeHashType: types.HashTypeType,
 			Args:         emptyHexToArgsBytes(),
+		},
+		ContractTypeScript: types.Script{
+			CodeHash: types.HexToHash(ContractCodeHash),
+			HashType: types.HashTypeType,
+			Args:     types.HexToHash(AccountCellCodeArgs).Bytes(),
 		},
 	}
 	DasBiddingCellScript = DASCellBaseInfo{
@@ -179,6 +227,7 @@ var (
 	// 	},
 	// }
 	DasConfigCellScript = DASCellBaseInfo{
+		Name: "config_cell",
 		Dep: DASCellBaseInfoDep{
 			TxHash:  types.HexToHash("0x97cf78ef50809505bba4ac78d8ee7908eccd1119aa08775814202e7801f4895b"),
 			TxIndex: 0,
@@ -188,6 +237,11 @@ var (
 			CodeHash:     types.HexToHash("0x489ff2195ed41aac9a9265c653d8ca57c825b22db765b9e08d537572ff2cbc1b"),
 			CodeHashType: types.HashTypeType,
 			Args:         emptyHexToArgsBytes(),
+		},
+		ContractTypeScript: types.Script{
+			CodeHash: types.HexToHash(ContractCodeHash),
+			HashType: types.HashTypeType,
+			Args:     types.HexToHash(ConfigCellCodeArgs).Bytes(),
 		},
 	}
 	DasHeightCellScript = DASCellBaseInfo{
@@ -214,27 +268,78 @@ var (
 			Args:         hexToArgsBytes("0xd0c1c7156f2e310a12822e2cc336398ec4ef194abc1f96023b743f3249f09e2102000000"),
 		},
 	}
-	SystemCodeScriptMap = map[types.Hash]*DASCellBaseInfo{}
+	SystemCodeScriptMap = syncmap.Map{} // map[types.Hash]*DASCellBaseInfo{}
 )
 
 func init() {
-	SystemCodeScriptMap[DasApplyRegisterCellScript.Out.CodeHash] = &DasApplyRegisterCellScript
-	SystemCodeScriptMap[DasPreAccountCellScript.Out.CodeHash] = &DasPreAccountCellScript
-	SystemCodeScriptMap[DasBiddingCellScript.Out.CodeHash] = &DasBiddingCellScript
-	SystemCodeScriptMap[DasAccountCellScript.Out.CodeHash] = &DasAccountCellScript
-	SystemCodeScriptMap[DasOnSaleCellScript.Out.CodeHash] = &DasOnSaleCellScript
-	SystemCodeScriptMap[DasProposeCellScript.Out.CodeHash] = &DasProposeCellScript
-	SystemCodeScriptMap[DasWalletCellScript.Out.CodeHash] = &DasWalletCellScript
-	SystemCodeScriptMap[DasRefCellScript.Out.CodeHash] = &DasRefCellScript
+	SystemCodeScriptMap.Store(DasApplyRegisterCellScript.Out.CodeHash,&DasApplyRegisterCellScript)
+	SystemCodeScriptMap.Store(DasPreAccountCellScript.Out.CodeHash,&DasPreAccountCellScript)
+	SystemCodeScriptMap.Store(DasAccountCellScript.Out.CodeHash,&DasAccountCellScript)
+	SystemCodeScriptMap.Store(DasBiddingCellScript.Out.CodeHash,&DasBiddingCellScript)
+	SystemCodeScriptMap.Store(DasOnSaleCellScript.Out.CodeHash,&DasOnSaleCellScript)
+	SystemCodeScriptMap.Store(DasProposeCellScript.Out.CodeHash,&DasProposeCellScript)
+	SystemCodeScriptMap.Store(DasWalletCellScript.Out.CodeHash,&DasWalletCellScript)
+	SystemCodeScriptMap.Store(DasRefCellScript.Out.CodeHash,&DasRefCellScript)
+}
+
+func TimingAsyncSystemCodeScriptOutPoint(rpcClient rpc.Client,superLock *types.Script,errHandle func(err error),successHandle func())  {
+	sync := func() {
+		SystemCodeScriptMap.Range(func(key, value interface{}) bool {
+			item := value.(*DASCellBaseInfo)
+			if item.ContractTypeScript.Args == nil {
+				return true
+			}
+			searchKey := &indexer.SearchKey{
+				Script:     &item.ContractTypeScript,
+				ScriptType: indexer.ScriptTypeType,
+				Filter: &indexer.CellsFilter{
+					Script: superLock,
+				},
+			}
+			liveCells, _, err := common.LoadLiveCells(rpcClient, searchKey, 10000000*OneCkb, true, false, func(cell *indexer.LiveCell) bool {
+				return cell.Output.Type != nil
+			})
+			if err != nil && errHandle != nil {
+				errHandle(fmt.Errorf("LoadAllScriptCodeCell err: %s", err.Error()))
+				return false
+			}
+			for _, liveCell := range liveCells {
+				scriptCodeOutput := liveCell.Output
+				typeId := CalTypeIdFromScript(scriptCodeOutput.Type)
+				_ = SetSystemCodeScriptOutPoint(typeId, types.OutPoint{
+					TxHash: liveCell.OutPoint.TxHash,
+					Index:  liveCell.OutPoint.Index,
+				})
+			}
+			return true
+		})
+		if successHandle != nil {
+			successHandle()
+		}
+	}
+	sync()
+	go func() {
+		ticker := time.NewTicker(time.Second * 10)
+		defer ticker.Stop()
+		for {
+			select {
+			case <-ticker.C:
+				sync()
+			}
+		}
+	}()
 }
 
 func SetSystemCodeScriptOutPoint(typeId types.Hash, point types.OutPoint) *DASCellBaseInfo {
-	if _, ok := SystemCodeScriptMap[typeId]; !ok {
+	if item, ok := SystemCodeScriptMap.Load(typeId); !ok {
 		return nil
+	} else {
+		obj := item.(*DASCellBaseInfo)
+		obj.Dep.TxHash = point.TxHash
+		obj.Dep.TxIndex = point.Index
+		// SystemCodeScriptMap.Store(typeId,obj)
+		return obj
 	}
-	SystemCodeScriptMap[typeId].Dep.TxHash = point.TxHash
-	SystemCodeScriptMap[typeId].Dep.TxIndex = point.Index
-	return SystemCodeScriptMap[typeId]
 }
 
 func emptyHexToArgsBytes() []byte {
@@ -250,12 +355,16 @@ func hexToArgsBytes(hexStr string) []byte {
 }
 
 func IsSystemCodeScriptReady() bool {
-	for _, item := range SystemCodeScriptMap {
+	ready := true
+	SystemCodeScriptMap.Range(func(key, value interface{}) bool {
+		item := value.(*DASCellBaseInfo)
 		if item.Out.CodeHash.Hex() == "0x" {
+			ready = false
 			return false
 		}
-	}
-	return true
+		return true
+	})
+	return ready
 }
 
 func SystemCodeScriptBytes() ([]byte, error) {

@@ -493,22 +493,28 @@ expiredAt = ((PreAccountCell.capacity - AccountCell.capacity - RefCell.capacity)
 */
 func CalAccountCellExpiredAt(param CalAccountCellExpiredAtParam, registerAt int64) (uint64, error) {
 	fmt.Println("CalAccountCellExpiredAt ====>", param.Json())
-	divPerDayPrice := new(big.Rat).SetFrac(
-		new(big.Int).SetUint64(param.PriceConfigNew*OneCkb),
-		new(big.Int).SetInt64(int64(param.Quote)))
 	if param.PreAccountCellCap < param.AccountCellCap+param.RefCellCap {
 		return 0, fmt.Errorf("CalAccountCellExpiredAt invalid cap, preAccCell: %d, accCell: %d", param.PreAccountCellCap, param.AccountCellCap)
 	} else {
-		storageFee := param.PreAccountCellCap - param.AccountCellCap - param.RefCellCap
-		disRat := new(big.Rat).SetInt(new(big.Int).SetUint64(storageFee))
-		dra := new(big.Rat).Quo(disRat, divPerDayPrice)
-		duration, _ := dra.Float64()
+		duration := float64(0)
+		paid := param.PreAccountCellCap - param.AccountCellCap - param.RefCellCap
+		if param.PriceConfigNew < param.Quote {
+			duration = float64((paid * oneYearDays * param.Quote / (param.PriceConfigNew * OneCkb)) * oneDaySec)
+		} else {
+			duration = float64((paid * oneYearDays/ (param.PriceConfigNew / param.Quote * OneCkb)) * oneDaySec)
+		}
+		// divPerDayPrice := new(big.Rat).SetFrac(
+		// 	new(big.Int).SetUint64(param.PriceConfigNew*OneCkb),
+		// 	new(big.Int).SetInt64(int64(param.Quote)))
+		// disRat := new(big.Rat).SetInt(new(big.Int).SetUint64(storageFee))
+		// dra := new(big.Rat).Quo(disRat, divPerDayPrice)
+		// duration, _ = dra.Float64()
 		durationInt := uint64(duration)
-		fmt.Println("CalAccountCellExpiredAt dayPrice   ===>", divPerDayPrice)
-		fmt.Println("CalAccountCellExpiredAt storageFee ====>", storageFee)
+		// fmt.Println("CalAccountCellExpiredAt dayPrice   ===>", divPerDayPrice)
+		fmt.Println("CalAccountCellExpiredAt storageFee ====>", paid)
 		fmt.Println("CalAccountCellExpiredAt duration   ====>", durationInt)
-		fmt.Println("CalAccountCellExpiredAt registerAt ====>", registerAt)
-		return uint64(registerAt) + durationInt*oneYearDays*oneDaySec, nil // 1648195213
+		// fmt.Println("CalAccountCellExpiredAt registerAt ====>", registerAt)
+		return uint64(registerAt) + uint64(durationInt), nil // 1648195213
 	}
 }
 

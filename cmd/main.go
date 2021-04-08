@@ -1,7 +1,11 @@
 package main
 
 import (
+	"encoding/hex"
 	"fmt"
+	"github.com/DA-Services/das_commonlib/ckb/celltype"
+	"github.com/nervosnetwork/ckb-sdk-go/types"
+	"github.com/nervosnetwork/ckb-sdk-go/utils"
 	"net/http"
 	"os"
 	"runtime"
@@ -89,6 +93,16 @@ func runServer(ctx *cli.Context) error {
 	if err != nil {
 		panic(fmt.Errorf("init rpcClient failed: %s", err.Error()))
 	}
+	systemScripts, err := utils.NewSystemScripts(rpcClient)
+	if err != nil {
+		panic(fmt.Errorf("init NewSystemScripts err: %s", err.Error()))
+	}
+	scripter, _ := hex.DecodeString("5eb00c0e51afb537fc8071810034ce92f98c3259")
+	celltype.TimingAsyncSystemCodeScriptOutPoint(rpcClient, &types.Script{
+		CodeHash: systemScripts.SecpSingleSigCell.CellHash,
+		HashType: types.HashTypeType,
+		Args:     scripter,
+	}, nil, nil)
 	if err = runRpcServer(rpcClient); err != nil {
 		return err
 	}

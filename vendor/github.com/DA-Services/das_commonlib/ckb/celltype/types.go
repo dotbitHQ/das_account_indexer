@@ -145,8 +145,10 @@ func (c DASCellBaseInfoOut) SameScript(script *types.Script) bool {
 }
 
 type DASCellBaseInfo struct {
-	Dep DASCellBaseInfoDep `json:"dep"`
-	Out DASCellBaseInfoOut `json:"out"`
+	Name string `json:"name"`
+	Dep  DASCellBaseInfoDep `json:"dep"`
+	Out  DASCellBaseInfoOut `json:"out"`
+	ContractTypeScript types.Script `json:"contract_type_script"`
 }
 
 type WalletCellParam struct {
