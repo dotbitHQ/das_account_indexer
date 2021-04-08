@@ -18,7 +18,7 @@ cd bin/mac
 #### request
 
 ```curl
-curl --location --request POST 'http://localhost:8111' \
+curl --location --request POST 'http://localhost:8222' \
 --header 'Content-Type: application/json' \
 --data-raw '{
     "jsonrpc": "2.0",
