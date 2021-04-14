@@ -62,16 +62,20 @@ func (r *RpcHandler) loadOneAccountCell(targetAccountId celltype.DasAccountId) (
 		Script:     celltype.DasAccountCellScript.Out.Script(),
 		ScriptType: indexer.ScriptTypeType,
 	}
-	const accountBytesLen = 10
 	liveCells, _, err := common.LoadLiveCells(r.rpcClient, searchKey, 200*celltype.OneCkb, true, false, func(cell *indexer.LiveCell) bool {
-		min := celltype.HashBytesLen + accountBytesLen*2
-		accountId, err := celltype.AccountIdFromOutputData(cell.OutputData)
-		if err != nil {
+		min := celltype.HashBytesLen + len(celltype.EmptyAccountId)*2
+		accountId, err1 := celltype.AccountIdFromOutputData(cell.OutputData)
+		if err1 != nil {
 			return false
 		}
-		return len(cell.OutputData) > min && accountId.Compare(targetAccountId) == 0
+		nextAccountId, err2 := celltype.NextAccountIdFromOutputData(cell.OutputData)
+		if err2 != nil {
+			return false
+		}
+		return len(cell.OutputData) > min && accountId.Compare(targetAccountId) == 0 && accountId.Compare(nextAccountId) != 0
+
 	})
-	if len(liveCells) != 1 {
+	if len(liveCells) == 0 {
 		return nil, emptyErr
 	}
 	cell := liveCells[0]
