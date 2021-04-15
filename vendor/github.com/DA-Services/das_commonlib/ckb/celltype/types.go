@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/binary"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"github.com/nervosnetwork/ckb-sdk-go/types"
 	"strconv"
@@ -470,9 +469,9 @@ func (l EditRecordItemList) ToMoleculeRecords() (*Records, error) {
 	}
 	records := NewRecordsBuilder()
 	for _, item := range l {
-		if item.Label == "" || item.Type == "" || item.Value == "" { 
-			return nil, errors.New("invalid records, label, value, type cant empty")
-		}
+		// if item.Label == "" || item.Type == "" || item.Value == "" {
+		// 	return nil, errors.New("invalid records, label, value, type cant empty")
+		// }
 		ttl, _ := strconv.ParseInt(item.TTL, 10, 64)
 
 		record := NewRecordBuilder().

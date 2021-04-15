@@ -22,6 +22,8 @@ github.com/DA-Services/das_commonlib v0.0.0-20210407100830-e2dc233c07b6 h1:3Serf
 github.com/DA-Services/das_commonlib v0.0.0-20210407100830-e2dc233c07b6/go.mod h1:iTZEgH3B4ezq/NkgSNmxW92DA7AcrdmwQzZLLDUpKTk=
 github.com/DA-Services/das_commonlib v0.0.0-20210412062923-044cdadd1d86 h1:ZbzjMLrdTVD1OtOb7Ek/cKpg4eCJYuxM+qTBWW9D5Cg=
 github.com/DA-Services/das_commonlib v0.0.0-20210412062923-044cdadd1d86/go.mod h1:iTZEgH3B4ezq/NkgSNmxW92DA7AcrdmwQzZLLDUpKTk=
+github.com/DA-Services/das_commonlib v0.0.0-20210414102840-cac5ea7d9a19 h1:FpgKNcv9up90qOKPNVVgDy41+PmS4dZRFc1D2mSTp0M=
+github.com/DA-Services/das_commonlib v0.0.0-20210414102840-cac5ea7d9a19/go.mod h1:iTZEgH3B4ezq/NkgSNmxW92DA7AcrdmwQzZLLDUpKTk=
 github.com/OneOfOne/xxhash v1.2.2/go.mod h1:HSdplMjZKSmBqAxg5vPj2TmRDmfkzw+cTzAElWljhcU=
 github.com/PuerkitoBio/goquery v1.5.1/go.mod h1:GsLWisAFVj4WgDibEWF4pvYnkVQBpKBKeU+7zCJoLcc=
 github.com/Shopify/sarama v1.27.2/go.mod h1:g5s5osgELxgM+Md9Qni9rzo7Rbt+vvFQI4bt/Mc93II=

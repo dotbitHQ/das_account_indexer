@@ -80,6 +80,9 @@ func GoUint64ToMoleculeU64(i uint64) Uint64 {
 }
 
 func GoStrToMoleculeBytes(str string) Bytes {
+	if str == "" {
+		return BytesDefault()
+	}
 	strBytes := []byte(str)
 	return GoBytesToMoleculeBytes(strBytes)
 }

@@ -1,4 +1,4 @@
-# github.com/DA-Services/das_commonlib v0.0.0-20210407100830-e2dc233c07b6
+# github.com/DA-Services/das_commonlib v0.0.0-20210414102840-cac5ea7d9a19
 github.com/DA-Services/das_commonlib/ckb/celltype
 github.com/DA-Services/das_commonlib/common
 github.com/DA-Services/das_commonlib/common/dascode
@@ -62,8 +62,8 @@ github.com/mitchellh/mapstructure
 github.com/nervosnetwork/ckb-sdk-go/indexer
 github.com/nervosnetwork/ckb-sdk-go/rpc
 github.com/nervosnetwork/ckb-sdk-go/types
-github.com/nervosnetwork/ckb-sdk-go/crypto/blake2b
 github.com/nervosnetwork/ckb-sdk-go/utils
+github.com/nervosnetwork/ckb-sdk-go/crypto/blake2b
 # github.com/pelletier/go-toml v1.2.0
 github.com/pelletier/go-toml
 # github.com/pkg/errors v0.8.1
