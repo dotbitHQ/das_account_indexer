@@ -1,4 +1,4 @@
-# github.com/DA-Services/das_commonlib v0.0.0-20210414102840-cac5ea7d9a19
+# github.com/DA-Services/das_commonlib v0.0.0-20210426024533-e14feeadf201
 github.com/DA-Services/das_commonlib/ckb/celltype
 github.com/DA-Services/das_commonlib/common
 github.com/DA-Services/das_commonlib/common/dascode

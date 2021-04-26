@@ -24,6 +24,7 @@ const OneYearSec = int64(3600 * 24 * 365)
 const HashBytesLen = 32
 const ETHScriptLockWitnessBytesLen = 65
 const MinAccountCharsLen = 2
+const DiscountRateBase = 10000
 
 const (
 	PwLockMainNetCodeHash = "0xbf43c3602455798c1a61a596e0d95278864c552fafe231c063b3fabf97a8febc"
@@ -201,7 +202,7 @@ const (
 	Action_RenewAccount          = "renew_account"
 	Action_ExtendPropose         = "extend_proposal"
 	Action_ConfirmProposal       = "confirm_proposal"
-	Action_RecyclePropose        = "recycle_propose"
+	Action_RecyclePropose        = "recycle_proposal"
 	Action_WithdrawFromWallet    = "withdraw_from_wallet"
 	Action_Register              = "register"
 	Action_VoteBiddingList       = "vote_bidding_list"

@@ -186,6 +186,11 @@ type RefcellParam struct {
 	UserLockScript DASCellBaseInfo `json:"user_lock_script"`
 }
 
+type QuoteCellParam struct {
+	Price uint64 `json:"price"`
+	CellCodeInfo              DASCellBaseInfo         `json:"cell_code_info"`
+}
+
 /**
 lock: <always_success>
 type:
@@ -416,7 +421,7 @@ func ProposeWitnessSliceDataObjectListFromBytes(bys []byte) ([]ProposeWitnessSli
 
 type ProposeWitnessSliceDataObjectLL []ProposeWitnessSliceDataObjectList
 
-func (p ProposeWitnessSliceDataObjectLL) ToMoleculeProposalCellData(incomeLockScript *types.Script, proposerWalletId []byte) ProposalCellData {
+func (p ProposeWitnessSliceDataObjectLL) ToMoleculeProposalCellData(incomeLockScript *types.Script) ProposalCellData {
 	sliceList := make([]SL, 0, len(p))
 	for _, slice := range p {
 		proposeItemList := make([]ProposalItem, 0, len(slice))
@@ -434,7 +439,7 @@ func (p ProposeWitnessSliceDataObjectLL) ToMoleculeProposalCellData(incomeLockSc
 	}
 	proposalCellData := NewProposalCellDataBuilder().
 		ProposerLock(GoCkbScriptToMoleculeScript(*incomeLockScript)).
-		ProposerWallet(GoBytesToMoleculeBytes(proposerWalletId)).
+		// ProposerWallet(GoBytesToMoleculeBytes(proposerWalletId)).
 		Slices(NewSliceListBuilder().Set(sliceList).Build()).
 		Build()
 	return proposalCellData
@@ -447,6 +452,7 @@ type CalAccountCellExpiredAtParam struct {
 	AccountBytesLen   uint32 `json:"account_bytes_len"`
 	PreAccountCellCap uint64 `json:"pre_account_cell_cap"`
 	RefCellCap        uint64 `json:"ref_cell_cap"`
+	DiscountRate      uint64 `json:"discount_rate"`
 }
 
 func (c CalAccountCellExpiredAtParam) Json() string {
