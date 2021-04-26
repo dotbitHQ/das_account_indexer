@@ -89,6 +89,7 @@ func runServer(ctx *cli.Context) error {
 		log.Info("exist server success!")
 		exit <- true
 	})
+	celltype.UseVersion2SystemScriptCodeHash()
 	rpcClient, err := rpc.DialWithIndexer(config.Cfg.Chain.CKB.NodeUrl, config.Cfg.Chain.CKB.IndexerUrl)
 	if err != nil {
 		panic(fmt.Errorf("init rpcClient failed: %s", err.Error()))
