@@ -103,7 +103,9 @@ type ProposeCell struct {
 func NewProposeCell(p *ProposeCellParam) *ProposeCell {
 	return &ProposeCell{p: p}
 }
-
+func (c *ProposeCell) SoDeps() []types.CellDep {
+	return nil
+}
 func (c *ProposeCell) LockDepCell() *types.CellDep {
 	return &types.CellDep{
 		OutPoint: &types.OutPoint{

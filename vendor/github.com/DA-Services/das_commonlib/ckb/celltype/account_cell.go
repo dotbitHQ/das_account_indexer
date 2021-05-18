@@ -23,71 +23,17 @@ table DataEntity {
     entity: Bytes, // 代表具体的数据结构
 }
 */
-var TestNetAccountCell = func(param *AccountCellTxDataParam) *AccountCellParam {
+var TestNetAccountCell = func(param *AccountCellTxDataParam,dasLockParam *DasLockParam) *AccountCellParam {
 	acp := &AccountCellParam{
 		Version: 1,
 		// Data: *BuildDasCommonMoleculeDataObj(depIndex, oldIndex, newIndex, dep, old, &new.AccountInfo),
-		CellCodeInfo:              DasAccountCellScript,
-		TxDataParam:               param,
-		AlwaysSpendableScriptInfo: DasAnyOneCanSendCellInfo,
+		CellCodeInfo: DasAccountCellScript,
+		TxDataParam:  param,
+		DasLock:      DasLockCellScript,
+		DasLockParam: dasLockParam,
 	}
 	return acp
 }
-
-/**
-lock: <always_success>
-type:
-  code_hash: <nft_script>
-  type: type
-  args: []
-data:
-  hash(data: AccountCellData)
-  id // 自己的 ID，生成算法为 hash(account)，然后取前 10 bytes
-  next // 下一个 AccountCell 的 ID
-  expired_at // 小端编码的 u64 时间戳
-  account // AccountCell 为了避免数据丢失导致用户无法找回自己用户所以额外储存了 account 的明文信息，不含 .bit
-
-witness:
-  table Data {
-    old: table DataEntityOpt {
-    	index: Uint32,
-    	version: Uint32,
-    	entity: AccountCellData
-    },
-    new: table DataEntityOpt {
-      index: Uint32,
-      version: Uint32,
-      entity: AccountCellData
-    },
-  }
-
-======
-table AccountCellData {
-    // The first 160 bits of the hash of account.
-    id: AccountId,
-    // The lock script of owner.
-    owner: Script,
-    // The lock script of manager.
-    manager: Script,
-    account: Bytes,
-    // The status of the account, 0 means normal, 1 means being sold, 2 means being auctioned.
-    status: Uint8,
-    records: Records,
-}
-
-array AccountId [byte; 20];
-
-option AccountIdOpt (AccountId);
-
-table Record {
-    record_type: Bytes,
-    record_label: Bytes,
-    record_value: Bytes,
-    record_ttl: Uint32,
-}
-
-vector Records <Record>;
-*/
 
 type AccountCell struct {
 	p *AccountCellParam
@@ -97,30 +43,49 @@ func NewAccountCell(p *AccountCellParam) *AccountCell {
 	return &AccountCell{p: p}
 }
 
+func (c *AccountCell) SoDeps() []types.CellDep {
+	return []types.CellDep{
+		*TestNetETHSoScriptDep.ToDepCell(),
+		*TestNetCKBSoScriptDep.ToDepCell(),
+	}
+}
+
 func (c *AccountCell) LockDepCell() *types.CellDep {
 	return &types.CellDep{
 		OutPoint: &types.OutPoint{
-			TxHash: c.p.AlwaysSpendableScriptInfo.Dep.TxHash,
-			Index:  c.p.AlwaysSpendableScriptInfo.Dep.TxIndex,
+			TxHash: c.p.DasLock.Dep.TxHash,
+			Index:  c.p.DasLock.Dep.TxIndex,
 		},
-		DepType: c.p.AlwaysSpendableScriptInfo.Dep.DepType,
+		DepType: c.p.DasLock.Dep.DepType,
 	}
 }
 func (c *AccountCell) TypeDepCell() *types.CellDep {
 	return &types.CellDep{ // state_cell
 		OutPoint: &types.OutPoint{
 			TxHash: c.p.CellCodeInfo.Dep.TxHash,
-			Index:  c.p.CellCodeInfo.Dep.TxIndex, // state_script_tx_index
+			Index:  c.p.CellCodeInfo.Dep.TxIndex,
 		},
 		DepType: c.p.CellCodeInfo.Dep.DepType,
 	}
 }
+
+/**
+args: [
+    owner_code_hash_index,
+    owner_pubkey_hash,
+    manager_code_hash_index,
+    manager_pubkey_hash,
+  ]
+*/
 func (c *AccountCell) LockScript() *types.Script {
-	return &types.Script{
-		CodeHash: c.p.AlwaysSpendableScriptInfo.Out.CodeHash,
-		HashType: c.p.AlwaysSpendableScriptInfo.Out.CodeHashType,
-		Args:     c.p.AlwaysSpendableScriptInfo.Out.Args,
+	lockScript := &types.Script{
+		CodeHash: c.p.DasLock.Out.CodeHash,
+		HashType: c.p.DasLock.Out.CodeHashType,
 	}
+	if c.p.DasLockParam != nil {
+		lockScript.Args = c.p.DasLockParam.Bytes()
+	}
+	return lockScript
 }
 func (c *AccountCell) TypeScript() *types.Script {
 	return &types.Script{
@@ -130,14 +95,6 @@ func (c *AccountCell) TypeScript() *types.Script {
 	}
 }
 
-/**
-  hash(data: AccountCellData)
-  id // 自己的 ID，生成算法为 hash(account)，然后取前 10 bytes
-  next // 下一个 AccountCell 的 ID
-  expired_at // 小端编码的 u64 时间戳
-  account // AccountCell 为了避免数据丢失导致用户无法找回自己用户所以额外储存了 account 的明文信息，不含 .bit
-*/
-
 func AccountIdFromOutputData(data []byte) (DasAccountId, error) {
 	if size := len(data); size < HashBytesLen+dasAccountIdLen {
 		return EmptyAccountId, fmt.Errorf("AccountIdFromOutputData invalid data, len not enough: %d", size)
@@ -146,11 +103,12 @@ func AccountIdFromOutputData(data []byte) (DasAccountId, error) {
 }
 
 func NextAccountIdFromOutputData(data []byte) (DasAccountId, error) {
-	minLen := dasAccountIdLen + HashBytesLen
-	if size := len(data); size < minLen {
+	start := dasAccountIdLen + HashBytesLen
+	end := start+dasAccountIdLen
+	if size := len(data); size < end {
 		return EmptyAccountId, fmt.Errorf("invalid data, len not enough: %d", size)
 	}
-	return DasAccountIdFromBytes(data[minLen : minLen+dasAccountIdLen]), nil
+	return DasAccountIdFromBytes(data[start : end]), nil
 }
 
 func ExpiredAtFromOutputData(data []byte) (int64, error) {

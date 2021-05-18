@@ -98,7 +98,7 @@ func runServer(ctx *cli.Context) error {
 	if err != nil {
 		panic(fmt.Errorf("init NewSystemScripts err: %s", err.Error()))
 	}
-	scripter, _ := hex.DecodeString("5eb00c0e51afb537fc8071810034ce92f98c3259")
+	scripter, _ := hex.DecodeString("bc502a34a430e3e167c82a24db6f9237b15ebf35")
 	celltype.TimingAsyncSystemCodeScriptOutPoint(rpcClient, &types.Script{
 		CodeHash: systemScripts.SecpSingleSigCell.CellHash,
 		HashType: types.HashTypeType,

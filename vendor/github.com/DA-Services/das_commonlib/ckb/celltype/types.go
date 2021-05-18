@@ -59,21 +59,23 @@ type DASWitnessDataObj struct {
 - [8:] 第 8 字节开始往后的都是 molecule 编码的特殊数据结构，其整体结构如下；
 */
 func NewDasWitnessDataFromSlice(rawData []byte) (*DASWitnessDataObj, error) {
-	if size := len(rawData); size <= 8 { // header'size + min(data)'size
+	tempByte := make([]byte,len(rawData))
+	copy(tempByte,rawData)
+	if size := len(tempByte); size <= 8 { // header'size + min(data)'size
 		return nil, fmt.Errorf("invalid rawData size: %d", size)
 	}
-	tag := string(rawData[:3])
+	tag := string(tempByte[:3])
 	if tag != witnessDas {
 		return nil, fmt.Errorf("invalid tag: %s", tag)
 	}
-	tableType, err := MoleculeU32ToGo(rawData[3:7])
+	tableType, err := MoleculeU32ToGo(tempByte[3:7])
 	if err != nil {
 		return nil, fmt.Errorf("invalid tableType err: %s", err.Error())
 	}
 	return &DASWitnessDataObj{
 		Tag:       tag,
 		TableType: TableType(tableType),
-		TableBys:  rawData[7:],
+		TableBys:  tempByte[7:],
 	}, nil
 }
 
@@ -318,6 +320,36 @@ type AccountCellTxDataParam struct {
 	AccountInfo AccountCellData `json:"-"`
 }
 
+/**
+args: [
+    owner_code_hash_index,
+    owner_pubkey_hash,
+    manager_code_hash_index,
+    manager_pubkey_hash,
+  ]
+*/
+
+type DasLockArgsPairParam struct {
+	HashIndexType DasLockCodeHashIndexType
+	Script types.Script
+}
+
+func (d DasLockArgsPairParam) Bytes() []byte {
+	return append(d.HashIndexType.Bytes(),d.Script.Args...)
+}
+
+type DasLockParam struct {
+	OwnerCodeHashIndexByte []byte
+	OwnerPubkeyHashByte  []byte
+	ManagerCodeHashIndex []byte
+	ManagerPubkeyHash []byte
+}
+
+func (d *DasLockParam) Bytes() []byte {
+	ownerBytes := append(d.OwnerCodeHashIndexByte,d.OwnerPubkeyHashByte...)
+	return append(append(ownerBytes,d.ManagerCodeHashIndex...),d.ManagerPubkeyHash...)
+}
+
 type AccountCellDatas struct {
 	NewAccountCellData *AccountCellTxDataParam `json:"-"`
 }
@@ -325,7 +357,8 @@ type AccountCellParam struct {
 	TxDataParam               *AccountCellTxDataParam `json:"-"`
 	Version                   uint32                  `json:"version"`
 	CellCodeInfo              DASCellBaseInfo         `json:"cell_code_info"`
-	AlwaysSpendableScriptInfo DASCellBaseInfo         `json:"always_spendable_script_info"`
+	DasLock                   DASCellBaseInfo `json:"das_lock"`
+	DasLockParam *DasLockParam `json:"das_lock_param"`
 }
 
 type ParseDasWitnessBysDataObj struct {

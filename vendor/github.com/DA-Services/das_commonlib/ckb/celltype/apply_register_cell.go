@@ -43,7 +43,9 @@ type ApplyRegisterCell struct {
 func NewApplyRegisterCell(p *ApplyRegisterCellParam) *ApplyRegisterCell {
 	return &ApplyRegisterCell{p: p}
 }
-
+func (c *ApplyRegisterCell) SoDeps() []types.CellDep {
+	return nil
+}
 func (c *ApplyRegisterCell) LockDepCell() *types.CellDep {
 	return &types.CellDep{
 		OutPoint: &types.OutPoint{

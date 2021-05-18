@@ -11,6 +11,7 @@ import "github.com/nervosnetwork/ckb-sdk-go/types"
  */
 
 type ICellType interface {
+	SoDeps() []types.CellDep
 	LockDepCell() *types.CellDep
 	TypeDepCell() *types.CellDep
 	LockScript() *types.Script

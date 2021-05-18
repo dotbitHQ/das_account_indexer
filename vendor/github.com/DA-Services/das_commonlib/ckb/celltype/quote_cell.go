@@ -19,7 +19,9 @@ type QuoteCell struct {
 func NewQuoteCell(p *QuoteCellParam) *QuoteCell {
 	return &QuoteCell{p: p}
 }
-
+func (c *QuoteCell) SoDeps() []types.CellDep {
+	return nil
+}
 func (c *QuoteCell) LockDepCell() *types.CellDep {
 	return &types.CellDep{
 		OutPoint: &types.OutPoint{

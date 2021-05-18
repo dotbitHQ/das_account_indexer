@@ -41,7 +41,9 @@ type PreAccountCell struct {
 func NewPreAccountCell(p *PreAccountCellParam) *PreAccountCell {
 	return &PreAccountCell{p: p}
 }
-
+func (c *PreAccountCell) SoDeps() []types.CellDep {
+	return nil
+}
 func (c *PreAccountCell) LockDepCell() *types.CellDep {
 	return &types.CellDep{
 		OutPoint: &types.OutPoint{

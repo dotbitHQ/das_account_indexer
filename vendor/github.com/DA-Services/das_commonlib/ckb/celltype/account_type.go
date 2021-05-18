@@ -3,6 +3,7 @@ package celltype
 import (
 	"bytes"
 	"fmt"
+	"github.com/Andrew-M-C/go.emoji/official"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/nervosnetwork/ckb-sdk-go/crypto/blake2b"
@@ -44,10 +45,49 @@ func (d DasAccount) ValidErr() error {
 		strings.Contains(string(d), " ") || strings.Contains(string(d), "_") {
 		return fmt.Errorf("invalid account:[%s], demo: helloWorld.bit", d)
 	}
-	if size := len([]rune(d)); size < MinAccountCharsLen {
+
+	if size := d.AccountValidateLen(); size < MinAccountCharsLen {
 		return fmt.Errorf("account's char number min is: %d", MinAccountCharsLen)
 	}
 	return nil
+}
+
+func (d DasAccount) AccountValidateLen() int {
+	var (
+		emojiCharCounter = 0
+		unEmojiCharCounter = 0
+	)
+	d.parseEmojiStr(func(emoji string) string {
+		emojiCharCounter ++
+		return ""
+	}, func() {
+		unEmojiCharCounter ++
+	})
+	return unEmojiCharCounter + emojiCharCounter
+}
+
+func (d DasAccount) parseEmojiStr(isEmoji func(emoji string) string,notEmoji func()) string {
+	buff := bytes.Buffer{}
+	nextIndex := 0
+	s := d.Format()
+	for i, r := range s {
+		if i < nextIndex {
+			continue
+		}
+		match, length := official.AllSequences.HasEmojiPrefix(s[i:])
+		if false == match {
+			if notEmoji != nil {
+				notEmoji()
+			}
+			buff.WriteRune(r)
+			continue
+		}
+		nextIndex = i + length
+		if isEmoji != nil {
+			buff.WriteString(isEmoji(s[i : i+length]))
+		}
+	}
+	return buff.String()
 }
 
 func (d DasAccount) Str() string {

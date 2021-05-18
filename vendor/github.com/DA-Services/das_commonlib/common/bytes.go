@@ -17,6 +17,12 @@ func Uint8ToBytes(i uint8) []byte {
 	return []byte{i}
 }
 
+func Uint16ToBytes(i uint16) []byte {
+	buf := make([]byte, 2)
+	binary.BigEndian.PutUint16(buf, i)
+	return buf
+}
+
 func Int64ToBytes(i int64) []byte {
 	return Uint64ToBytes(uint64(i))
 }

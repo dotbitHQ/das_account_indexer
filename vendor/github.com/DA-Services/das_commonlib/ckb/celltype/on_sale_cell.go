@@ -33,6 +33,10 @@ func NewOnSaleCell(p *OnSaleCellParam) *OnSaleCell {
 	return &OnSaleCell{p: p}
 }
 
+func (c *OnSaleCell) SoDeps() []types.CellDep {
+	return nil
+}
+
 func (c *OnSaleCell) LockDepCell() *types.CellDep {
 	return &types.CellDep{
 		OutPoint: &types.OutPoint{

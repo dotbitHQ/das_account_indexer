@@ -159,13 +159,13 @@ func MoleculeRecordsToGo(records Records) EditRecordItemList {
 	retList := make([]EditRecordItem, 0, recordSize)
 	for ; index < recordSize; index++ {
 		record := records.Get(index)
-		ttlU32,_ := MoleculeU32ToGo(record.RecordTtl().RawData())
+		ttlU32, _ := MoleculeU32ToGo(record.RecordTtl().RawData())
 		retList = append(retList, EditRecordItem{
 			Key:   string(record.RecordKey().RawData()),
 			Type:  string(record.RecordType().RawData()),
 			Label: string(record.RecordLabel().RawData()),
 			Value: string(record.RecordValue().RawData()),
-			TTL:   fmt.Sprintf("%d",ttlU32),
+			TTL:   fmt.Sprintf("%d", ttlU32),
 		})
 	}
 	return retList
@@ -275,7 +275,7 @@ func CalAccountSpend(account DasAccount) uint64 {
 	return uint64(len([]byte(account))) * OneCkb
 }
 
-func registerFee(price,quote,discount uint64) uint64 {
+func registerFee(price, quote, discount uint64) uint64 {
 	// CKB 年费 = CKB 年费 - (CKB 年费 * 折扣率 / 10000)
 	if discount >= DiscountRateBase {
 		discount = DiscountRateBase - 1
@@ -289,14 +289,14 @@ func registerFee(price,quote,discount uint64) uint64 {
 	if discount == 0 {
 		return retVal
 	}
-	retVal = retVal - (retVal * discount) / DiscountRateBase
+	retVal = retVal - (retVal*discount)/DiscountRateBase
 	return retVal
 }
 
-func CalPreAccountCellCap(years uint, price, quote,discountRate uint64, account DasAccount) uint64 {
+func CalPreAccountCellCap(years uint, price, quote, discountRate uint64, account DasAccount) uint64 {
 	// PreAccountCell.capacity >= c + AccountCell 基础成本 + RefCell 基础成本 + Account 字节长度
-	registerYearFee := registerFee(price,quote,discountRate) * uint64(years)
-	storageFee := AccountCellBaseCap + 2*RefCellBaseCap
+	registerYearFee := registerFee(price, quote, discountRate) * uint64(years)
+	storageFee := AccountCellBaseCap //+ 2*RefCellBaseCap
 	accountCharFee := uint64(len([]byte(account))) * OneCkb
 	return registerYearFee + storageFee + accountCharFee
 }
@@ -316,6 +316,7 @@ func ParseTxWitnessToDasWitnessObj(rawData []byte) (*ParseDasWitnessBysDataObj, 
 		return ret, nil
 	}
 	ret.WitnessObj = dasWitnessObj
+	fmt.Println("解析 cell witness 数据：", dasWitnessObj.TableType)
 	if dasWitnessObj.TableType.IsConfigType() {
 		newDataEntity := NewDataEntityBuilder().Entity(GoBytesToMoleculeBytes(dasWitnessObj.TableBys)).Build()
 		newOpt := NewDataEntityOptBuilder().Set(newDataEntity).Build()
@@ -377,17 +378,18 @@ func BuildDasCommonMoleculeDataObj(depIndex, oldIndex, newIndex uint32, depMolec
 }
 
 type ReqFindTargetTypeScriptParam struct {
-	Ctx context.Context
+	Ctx       context.Context
 	RpcClient rpc.Client
 	InputList []*types.CellInput
-	IsLock bool
-	CodeHash types.Hash
+	IsLock    bool
+	CodeHash  types.Hash
 }
 type FindTargetTypeScriptRet struct {
-	Output  *types.CellOutput
-	Data    []byte
-	Tx      *types.Transaction
+	Output *types.CellOutput
+	Data   []byte
+	Tx     *types.Transaction
 }
+
 func FindTargetTypeScriptByInputList(p *ReqFindTargetTypeScriptParam) (*FindTargetTypeScriptRet, error) {
 	codeHash := p.CodeHash
 	for _, item := range p.InputList {
@@ -403,8 +405,8 @@ func FindTargetTypeScriptByInputList(p *ReqFindTargetTypeScriptParam) (*FindTarg
 					output.Lock.HashType == types.HashTypeType && item.PreviousOutput.Index == uint(i) {
 					return &FindTargetTypeScriptRet{
 						Output: output,
-						Data:    tx.Transaction.OutputsData[i],
-						Tx: tx.Transaction,
+						Data:   tx.Transaction.OutputsData[i],
+						Tx:     tx.Transaction,
 					}, nil
 				}
 			} else {
@@ -414,8 +416,8 @@ func FindTargetTypeScriptByInputList(p *ReqFindTargetTypeScriptParam) (*FindTarg
 					item.PreviousOutput.Index == uint(i) {
 					return &FindTargetTypeScriptRet{
 						Output: output,
-						Data:    tx.Transaction.OutputsData[i],
-						Tx: tx.Transaction,
+						Data:   tx.Transaction.OutputsData[i],
+						Tx:     tx.Transaction,
 					}, nil
 				}
 			}
@@ -518,8 +520,9 @@ func CalAccountCellExpiredAt(param CalAccountCellExpiredAtParam, registerAt int6
 		return 0, fmt.Errorf("CalAccountCellExpiredAt invalid cap, preAccCell: %d, accCell: %d", param.PreAccountCellCap, param.AccountCellCap)
 	} else {
 		paid := param.PreAccountCellCap - param.AccountCellCap - param.RefCellCap
-		registerFee := registerFee(param.PriceConfigNew,param.Quote,param.DiscountRate)
+		registerFee := registerFee(param.PriceConfigNew, param.Quote, param.DiscountRate)
 		durationInt := paid * oneYearDays / registerFee * oneDaySec
+		fmt.Println("CalAccountCellExpiredAt registerFee ====>", registerFee)
 		fmt.Println("CalAccountCellExpiredAt storageFee ====>", paid)
 		fmt.Println("CalAccountCellExpiredAt duration   ====>", durationInt)
 		return uint64(registerAt) + durationInt, nil // 1648195213

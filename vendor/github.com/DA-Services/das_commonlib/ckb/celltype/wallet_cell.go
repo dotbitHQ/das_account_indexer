@@ -36,7 +36,9 @@ type WalletCell struct {
 func NewWalletCell(p *WalletCellParam) *WalletCell {
 	return &WalletCell{p: p}
 }
-
+func (c *WalletCell) SoDeps() []types.CellDep {
+	return nil
+}
 func (c *WalletCell) LockDepCell() *types.CellDep {
 	return &types.CellDep{
 		OutPoint: &types.OutPoint{

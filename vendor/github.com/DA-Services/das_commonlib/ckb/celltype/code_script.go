@@ -30,6 +30,18 @@ var (
 		DepType: types.DepTypeDepGroup,
 	}
 
+	TestNetETHSoScriptDep = DASCellBaseInfoDep{
+		TxHash:  types.HexToHash("c7d052452e8d6cd9e87680e13a91f733167c3275fa47e4b09baed826c19fef7e"),
+		TxIndex: 0,
+		DepType: types.DepTypeCode,
+	}
+	// 0xb988070e97c6eda68705e146985bcf2d3b3215cbb619eb61337523bc440d42e0
+	TestNetCKBSoScriptDep = DASCellBaseInfoDep{
+		TxHash:  types.HexToHash("209b35208da7d20d882f0871f3979c68c53981bcc4caa71274c035449074d082"),
+		TxIndex: 0,
+		DepType: types.DepTypeCode,
+	}
+
 	DasETHLockCellInfo = DASCellBaseInfo{
 		Dep: DASCellBaseInfoDep{
 			TxHash:  types.HexToHash("0x57a62003daeab9d54aa29b944fc3b451213a5ebdf2e232216a3cfed0dde61b38"),
@@ -57,6 +69,25 @@ var (
 			CodeHash:     types.HexToHash("0xf1ef61b6977508d9ec56fe43399a01e576086a76cf0f7c687d1418335e8c401f"), // default
 			CodeHashType: types.HashTypeType,
 			Args:         emptyHexToArgsBytes(),
+		},
+	}
+
+	DasLockCellScript = DASCellBaseInfo{
+		Name: "das_lock_cell",
+		Dep: DASCellBaseInfoDep{
+			TxHash:  types.HexToHash("0x51d6a231e01ab57ec2f6648d19b5b6964567bf6e260a60d3face5042ad48f79d"),
+			TxIndex: 0,
+			DepType: types.DepTypeCode,
+		},
+		Out: DASCellBaseInfoOut{
+			CodeHash:     types.HexToHash("0x326df166e3f0a900a0aee043e31a4dea0f01ea3307e6e235f09d1b4220b75fbd"),
+			CodeHashType: types.HashTypeType,
+			Args:         dasLockDefaultBytes(),
+		},
+		ContractTypeScript: types.Script{
+			CodeHash: types.HexToHash(ContractCodeHash),
+			HashType: types.HashTypeType,
+			Args:     types.HexToHash(DasLockCellCodeArgs).Bytes(),
 		},
 	}
 
@@ -284,20 +315,26 @@ func initMap()  {
 	SystemCodeScriptMap.Store(DasProposeCellScript.Out.CodeHash,&DasProposeCellScript)
 	SystemCodeScriptMap.Store(DasWalletCellScript.Out.CodeHash,&DasWalletCellScript)
 	SystemCodeScriptMap.Store(DasRefCellScript.Out.CodeHash,&DasRefCellScript)
+	SystemCodeScriptMap.Store(DasConfigCellScript.Out.CodeHash,&DasConfigCellScript)
 }
 
 // testnet version 2
 func UseVersion2SystemScriptCodeHash()  {
+
+	SystemCodeScriptMap.Store(DasLockCellScript.Out.CodeHash,&DasLockCellScript)
+
 	DasApplyRegisterCellScript.Out.CodeHash = types.HexToHash("0x0fbff871dd05aee1fda2be38786ad21d52a2765c6025d1ef6927d761d51a3cd1")
 	DasPreAccountCellScript.Out.CodeHash = types.HexToHash("0x6c8441233f00741955f65e476721a1a5417997c1e4368801c99c7f617f8b7544")
-	DasAccountCellScript.Out.CodeHash = types.HexToHash("0x5148d4c832ee9020ef646fb454ee81852d9e28b930eb8c667804e6a51b0a00fc")
+	DasAccountCellScript.Out.CodeHash = types.HexToHash("0xd5641acda604e1ed3422fb3616007f24e28266c4b76f6607738296c8278c2a4f")
 	// DasBiddingCellScript.Out.CodeHash = types.HexToHash("0x711bb5cec27b3a5c00da3a6dc0772be8651f7f92fd9bf09d77578b29227c1748")
 	// DasOnSaleCellScript.Out.CodeHash = types.HexToHash("0x711bb5cec27b3a5c00da3a6dc0772be8651f7f92fd9bf09d77578b29227c1748")
-	DasProposeCellScript.Out.CodeHash = types.HexToHash("0xc432a01b4e0b948e57c6291924914e548a7109028114b97d2815c16d3a06f329")
+	DasProposeCellScript.Out.CodeHash = types.HexToHash("0x67d48c0911e406518de2116bd91c6af37c05f1db23334ca829d2af3042427e44")
 	DasWalletCellScript.Out.CodeHash = types.HexToHash("0x066a699f5bba9dc4b45bfd7a46f1c5bb1a092dc0eb078810358fad2f07698c37")
 	DasRefCellScript.Out.CodeHash = types.HexToHash("0xec5abfd61507cda957d6adc3264ca9bc7120d6db3bf15a50795624e8af54aefa")
-	DasConfigCellScript.Out.CodeHash = types.HexToHash("0x79bf0bc0f911c11cb85e51de9ecaf6630ce5bb1cac26ea9c15dd7d08b91c943a")
+	DasLockCellScript.Out.CodeHash = types.HexToHash("0x326df166e3f0a900a0aee043e31a4dea0f01ea3307e6e235f09d1b4220b75fbd")
+	DasConfigCellScript.Out.CodeHash = types.HexToHash("0x030ac2acd9c016f9a4ab13d52c244d23aaea636e0cbd386ec660b79974946517")
 	DasAnyOneCanSendCellInfo.Out.CodeHash = types.HexToHash("0xf1ef61b6977508d9ec56fe43399a01e576086a76cf0f7c687d1418335e8c401f")
+
 	initMap()
 }
 
@@ -363,6 +400,10 @@ func SetSystemCodeScriptOutPoint(typeId types.Hash, point types.OutPoint) *DASCe
 
 func emptyHexToArgsBytes() []byte {
 	return []byte{}
+}
+
+func dasLockDefaultBytes() []byte {
+	return []byte{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
 }
 
 func hexToArgsBytes(hexStr string) []byte {

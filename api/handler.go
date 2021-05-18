@@ -1,12 +1,13 @@
 package api
 
 import (
+	"bytes"
 	"context"
 	"encoding/hex"
 	"errors"
 	"fmt"
 
-	"das_account_indexer/model"
+	"das_account_indexer/types"
 
 	"github.com/DA-Services/das_commonlib/ckb/celltype"
 	"github.com/DA-Services/das_commonlib/common"
@@ -14,6 +15,7 @@ import (
 	"github.com/eager7/elog"
 	"github.com/nervosnetwork/ckb-sdk-go/indexer"
 	"github.com/nervosnetwork/ckb-sdk-go/rpc"
+	"github.com/nervosnetwork/ckb-sdk-go/utils"
 )
 
 /**
@@ -30,11 +32,16 @@ var (
 )
 
 type RpcHandler struct {
-	rpcClient rpc.Client
+	rpcClient     rpc.Client
+	systemScripts *utils.SystemScripts
 }
 
 func NewRpcHandler(client rpc.Client) *RpcHandler {
-	return &RpcHandler{rpcClient: client}
+	systemScripts, err := utils.NewSystemScripts(client)
+	if err != nil {
+		panic(fmt.Errorf("init NewSystemScripts err: %s", err.Error()))
+	}
+	return &RpcHandler{rpcClient: client, systemScripts: systemScripts}
 }
 
 func (r *RpcHandler) Hello() string {
@@ -47,7 +54,7 @@ func (r *RpcHandler) SearchAccount(account string) common.ReqResp {
 	if err := dasAccount.ValidErr(); err != nil {
 		return common.ReqResp{ErrNo: dascode.Err_AccountFormatInvalid, ErrMsg: err.Error()}
 	}
-	accountInfo, err := r.loadOneAccountCell(dasAccount.AccountId())
+	accountInfo, err := r.loadOneAccountCellById(dasAccount.AccountId())
 	if err != nil {
 		if err == emptyErr {
 			return common.ReqResp{ErrNo: dascode.Err_AccountNotExist, ErrMsg: err.Error()}
@@ -57,7 +64,53 @@ func (r *RpcHandler) SearchAccount(account string) common.ReqResp {
 	return common.ReqResp{ErrNo: dascode.DAS_SUCCESS, Data: accountInfo}
 }
 
-func (r *RpcHandler) loadOneAccountCell(targetAccountId celltype.DasAccountId) (*model.AccountReturnObj, error) {
+func (r *RpcHandler) GetAddressAccount(address string) common.ReqResp {
+	log.Info("accept GetAddressAccount:", address)
+	accountInfo, err := r.loadOneAccountCellByLockScript(types.Address(address))
+	if err != nil {
+		if err == emptyErr {
+			return common.ReqResp{ErrNo: dascode.Err_AccountNotExist, ErrMsg: err.Error()}
+		}
+		return common.ReqResp{ErrNo: dascode.Err_BaseParamInvalid, ErrMsg: err.Error()}
+	}
+	return common.ReqResp{ErrNo: dascode.DAS_SUCCESS, Data: accountInfo}
+}
+
+func (r *RpcHandler) loadOneAccountCellByLockScript(address types.Address) ([]*types.AccountReturnObj, error) {
+	addrLockScript, err := address.LockScript(r.systemScripts.SecpSingleSigCell.CellHash)
+	if err != nil {
+		return nil, fmt.Errorf("LockScript err: %s", err.Error())
+	}
+	searchKey := &indexer.SearchKey{
+		Script:     celltype.DasAccountCellScript.Out.Script(),
+		ScriptType: indexer.ScriptTypeType,
+	}
+	liveCells, _, err := common.LoadLiveCells(r.rpcClient, searchKey, 100000000*celltype.OneCkb, true, false, func(cell *indexer.LiveCell) bool {
+		ownerBytes := cell.Output.Lock.Args[1 : celltype.DasLockArgsMinBytesLen/2]
+		return bytes.Compare(ownerBytes, addrLockScript.Args) == 0
+	})
+	if len(liveCells) == 0 {
+		return nil, emptyErr
+	}
+	accountList := []*types.AccountReturnObj{}
+	liveCellLen := len(liveCells)
+	log.Info("total accounts:", liveCellLen)
+	for i := 0; i < liveCellLen; i++ {
+		account, err := r.parseLiveCellToAccount(&liveCells[i], func(cellData *celltype.AccountCellData) bool {
+			return true
+		})
+		if err != nil {
+			log.Error("parseLiveCellToAccount err:", err.Error())
+			continue
+		}
+		if account != nil {
+			accountList = append(accountList, account)
+		}
+	}
+	return accountList, err
+}
+
+func (r *RpcHandler) loadOneAccountCellById(targetAccountId celltype.DasAccountId) (*types.AccountReturnObj, error) {
 	searchKey := &indexer.SearchKey{
 		Script:     celltype.DasAccountCellScript.Out.Script(),
 		ScriptType: indexer.ScriptTypeType,
@@ -73,12 +126,23 @@ func (r *RpcHandler) loadOneAccountCell(targetAccountId celltype.DasAccountId) (
 			return false
 		}
 		return len(cell.OutputData) > min && accountId.Compare(targetAccountId) == 0 && accountId.Compare(nextAccountId) != 0
-
 	})
+	if err != nil {
+		log.Error("LoadLiveCells err:", err.Error())
+		return nil, err
+	}
 	if len(liveCells) == 0 {
 		return nil, emptyErr
 	}
-	cell := liveCells[0]
+	return r.parseLiveCellToAccount(&liveCells[0], func(cellData *celltype.AccountCellData) bool {
+		if targetAccountId != celltype.AccountCharsToAccount(*cellData.Account()).AccountId() {
+			return false
+		}
+		return true
+	})
+}
+
+func (r *RpcHandler) parseLiveCellToAccount(cell *indexer.LiveCell, filter func(cellData *celltype.AccountCellData) bool) (*types.AccountReturnObj, error) {
 	// get witness
 	rawTx, err := r.rpcClient.GetTransaction(context.TODO(), cell.OutPoint.TxHash)
 	if err != nil {
@@ -103,7 +167,7 @@ func (r *RpcHandler) loadOneAccountCell(targetAccountId celltype.DasAccountId) (
 			if err != nil {
 				return false, fmt.Errorf("AccountCellDataFromSlice err: %s", err.Error())
 			}
-			if targetAccountId != celltype.AccountCharsToAccount(*accountCellData.Account()).AccountId() {
+			if filter != nil && !filter(accountCellData) {
 				return false, nil // next one
 			}
 			thisAccountCellData = accountCellData
@@ -116,6 +180,9 @@ func (r *RpcHandler) loadOneAccountCell(targetAccountId celltype.DasAccountId) (
 	})
 	if err != nil {
 		return nil, err
+	}
+	if thisAccountCellData == nil {
+		return nil, errors.New("skip this account, not match filter")
 	}
 	nextAccountId, err := celltype.NextAccountIdFromOutputData(cell.OutputData)
 	if err != nil {
@@ -130,27 +197,17 @@ func (r *RpcHandler) loadOneAccountCell(targetAccountId celltype.DasAccountId) (
 		return nil, fmt.Errorf("parse expiredAt err: %s", err.Error())
 	}
 	accountStatus, _ := celltype.MoleculeU8ToGo(thisAccountCellData.Status().RawData())
-	ownerLock, err := celltype.MoleculeScriptToGo(*thisAccountCellData.OwnerLock())
-	if err != nil {
-		return nil, fmt.Errorf("parse ownerLock err: %s", err.Error())
-	}
-	managerLock, err := celltype.MoleculeScriptToGo(*thisAccountCellData.ManagerLock())
-	if err != nil {
-		return nil, fmt.Errorf("parse managerLock err: %s", err.Error())
-	}
-	return &model.AccountReturnObj{
+	return &types.AccountReturnObj{
 		OutPoint:   *cell.OutPoint,
 		WitnessHex: hex.EncodeToString(witnessData),
-		AccountData: model.AccountData{
-			Account:           celltype.AccountCharsToAccount(*thisAccountCellData.Account()).Str(),
-			AccountIdHex:      celltype.DasAccountIdFromBytes(thisAccountCellData.Id().RawData()).HexStr(),
-			NextAccountIdHex:  nextAccountId.HexStr(),
-			CreateAtUnix:      registerAt,
-			ExpiredAtUnix:     uint64(expiredAt),
-			Status:            celltype.AccountCellStatus(accountStatus),
-			OwnerLockScript:   *ownerLock,
-			ManagerLockScript: *managerLock,
-			Records:           celltype.MoleculeRecordsToGo(*thisAccountCellData.Records()),
+		AccountData: types.AccountData{
+			Account:          celltype.AccountCharsToAccount(*thisAccountCellData.Account()).Str(),
+			AccountIdHex:     celltype.DasAccountIdFromBytes(thisAccountCellData.Id().RawData()).HexStr(),
+			NextAccountIdHex: nextAccountId.HexStr(),
+			CreateAtUnix:     registerAt,
+			ExpiredAtUnix:    uint64(expiredAt),
+			Status:           celltype.AccountCellStatus(accountStatus),
+			Records:          celltype.MoleculeRecordsToGo(*thisAccountCellData.Records()),
 		},
 	}, err
 }

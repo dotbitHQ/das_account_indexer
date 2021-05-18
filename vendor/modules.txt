@@ -1,16 +1,21 @@
-# github.com/DA-Services/das_commonlib v0.0.0-20210426024533-e14feeadf201
+# github.com/Andrew-M-C/go.emoji v0.0.0-20210303022417-b8fefdaedb50
+github.com/Andrew-M-C/go.emoji/official
+# github.com/DA-Services/das_commonlib v0.0.0-20210517062641-fbac16a5171c
 github.com/DA-Services/das_commonlib/ckb/celltype
 github.com/DA-Services/das_commonlib/common
 github.com/DA-Services/das_commonlib/common/dascode
 github.com/DA-Services/das_commonlib/cfg
 github.com/DA-Services/das_commonlib/dasrpc
 github.com/DA-Services/das_commonlib/sys
+github.com/DA-Services/das_commonlib/ckb/wallet
 github.com/DA-Services/das_commonlib/ckb/collector
 github.com/DA-Services/das_commonlib/sys/filewatcher
 # github.com/StackExchange/wmi v0.0.0-20180116203802-5d049714c4a6
 github.com/StackExchange/wmi
 # github.com/aristanetworks/goarista v0.0.0-20170210015632-ea17b1a17847
 github.com/aristanetworks/goarista/monotime
+# github.com/btcsuite/btcd v0.0.0-20171128150713-2e60448ffcc6
+github.com/btcsuite/btcd/btcec
 # github.com/cpuguy83/go-md2man/v2 v2.0.0-20190314233015-f79a8a8ca69d
 github.com/cpuguy83/go-md2man/v2/md2man
 # github.com/deckarep/golang-set v0.0.0-20180603214616-504e848d77ea
@@ -26,9 +31,13 @@ github.com/elastic/gosigar/sys/windows
 github.com/ethereum/go-ethereum/common
 github.com/ethereum/go-ethereum/common/hexutil
 github.com/ethereum/go-ethereum/rpc
+github.com/ethereum/go-ethereum/crypto
+github.com/ethereum/go-ethereum/crypto/secp256k1
 github.com/ethereum/go-ethereum/log
 github.com/ethereum/go-ethereum/metrics
 github.com/ethereum/go-ethereum/p2p/netutil
+github.com/ethereum/go-ethereum/common/math
+github.com/ethereum/go-ethereum/rlp
 github.com/ethereum/go-ethereum/common/mclock
 # github.com/fsnotify/fsnotify v1.4.7
 github.com/fsnotify/fsnotify
@@ -61,9 +70,12 @@ github.com/mitchellh/mapstructure
 # github.com/nervosnetwork/ckb-sdk-go v0.3.1-0.20210330153910-1d9878636bf6
 github.com/nervosnetwork/ckb-sdk-go/indexer
 github.com/nervosnetwork/ckb-sdk-go/rpc
-github.com/nervosnetwork/ckb-sdk-go/types
 github.com/nervosnetwork/ckb-sdk-go/utils
+github.com/nervosnetwork/ckb-sdk-go/types
 github.com/nervosnetwork/ckb-sdk-go/crypto/blake2b
+github.com/nervosnetwork/ckb-sdk-go/crypto/bech32
+github.com/nervosnetwork/ckb-sdk-go/crypto/secp256k1
+github.com/nervosnetwork/ckb-sdk-go/crypto
 # github.com/pelletier/go-toml v1.2.0
 github.com/pelletier/go-toml
 # github.com/pkg/errors v0.8.1

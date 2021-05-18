@@ -36,7 +36,9 @@ type Refcell struct {
 func NewRefcell(p *RefcellParam) *Refcell {
 	return &Refcell{p: p}
 }
-
+func (c *Refcell) SoDeps() []types.CellDep {
+	return nil
+}
 func (c *Refcell) LockDepCell() *types.CellDep {
 	return &types.CellDep{
 		OutPoint: &types.OutPoint{

@@ -15,7 +15,9 @@ cd bin/mac
 ./rpc_server -config="local_server.yaml"
 ```
 
-#### request
+#### searchAccount
+
+> search an account's info
 
 ```curl
 curl --location --request POST 'http://localhost:8222' \
@@ -30,7 +32,7 @@ curl --location --request POST 'http://localhost:8222' \
 }'
 ```
 
-#### resp
+##### resp
 
 ```json
 {
@@ -51,16 +53,6 @@ curl --location --request POST 'http://localhost:8222' \
                 "create_at_unix": 1616489428,
                 "expired_at_unix": 1679637114,
                 "status": 0,
-                "owner_lock_script": {
-                    "code_hash": "0x9bd7e06f3ecf4be0f2fcd2188b23f1b9fcc88e5d4b65a8637b17723bbda3cce8",
-                    "hash_type": "type",
-                    "args": "IK87TtHHdoqLh9L8JyQsHDpD1F8="
-                },
-                "manager_lock_script": {
-                    "code_hash": "0x9bd7e06f3ecf4be0f2fcd2188b23f1b9fcc88e5d4b65a8637b17723bbda3cce8",
-                    "hash_type": "type",
-                    "args": "IK87TtHHdoqLh9L8JyQsHDpD1F8="
-                },
                 "records": [
                     {
                         "key": "",
@@ -86,6 +78,37 @@ curl --location --request POST 'http://localhost:8222' \
                 ]
             }
         }
+    }
+}
+```
+
+#### getAddressAccount
+
+> find an address's accounts
+
+```curl
+curl --location --request POST 'http://localhost:8222' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "das_getAddressAccount",
+    "params": [
+        "ckt1qyqf4ehj9aaufevk5etpyt8k34pgctpgkapsdqjp6j"
+    ]
+}'
+```
+
+##### resp
+
+```json
+{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "result": {
+        "errno": 0,
+        "errmsg": "",
+        "data": [{object same as searchAccount}]
     }
 }
 ```
