@@ -8,8 +8,8 @@ rpc:
   port: "8222"
 chain:
   ckb:
-    node_url: "http://47.242.53.82:8114"
-    indexer_url: "http://47.242.53.82:8116"
+    node_url: "http://localhost:8114"
+    indexer_url: "http://localhost:8116"
 
 
 
