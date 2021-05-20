@@ -13,7 +13,7 @@ import (
  * Description:
  */
 
-var TestNetOnSaleCell = func(newIndex uint32, price uint64, accountId DasAccountId) *OnSaleCellParam {
+var DefaultOnSaleCellParam = func(newIndex uint32, price uint64, accountId DasAccountId) *OnSaleCellParam {
 	return &OnSaleCellParam{
 		Version:        1,
 		Price:          price,

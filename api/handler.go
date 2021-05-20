@@ -59,7 +59,7 @@ func (r *RpcHandler) SearchAccount(account string) common.ReqResp {
 		if err == emptyErr {
 			return common.ReqResp{ErrNo: dascode.Err_AccountNotExist, ErrMsg: err.Error()}
 		}
-		return common.ReqResp{ErrNo: dascode.Err_BaseParamInvalid, ErrMsg: err.Error()}
+		return common.ReqResp{ErrNo: dascode.Err_BaseParamInvalid, ErrMsg: fmt.Sprintf("loadOneAccountCellById err: %s", err.Error())}
 	}
 	return common.ReqResp{ErrNo: dascode.DAS_SUCCESS, Data: accountInfo}
 }
@@ -71,7 +71,7 @@ func (r *RpcHandler) GetAddressAccount(address string) common.ReqResp {
 		if err == emptyErr {
 			return common.ReqResp{ErrNo: dascode.Err_AccountNotExist, ErrMsg: err.Error()}
 		}
-		return common.ReqResp{ErrNo: dascode.Err_BaseParamInvalid, ErrMsg: err.Error()}
+		return common.ReqResp{ErrNo: dascode.Err_BaseParamInvalid, ErrMsg: fmt.Sprintf("loadOneAccountCellByLockScript err: %s", err.Error())}
 	}
 	return common.ReqResp{ErrNo: dascode.DAS_SUCCESS, Data: accountInfo}
 }
@@ -85,7 +85,7 @@ func (r *RpcHandler) loadOneAccountCellByLockScript(address types.Address) ([]*t
 		Script:     celltype.DasAccountCellScript.Out.Script(),
 		ScriptType: indexer.ScriptTypeType,
 	}
-	liveCells, _, err := common.LoadLiveCells(r.rpcClient, searchKey, 100000000*celltype.OneCkb, true, false, func(cell *indexer.LiveCell) bool {
+	liveCells, _, err := common.LoadLiveCells(r.rpcClient, searchKey, 10000000*celltype.AccountCellBaseCap, true, false, func(cell *indexer.LiveCell) bool {
 		ownerBytes := cell.Output.Lock.Args[1 : celltype.DasLockArgsMinBytesLen/2]
 		return bytes.Compare(ownerBytes, addrLockScript.Args) == 0
 	})
@@ -115,14 +115,14 @@ func (r *RpcHandler) loadOneAccountCellById(targetAccountId celltype.DasAccountI
 		Script:     celltype.DasAccountCellScript.Out.Script(),
 		ScriptType: indexer.ScriptTypeType,
 	}
-	liveCells, _, err := common.LoadLiveCells(r.rpcClient, searchKey, 200*celltype.OneCkb, true, false, func(cell *indexer.LiveCell) bool {
+	liveCells, _, err := common.LoadLiveCells(r.rpcClient, searchKey, celltype.AccountCellBaseCap*2, true, false, func(cell *indexer.LiveCell) bool {
 		min := celltype.HashBytesLen + len(celltype.EmptyAccountId)*2
-		accountId, err1 := celltype.AccountIdFromOutputData(cell.OutputData)
-		if err1 != nil {
+		accountId, err := celltype.AccountIdFromOutputData(cell.OutputData)
+		if err != nil {
 			return false
 		}
-		nextAccountId, err2 := celltype.NextAccountIdFromOutputData(cell.OutputData)
-		if err2 != nil {
+		nextAccountId, err := celltype.NextAccountIdFromOutputData(cell.OutputData)
+		if err != nil {
 			return false
 		}
 		return len(cell.OutputData) > min && accountId.Compare(targetAccountId) == 0 && accountId.Compare(nextAccountId) != 0
@@ -149,7 +149,7 @@ func (r *RpcHandler) parseLiveCellToAccount(cell *indexer.LiveCell, filter func(
 		return nil, fmt.Errorf("get raw tx err: %s", err.Error())
 	}
 	if len(rawTx.Transaction.Witnesses) == 0 {
-		return nil, fmt.Errorf("invalid accountCell witness data empty, txHash: %s", rawTx.Transaction.Hash.String())
+		return nil, fmt.Errorf("invalid accountCell witness data,it empty, txHash: %s", rawTx.Transaction.Hash.String())
 	}
 	var (
 		thisAccountCellData *celltype.AccountCellData

@@ -14,7 +14,7 @@ import (
  * Description:
  */
 
-var TestNetApplyRegisterCell = func(args []byte, account DasAccount, height uint64, senderLockScript *types.Script) *ApplyRegisterCellParam {
+var DefaultApplyRegisterCellParam = func(args []byte, account DasAccount, height uint64, senderLockScript *types.Script) *ApplyRegisterCellParam {
 	return &ApplyRegisterCellParam{
 		Version:         1,
 		PubkeyHashBytes: args,

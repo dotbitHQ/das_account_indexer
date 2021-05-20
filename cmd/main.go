@@ -3,9 +3,6 @@ package main
 import (
 	"encoding/hex"
 	"fmt"
-	"github.com/DA-Services/das_commonlib/ckb/celltype"
-	"github.com/nervosnetwork/ckb-sdk-go/types"
-	"github.com/nervosnetwork/ckb-sdk-go/utils"
 	"net/http"
 	"os"
 	"runtime"
@@ -17,11 +14,14 @@ import (
 	"das_account_indexer/config"
 
 	"github.com/DA-Services/das_commonlib/cfg"
+	"github.com/DA-Services/das_commonlib/ckb/celltype"
 	"github.com/DA-Services/das_commonlib/dasrpc"
 	"github.com/DA-Services/das_commonlib/sys"
 	"github.com/eager7/elog"
 	"github.com/fsnotify/fsnotify"
 	"github.com/nervosnetwork/ckb-sdk-go/rpc"
+	"github.com/nervosnetwork/ckb-sdk-go/types"
+	"github.com/nervosnetwork/ckb-sdk-go/utils"
 	"github.com/urfave/cli"
 )
 
@@ -56,7 +56,7 @@ func main() {
 	sort.Sort(cli.CommandsByName(app.Commands))
 	app.Before = func(ctx *cli.Context) error {
 		debug.FreeOSMemory()
-		minCore := runtime.NumCPU() // below go version 1.5,returns 1
+		minCore := runtime.NumCPU()
 		if minCore < 4 {
 			minCore = 4
 		}

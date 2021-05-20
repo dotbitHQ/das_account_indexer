@@ -85,7 +85,7 @@ table ProposalCellData {
 
 */
 
-var TestNetProposeCell = func(new *ProposalCellData) *ProposeCellParam {
+var DefaultProposeCellParam = func(new *ProposalCellData) *ProposeCellParam {
 	acp := &ProposeCellParam{
 		Version:     1,
 		TxDataParam: *new,

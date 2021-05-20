@@ -30,11 +30,6 @@ type BuildTransactionRet struct {
 	WitnessArg *types.WitnessArgs `json:"witness_arg"`
 }
 
-// type InputWithWitness struct {
-// 	CellInput      TypeInputCell          `json:"cell_input"`
-// 	GetWitnessData CellDepWithWitnessFunc `json:"-"`
-// }
-
 type AddDasOutputCallback func(cellCap uint64, outputIndex uint32)
 
 type CellDepWithWitnessFunc func(inputIndex uint32) ([]byte, error)
@@ -54,8 +49,9 @@ type DASWitnessDataObj struct {
 }
 
 /**
-- [0:3] 3 个字节固定值为 `0x646173`，这是 `das` 三个字母的 ascii 编码，指明接下来的数据是 DAS 系统数据；
-- [4:7] 4 个字节为小端编码的 u32 整形，它是对第 8 字节之后数据类型的标识，具体值详见[Type 常量列表](#Type 常量列表)。首先要通过这个标识判断出具体的数据类型，然后才能用 molecule 编码去解码，下文会解释什么是 molecule 编码；
+- 整块数据为使用 molecule 编码的 Bytes 类型，这是因为 CKB 的交易数据每个字段都必须是 molecule 编码；
+- 通过 molecule 解码后，[0:3] 前 3 个字节固定值为 `0x646173`，这是 `das` 三个字母的 ascii 编码，指明接下来的数据是 DAS 系统数据；
+- 通过 molecule 解码后，[4:7] 4 个字节为 molecule 编码的 Uint32 整形，实际上就是小端序的 u32 类型，它是对第 8 字节之后数据类型的标识，具体值详见[Type 常量列表](#Type 常量列表)。首先要通过这个标识判断出具体的数据类型，然后才能用 molecule 编码去解码，下文会解释什么是 molecule 编码；
 - [8:] 第 8 字节开始往后的都是 molecule 编码的特殊数据结构，其整体结构如下；
 */
 func NewDasWitnessDataFromSlice(rawData []byte) (*DASWitnessDataObj, error) {
@@ -64,18 +60,18 @@ func NewDasWitnessDataFromSlice(rawData []byte) (*DASWitnessDataObj, error) {
 	if size := len(tempByte); size <= 8 { // header'size + min(data)'size
 		return nil, fmt.Errorf("invalid rawData size: %d", size)
 	}
-	tag := string(tempByte[:3])
-	if tag != witnessDas {
-		return nil, fmt.Errorf("invalid tag: %s", tag)
+	dasStrTag := string(tempByte[:witnessDasCharLen])
+	if dasStrTag != witnessDas {
+		return nil, fmt.Errorf("invalid dasStrTag, your: %s, want: %s", dasStrTag,witnessDas)
 	}
-	tableType, err := MoleculeU32ToGo(tempByte[3:7])
+	tableType, err := MoleculeU32ToGo(tempByte[witnessDasCharLen:witnessDasTableTypeEndIndex])
 	if err != nil {
 		return nil, fmt.Errorf("invalid tableType err: %s", err.Error())
 	}
 	return &DASWitnessDataObj{
-		Tag:       tag,
+		Tag:       dasStrTag,
 		TableType: TableType(tableType),
-		TableBys:  tempByte[7:],
+		TableBys:  tempByte[witnessDasTableTypeEndIndex:],
 	}, nil
 }
 
@@ -227,6 +223,14 @@ type OnSaleCellParam struct {
 	OnSaleCellData            OnSaleCellData  `json:"-"`
 	Price                     uint64          `json:"price"`
 	AccountId                 DasAccountId    `json:"account_id"`
+	CellCodeInfo              DASCellBaseInfo `json:"cell_code_info"`
+	AlwaysSpendableScriptInfo DASCellBaseInfo `json:"always_spendable_script_info"`
+}
+
+type IncomeCellParam struct {
+	Version uint32 `json:"version"`
+	// Data                      Data            `json:"data"`
+	IncomeCellData            IncomeCellData  `json:"-"`
 	CellCodeInfo              DASCellBaseInfo `json:"cell_code_info"`
 	AlwaysSpendableScriptInfo DASCellBaseInfo `json:"always_spendable_script_info"`
 }

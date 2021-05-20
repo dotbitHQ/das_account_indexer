@@ -316,7 +316,6 @@ func ParseTxWitnessToDasWitnessObj(rawData []byte) (*ParseDasWitnessBysDataObj, 
 		return ret, nil
 	}
 	ret.WitnessObj = dasWitnessObj
-	fmt.Println("解析 cell witness 数据：", dasWitnessObj.TableType)
 	if dasWitnessObj.TableType.IsConfigType() {
 		newDataEntity := NewDataEntityBuilder().Entity(GoBytesToMoleculeBytes(dasWitnessObj.TableBys)).Build()
 		newOpt := NewDataEntityOptBuilder().Set(newDataEntity).Build()

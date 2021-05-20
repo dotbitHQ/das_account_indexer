@@ -13,7 +13,7 @@ import (
  * Description:
  */
 
-var TestNetPreAccountCell = func(account DasAccount, new *PreAccountCellData) *PreAccountCellParam {
+var DefaultPreAccountCellParam = func(account DasAccount, new *PreAccountCellData) *PreAccountCellParam {
 	return &PreAccountCellParam{
 		Version: 1,
 		Account: account,

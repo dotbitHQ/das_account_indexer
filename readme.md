@@ -12,7 +12,7 @@
 
 ```
 cd bin/mac
-./rpc_server -config="local_server.yaml"
+./rpc_server --config="local_server.yaml"
 ```
 
 #### searchAccount

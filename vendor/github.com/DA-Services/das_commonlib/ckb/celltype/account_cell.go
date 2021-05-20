@@ -23,7 +23,7 @@ table DataEntity {
     entity: Bytes, // 代表具体的数据结构
 }
 */
-var TestNetAccountCell = func(param *AccountCellTxDataParam,dasLockParam *DasLockParam) *AccountCellParam {
+var DefaultAccountCellParam = func(param *AccountCellTxDataParam,dasLockParam *DasLockParam) *AccountCellParam {
 	acp := &AccountCellParam{
 		Version: 1,
 		// Data: *BuildDasCommonMoleculeDataObj(depIndex, oldIndex, newIndex, dep, old, &new.AccountInfo),
