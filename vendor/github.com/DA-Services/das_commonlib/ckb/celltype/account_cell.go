@@ -23,9 +23,10 @@ table DataEntity {
     entity: Bytes, // 代表具体的数据结构
 }
 */
-var DefaultAccountCellParam = func(param *AccountCellTxDataParam,dasLockParam *DasLockParam) *AccountCellParam {
+var DefaultAccountCellParam = func(param *AccountCellTxDataParam,dasLockParam *DasLockParam,dataBytes []byte) *AccountCellParam {
 	acp := &AccountCellParam{
 		Version: 1,
+		DataBytes:    dataBytes,
 		// Data: *BuildDasCommonMoleculeDataObj(depIndex, oldIndex, newIndex, dep, old, &new.AccountInfo),
 		CellCodeInfo: DasAccountCellScript,
 		TxDataParam:  param,
@@ -111,12 +112,18 @@ func NextAccountIdFromOutputData(data []byte) (DasAccountId, error) {
 	return DasAccountIdFromBytes(data[start : end]), nil
 }
 
-func ExpiredAtFromOutputData(data []byte) (int64, error) {
-	endLen := HashBytesLen + dasAccountIdLen*2 + 8
-	if size := len(data); size < endLen {
-		return 0, fmt.Errorf("ExpiredAtFromOutputData invalid data, len not enough, your: %d, want: %d", size, endLen)
+func AccountFromOutputData(data []byte) ([]byte, error) {
+	if size := len(data); size < expireTimeEndIndex {
+		return nil, fmt.Errorf("AccountIdFromOutputData invalid data, len not enough: %d", size)
 	}
-	return common.BytesToInt64_LittleEndian(data[endLen-8 : endLen]), nil
+	return data[expireTimeEndIndex : ], nil
+}
+
+func ExpiredAtFromOutputData(data []byte) (int64, error) {
+	if size := len(data); size < expireTimeEndIndex {
+		return 0, fmt.Errorf("ExpiredAtFromOutputData invalid data, len not enough, your: %d, want: %d", size, expireTimeEndIndex)
+	}
+	return common.BytesToInt64_LittleEndian(data[expireTimeEndIndex-8 : expireTimeEndIndex]), nil
 }
 
 func IsAccountExpired(accountCellData []byte, cmpTimeSec int64) (bool, error) {
@@ -151,7 +158,8 @@ func DefaultAccountCellDataBytes(accountId, nextAccountId DasAccountId) []byte {
 	return append(append(holder, accountId.Bytes()...), nextAccountId.Bytes()...)
 }
 
-func accountCellOutputData(newData *AccountCellTxDataParam) ([]byte, error) {
+func (c *AccountCell) accountCellOutputData() ([]byte, error) {
+	newData := c.p.TxDataParam
 	dataBytes := []byte{}
 	accountInfoDataBytes, _ := blake2b.Blake256(newData.AccountInfo.AsSlice())
 
@@ -170,7 +178,16 @@ func accountCellOutputData(newData *AccountCellTxDataParam) ([]byte, error) {
 	if accountBytes := account.Bytes(); len(accountBytes) > 0 {
 		dataBytes = append(dataBytes, account.Bytes()...) // account
 	} else {
-		dataBytes = append(dataBytes, []byte{0}...) // root account
+		// root account
+		if c.p.DataBytes != nil && len(c.p.DataBytes) > 0 {
+			account,err := AccountFromOutputData(c.p.DataBytes)
+			if err != nil {
+				return nil, fmt.Errorf("AccountFromOutputData err: %s",err.Error())
+			}
+			dataBytes = append(dataBytes, account...)
+		} else {
+			dataBytes = append(dataBytes, RootAccountDataAccountByte...)
+		}
 	}
 	return dataBytes, nil
 }
@@ -206,7 +223,7 @@ func AccountCellCap(account string) (uint64, error) {
 }
 
 func (c *AccountCell) Data() ([]byte, error) {
-	return accountCellOutputData(c.p.TxDataParam)
+	return c.accountCellOutputData()
 }
 
 func (c *AccountCell) TableType() TableType {

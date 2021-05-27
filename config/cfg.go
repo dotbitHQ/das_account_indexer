@@ -19,15 +19,14 @@ type DasConfig struct {
 		Debug   bool   `json:"debug"`
 	} `json:"server"`
 	Log struct {
-
 	} `json:"log"`
 	Rpc struct {
-		Port           string                        `json:"port"`
+		Port string `json:"port"`
 	} `json:"rpc"`
 	Chain struct {
 		CKB struct {
-			NodeUrl           string   `json:"node_url"       yaml:"node_url"`
-			IndexerUrl        string   `json:"indexer_url"    yaml:"indexer_url"`
+			NodeUrl    string `json:"node_url"       yaml:"node_url"`
+			IndexerUrl string `json:"indexer_url"    yaml:"indexer_url"`
 		} `json:"ckb"`
 	} `json:"chain"`
 }

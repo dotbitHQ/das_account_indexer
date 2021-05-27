@@ -33,6 +33,7 @@ const ETHScriptLockWitnessBytesLen = 65
 const MinAccountCharsLen = 2
 const DiscountRateBase = 10000
 const DasLockArgsMinBytesLen = 1 + 20 + 1 + 20
+var RootAccountDataAccountByte = []byte{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
 
 const (
 	PwLockMainNetCodeHash = "0xbf43c3602455798c1a61a596e0d95278864c552fafe231c063b3fabf97a8febc"
@@ -50,8 +51,8 @@ const (
 	RefCellCodeArgs           = "34572aae7e930aa06fdd58cd7b42d3db005f27a2d11333cf08a74188128fc090"
 	PreAccountCellCodeArgs    = "d3f7ad59632a2ebdc2fe9d41aa69708ed1069b074cd8b297b205f835335d3a6b"
 	ProposeCellCodeArgs       = "03d0bb128bd10e666975d9a07c148f6abebe811f511e9574048b30600b065b9a"
-	AccountCellCodeArgs       = "589c8e33ffde5bd3a6cda1c391f172247a44f826d3752d866050bdd20fa4d34c"
-	IncomeCellCodeArgs       = "589c8e33ffde5bd3a6cda1c391f172247a44f826d3752d866050bdd20fa4d34c"
+	AccountCellCodeArgs       = "fb452ea8da6f8a2d999d0fa795035d38607af3ca88a7427b02ee998cb8789fba"
+	IncomeCellCodeArgs        = "d7b9d8213671aec03f3a3ab95171e0e79481db2c084586b9ea99914c00ff3716"
 )
 
 var (
@@ -85,6 +86,55 @@ type DataEntityChangeType uint
 func (t TableType) IsConfigType() bool {
 	return t >= TableTyte_CONFIG_CELL_ACCOUNT
 }
+
+/**
+const ActionData = 0,
+const AccountCellData,
+const OnSaleCellData,
+const BiddingCellData,
+const ProposalCellData,
+const PreAccountCellData,
+const IncomeCellData,
+const ConfigCellAccount = 100,
+const ConfigCellApply,
+const ConfigCellCharSet,
+const ConfigCellIncome,
+const ConfigCellMain,
+const ConfigCellPrice,
+const ConfigCellProposal,
+const ConfigCellProfitRate,
+const ConfigCellRecordKeyNamespace,
+const ConfigCellPreservedAccount00 = 150,
+*/
+func (t TableType) ValidateType() bool {
+	return t <= TableType_INCOME_CELL ||
+		(t >= TableTyte_CONFIG_CELL_ACCOUNT && t <= TableTyte_CONFIG_CELL_RECORD_NAMESPACE) ||
+		t == TableTyte_CONFIG_CELL_PreservedAccount00
+}
+const (
+	TableType_ACTION       TableType = 0
+	TableType_ACCOUNT_CELL TableType = 1
+	// TableType_REGISTER_CELL TableType = 3
+	TableType_ON_SALE_CELL     TableType = 2
+	TableType_BIDDING_CELL     TableType = 3
+	TableType_PROPOSE_CELL     TableType = 4
+	TableType_PRE_ACCOUNT_CELL TableType = 5
+	TableType_INCOME_CELL 	   TableType = 6
+
+	TableTyte_CONFIG_CELL_ACCOUNT       TableType = 100
+	TableTyte_CONFIG_CELL_APPLY         TableType = 101
+	TableTyte_CONFIG_CELL_CHARSET         TableType = 102
+	TableTyte_CONFIG_CELL_INCOME         TableType = 103
+
+	TableTyte_CONFIG_CELL_MAIN         TableType = 104
+	TableTyte_CONFIG_CELL_PRICE         TableType = 105
+	TableTyte_CONFIG_CELL_PROPOSAL         TableType = 106
+	TableTyte_CONFIG_CELL_PROFITRATE         TableType = 107
+
+	TableTyte_CONFIG_CELL_RECORD_NAMESPACE       TableType = 108
+	TableTyte_CONFIG_CELL_PreservedAccount00     TableType = 150
+	// TableTyte_CONFIG_CELL_BLOOM_FILTER TableType = 11
+)
 
 func (a AccountCellStatus) Str() string {
 	switch a {
@@ -163,49 +213,6 @@ const (
 	AccountChar_Number AccountCharType = 1
 	AccountChar_En     AccountCharType = 2
 	AccountChar_Zh_Cn  AccountCharType = 3
-)
-/**
-const ActionData = 0,
-const AccountCellData,
-const OnSaleCellData,
-const BiddingCellData,
-const ProposalCellData,
-const PreAccountCellData,
-const IncomeCellData,
-const ConfigCellAccount = 100,
-const ConfigCellApply,
-const ConfigCellCharSet,
-const ConfigCellIncome,
-const ConfigCellMain,
-const ConfigCellPrice,
-const ConfigCellProposal,
-const ConfigCellProfitRate,
-const ConfigCellRecordKeyNamespace,
-const ConfigCellPreservedAccount00 = 150,
-*/
-const (
-	TableType_ACTION       TableType = 0
-	TableType_ACCOUNT_CELL TableType = 1
-	// TableType_REGISTER_CELL TableType = 3
-	TableType_ON_SALE_CELL     TableType = 2
-	TableType_BIDDING_CELL     TableType = 3
-	TableType_PROPOSE_CELL     TableType = 4
-	TableType_PRE_ACCOUNT_CELL TableType = 5
-	TableType_INCOME_CELL 	   TableType = 6
-
-	TableTyte_CONFIG_CELL_ACCOUNT       TableType = 100
-	TableTyte_CONFIG_CELL_APPLY         TableType = 101
-	TableTyte_CONFIG_CELL_CHARSET         TableType = 102
-	TableTyte_CONFIG_CELL_INCOME         TableType = 103
-
-	TableTyte_CONFIG_CELL_MAIN         TableType = 104
-	TableTyte_CONFIG_CELL_PRICE         TableType = 105
-	TableTyte_CONFIG_CELL_PROPOSAL         TableType = 106
-	TableTyte_CONFIG_CELL_PROFITRATE         TableType = 107
-
-	TableTyte_CONFIG_CELL_RECORD_NAMESPACE       TableType = 108
-	TableTyte_CONFIG_CELL_PreservedAccount00     TableType = 150
-	// TableTyte_CONFIG_CELL_BLOOM_FILTER TableType = 11
 )
 
 type DasLockCodeHashIndexType uint8
@@ -309,4 +316,6 @@ const (
 	Action_AccuseAccountIllegal  = "accuse_account_illegal"
 	Action_RecycleExpiredAccount = "recycle_expired_account_by_keeper"
 	Action_CancelSaleByKeeper    = "cancel_sale_by_keeper"
+	Action_CreateIncome          = "create_income"
+	Action_ConsolidateIncome     = "consolidate_income"
 )

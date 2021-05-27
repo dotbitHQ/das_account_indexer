@@ -2885,7 +2885,6 @@ func (s *ConfigCellProposal) AsBuilder() ConfigCellProposalBuilder {
 type ConfigCellProfitRateBuilder struct {
     inviter Uint32
 channel Uint32
-das Uint32
 proposal_create Uint32
 proposal_confirm Uint32
 income_consolidate Uint32
@@ -2895,15 +2894,13 @@ income_consolidate Uint32
 func (s *ConfigCellProfitRateBuilder) Build() ConfigCellProfitRate {
     b := new(bytes.Buffer)
 
-    totalSize := HeaderSizeUint * (6 + 1)
-    offsets := make([]uint32, 0, 6)
+    totalSize := HeaderSizeUint * (5 + 1)
+    offsets := make([]uint32, 0, 5)
 
     offsets = append(offsets, totalSize)
 totalSize += uint32(len(s.inviter.AsSlice()))
 offsets = append(offsets, totalSize)
 totalSize += uint32(len(s.channel.AsSlice()))
-offsets = append(offsets, totalSize)
-totalSize += uint32(len(s.das.AsSlice()))
 offsets = append(offsets, totalSize)
 totalSize += uint32(len(s.proposal_create.AsSlice()))
 offsets = append(offsets, totalSize)
@@ -2919,7 +2916,6 @@ totalSize += uint32(len(s.income_consolidate.AsSlice()))
 
     b.Write(s.inviter.AsSlice())
 b.Write(s.channel.AsSlice())
-b.Write(s.das.AsSlice())
 b.Write(s.proposal_create.AsSlice())
 b.Write(s.proposal_confirm.AsSlice())
 b.Write(s.income_consolidate.AsSlice())
@@ -2935,12 +2931,6 @@ func (s *ConfigCellProfitRateBuilder) Inviter(v Uint32) *ConfigCellProfitRateBui
 
 func (s *ConfigCellProfitRateBuilder) Channel(v Uint32) *ConfigCellProfitRateBuilder {
     s.channel = v
-    return s
-}
-            
-
-func (s *ConfigCellProfitRateBuilder) Das(v Uint32) *ConfigCellProfitRateBuilder {
-    s.das = v
     return s
 }
             
@@ -2964,7 +2954,7 @@ func (s *ConfigCellProfitRateBuilder) IncomeConsolidate(v Uint32) *ConfigCellPro
             
 
 func NewConfigCellProfitRateBuilder() *ConfigCellProfitRateBuilder {
-	return &ConfigCellProfitRateBuilder{ inviter: Uint32Default(),channel: Uint32Default(),das: Uint32Default(),proposal_create: Uint32Default(),proposal_confirm: Uint32Default(),income_consolidate: Uint32Default() }
+	return &ConfigCellProfitRateBuilder{ inviter: Uint32Default(),channel: Uint32Default(),proposal_create: Uint32Default(),proposal_confirm: Uint32Default(),income_consolidate: Uint32Default() }
 }
     
 
@@ -2982,7 +2972,7 @@ func (s *ConfigCellProfitRate) AsSlice() []byte {
             
 
 func ConfigCellProfitRateDefault() ConfigCellProfitRate {
-    return *ConfigCellProfitRateFromSliceUnchecked([]byte{ 52,0,0,0,28,0,0,0,32,0,0,0,36,0,0,0,40,0,0,0,44,0,0,0,48,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 })
+    return *ConfigCellProfitRateFromSliceUnchecked([]byte{ 44,0,0,0,24,0,0,0,28,0,0,0,32,0,0,0,36,0,0,0,40,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 })
 }
             
 
@@ -2999,7 +2989,7 @@ func ConfigCellProfitRateFromSlice(slice []byte, compatible bool) (*ConfigCellPr
         return nil, errors.New(errMsg)
     }
 
-    if uint32(sliceLen) == HeaderSizeUint && 6 == 0 {
+    if uint32(sliceLen) == HeaderSizeUint && 5 == 0 {
         return &ConfigCellProfitRate{inner: slice}, nil
     }
 
@@ -3015,9 +3005,9 @@ func ConfigCellProfitRateFromSlice(slice []byte, compatible bool) (*ConfigCellPr
     }
 
     fieldCount := offsetFirst/4 - 1
-    if fieldCount < 6 {
+    if fieldCount < 5 {
         return nil, errors.New("FieldCountNotMatch")
-    } else if !compatible && fieldCount > 6 {
+    } else if !compatible && fieldCount > 5 {
         return nil, errors.New("FieldCountNotMatch")
     }
 
@@ -3072,12 +3062,6 @@ if err != nil {
 }
                 
 
-_, err = Uint32FromSlice(slice[offsets[5]:offsets[6]], compatible)
-if err != nil {
-    return nil, err
-}
-                
-
     return &ConfigCellProfitRate{inner: slice}, nil
 }
             
@@ -3100,11 +3084,11 @@ func (s *ConfigCellProfitRate) IsEmpty() bool {
     return s.Len() == 0
 }
 func (s *ConfigCellProfitRate) CountExtraFields() uint {
-    return s.FieldCount() - 6
+    return s.FieldCount() - 5
 }
 
 func (s *ConfigCellProfitRate) HasExtraFields() bool {
-    return 6 != s.FieldCount()
+    return 5 != s.FieldCount()
 }
             
 
@@ -3122,32 +3106,25 @@ func (s *ConfigCellProfitRate) Channel() *Uint32 {
 }
                
 
-func (s *ConfigCellProfitRate) Das() *Uint32 {
+func (s *ConfigCellProfitRate) ProposalCreate() *Uint32 {
     start := unpackNumber(s.inner[12:])
     end := unpackNumber(s.inner[16:])
     return Uint32FromSliceUnchecked(s.inner[start:end])
 }
                
 
-func (s *ConfigCellProfitRate) ProposalCreate() *Uint32 {
+func (s *ConfigCellProfitRate) ProposalConfirm() *Uint32 {
     start := unpackNumber(s.inner[16:])
     end := unpackNumber(s.inner[20:])
     return Uint32FromSliceUnchecked(s.inner[start:end])
 }
                
 
-func (s *ConfigCellProfitRate) ProposalConfirm() *Uint32 {
-    start := unpackNumber(s.inner[20:])
-    end := unpackNumber(s.inner[24:])
-    return Uint32FromSliceUnchecked(s.inner[start:end])
-}
-               
-
 func (s *ConfigCellProfitRate) IncomeConsolidate() *Uint32 {
     var ret *Uint32
-    start := unpackNumber(s.inner[24:])
+    start := unpackNumber(s.inner[20:])
     if s.HasExtraFields() {
-        end := unpackNumber(s.inner[28:])
+        end := unpackNumber(s.inner[24:])
         ret = Uint32FromSliceUnchecked(s.inner[start:end])
     } else {
         ret = Uint32FromSliceUnchecked(s.inner[start:])
@@ -3157,7 +3134,7 @@ func (s *ConfigCellProfitRate) IncomeConsolidate() *Uint32 {
                         
 
 func (s *ConfigCellProfitRate) AsBuilder() ConfigCellProfitRateBuilder {
-    ret := NewConfigCellProfitRateBuilder().Inviter(*s.Inviter()).Channel(*s.Channel()).Das(*s.Das()).ProposalCreate(*s.ProposalCreate()).ProposalConfirm(*s.ProposalConfirm()).IncomeConsolidate(*s.IncomeConsolidate())
+    ret := NewConfigCellProfitRateBuilder().Inviter(*s.Inviter()).Channel(*s.Channel()).ProposalCreate(*s.ProposalCreate()).ProposalConfirm(*s.ProposalConfirm()).IncomeConsolidate(*s.IncomeConsolidate())
     return *ret
 }
         
@@ -5598,8 +5575,8 @@ t.Nth9(*s.Nth9())
 
 type RecordBuilder struct {
     record_type Bytes
-record_label Bytes
 record_key Bytes
+record_label Bytes
 record_value Bytes
 record_ttl Uint32
 }
@@ -5614,9 +5591,9 @@ func (s *RecordBuilder) Build() Record {
     offsets = append(offsets, totalSize)
 totalSize += uint32(len(s.record_type.AsSlice()))
 offsets = append(offsets, totalSize)
-totalSize += uint32(len(s.record_label.AsSlice()))
-offsets = append(offsets, totalSize)
 totalSize += uint32(len(s.record_key.AsSlice()))
+offsets = append(offsets, totalSize)
+totalSize += uint32(len(s.record_label.AsSlice()))
 offsets = append(offsets, totalSize)
 totalSize += uint32(len(s.record_value.AsSlice()))
 offsets = append(offsets, totalSize)
@@ -5629,8 +5606,8 @@ totalSize += uint32(len(s.record_ttl.AsSlice()))
     }
 
     b.Write(s.record_type.AsSlice())
-b.Write(s.record_label.AsSlice())
 b.Write(s.record_key.AsSlice())
+b.Write(s.record_label.AsSlice())
 b.Write(s.record_value.AsSlice())
 b.Write(s.record_ttl.AsSlice())
     return Record{inner: b.Bytes()}
@@ -5643,14 +5620,14 @@ func (s *RecordBuilder) RecordType(v Bytes) *RecordBuilder {
 }
             
 
-func (s *RecordBuilder) RecordLabel(v Bytes) *RecordBuilder {
-    s.record_label = v
+func (s *RecordBuilder) RecordKey(v Bytes) *RecordBuilder {
+    s.record_key = v
     return s
 }
             
 
-func (s *RecordBuilder) RecordKey(v Bytes) *RecordBuilder {
-    s.record_key = v
+func (s *RecordBuilder) RecordLabel(v Bytes) *RecordBuilder {
+    s.record_label = v
     return s
 }
             
@@ -5668,7 +5645,7 @@ func (s *RecordBuilder) RecordTtl(v Uint32) *RecordBuilder {
             
 
 func NewRecordBuilder() *RecordBuilder {
-	return &RecordBuilder{ record_type: BytesDefault(),record_label: BytesDefault(),record_key: BytesDefault(),record_value: BytesDefault(),record_ttl: Uint32Default() }
+	return &RecordBuilder{ record_type: BytesDefault(),record_key: BytesDefault(),record_label: BytesDefault(),record_value: BytesDefault(),record_ttl: Uint32Default() }
 }
     
 
@@ -5813,14 +5790,14 @@ func (s *Record) RecordType() *Bytes {
 }
                
 
-func (s *Record) RecordLabel() *Bytes {
+func (s *Record) RecordKey() *Bytes {
     start := unpackNumber(s.inner[8:])
     end := unpackNumber(s.inner[12:])
     return BytesFromSliceUnchecked(s.inner[start:end])
 }
                
 
-func (s *Record) RecordKey() *Bytes {
+func (s *Record) RecordLabel() *Bytes {
     start := unpackNumber(s.inner[12:])
     end := unpackNumber(s.inner[16:])
     return BytesFromSliceUnchecked(s.inner[start:end])
@@ -5848,7 +5825,7 @@ func (s *Record) RecordTtl() *Uint32 {
                         
 
 func (s *Record) AsBuilder() RecordBuilder {
-    ret := NewRecordBuilder().RecordType(*s.RecordType()).RecordLabel(*s.RecordLabel()).RecordKey(*s.RecordKey()).RecordValue(*s.RecordValue()).RecordTtl(*s.RecordTtl())
+    ret := NewRecordBuilder().RecordType(*s.RecordType()).RecordKey(*s.RecordKey()).RecordLabel(*s.RecordLabel()).RecordValue(*s.RecordValue()).RecordTtl(*s.RecordTtl())
     return *ret
 }
         

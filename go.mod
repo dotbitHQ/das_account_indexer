@@ -3,7 +3,7 @@ module das_account_indexer
 go 1.12
 
 require (
-	github.com/DA-Services/das_commonlib v0.0.0-20210520142007-2436f18ac826
+	github.com/DA-Services/das_commonlib v0.0.0-20210526070715-02c8bb0cf979
 	github.com/eager7/elog v0.1.9
 	github.com/fsnotify/fsnotify v1.4.7
 	github.com/nervosnetwork/ckb-sdk-go v0.3.1-0.20210330153910-1d9878636bf6

@@ -311,6 +311,9 @@ func ParseTxWitnessToDasWitnessObj(rawData []byte) (*ParseDasWitnessBysDataObj, 
 	if err != nil {
 		return nil, fmt.Errorf("fail to parse dasWitness data: %s", err.Error())
 	}
+	if tableType := dasWitnessObj.TableType; !tableType.ValidateType() {
+		return nil, fmt.Errorf("invalid tableType, your: %d",tableType)
+	}
 	if dasWitnessObj.TableType == TableType_ACTION {
 		ret.WitnessObj = DasActionWitness
 		return ret, nil

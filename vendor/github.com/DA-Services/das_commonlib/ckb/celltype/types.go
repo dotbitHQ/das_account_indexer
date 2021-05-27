@@ -359,6 +359,7 @@ type AccountCellDatas struct {
 }
 type AccountCellParam struct {
 	TxDataParam               *AccountCellTxDataParam `json:"-"`
+	DataBytes                 []byte `json:"data_bytes"`
 	Version                   uint32                  `json:"version"`
 	CellCodeInfo              DASCellBaseInfo         `json:"cell_code_info"`
 	DasLock                   DASCellBaseInfo `json:"das_lock"`
