@@ -6,6 +6,7 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
+	"time"
 
 	"das_account_indexer/types"
 
@@ -50,6 +51,7 @@ func (r *RpcHandler) Hello() string {
 
 func (r *RpcHandler) SearchAccount(account string) common.ReqResp {
 	log.Info("accept SearchAccount:", account)
+	timeStart := time.Now()
 	dasAccount := celltype.DasAccountFromStr(account)
 	if err := dasAccount.ValidErr(); err != nil {
 		return common.ReqResp{ErrNo: dascode.Err_AccountFormatInvalid, ErrMsg: err.Error()}
@@ -61,6 +63,7 @@ func (r *RpcHandler) SearchAccount(account string) common.ReqResp {
 		}
 		return common.ReqResp{ErrNo: dascode.Err_BaseParamInvalid, ErrMsg: fmt.Sprintf("loadOneAccountCellById err: %s", err.Error())}
 	}
+	log.Info("time spend:", time.Since(timeStart).String())
 	return common.ReqResp{ErrNo: dascode.DAS_SUCCESS, Data: accountInfo}
 }
 

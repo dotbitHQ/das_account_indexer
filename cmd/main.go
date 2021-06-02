@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/hex"
 	"fmt"
 	"net/http"
 	"os"
@@ -20,8 +19,6 @@ import (
 	"github.com/eager7/elog"
 	"github.com/fsnotify/fsnotify"
 	"github.com/nervosnetwork/ckb-sdk-go/rpc"
-	"github.com/nervosnetwork/ckb-sdk-go/types"
-	"github.com/nervosnetwork/ckb-sdk-go/utils"
 	"github.com/urfave/cli"
 )
 
@@ -94,16 +91,16 @@ func runServer(ctx *cli.Context) error {
 	if err != nil {
 		panic(fmt.Errorf("init rpcClient failed: %s", err.Error()))
 	}
-	systemScripts, err := utils.NewSystemScripts(rpcClient)
-	if err != nil {
-		panic(fmt.Errorf("init NewSystemScripts err: %s", err.Error()))
-	}
-	scripter, _ := hex.DecodeString("bc502a34a430e3e167c82a24db6f9237b15ebf35")
-	celltype.TimingAsyncSystemCodeScriptOutPoint(rpcClient, &types.Script{
-		CodeHash: systemScripts.SecpSingleSigCell.CellHash,
-		HashType: types.HashTypeType,
-		Args:     scripter,
-	}, nil, nil)
+
+	// The current service does not need to send system transactions, so it is unnecessary to synchronize cellDeps.
+	// systemScripts, err := utils.NewSystemScripts(rpcClient)
+	// if err != nil {
+	// 	panic(fmt.Errorf("init NewSystemScripts err: %s", err.Error()))
+	// }
+	// celltype.TimingAsyncSystemCodeScriptOutPoint(rpcClient, &types.Script{
+	// 	CodeHash: systemScripts.SecpSingleSigCell.CellHash,
+	// 	HashType: types.HashTypeType,
+	// }, nil, nil)
 	if err = runRpcServer(rpcClient); err != nil {
 		return err
 	}

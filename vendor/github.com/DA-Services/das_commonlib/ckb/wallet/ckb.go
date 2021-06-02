@@ -4,8 +4,6 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"fmt"
-	"github.com/ethereum/go-ethereum/crypto"
-	ethSecp256k1 "github.com/ethereum/go-ethereum/crypto/secp256k1"
 	"github.com/minio/blake2b-simd"
 	"github.com/nervosnetwork/ckb-sdk-go/crypto/bech32"
 	"github.com/nervosnetwork/ckb-sdk-go/crypto/secp256k1"
@@ -103,17 +101,17 @@ func GetLockScriptArgsFromShortAddress(address string) (string, error) {
 	return ret, nil
 }
 
-func VerifySign(msg []byte, sign []byte, ckbPubkeyHex string) (bool, error) {
-	recoveredPub, err := crypto.Ecrecover(msg, sign)
-	if err != nil {
-		return false, err
-	}
-	pubKey, err := crypto.UnmarshalPubkey(recoveredPub)
-	if err != nil {
-		return false, err
-	}
-	return hex.EncodeToString(ethSecp256k1.CompressPubkey(pubKey.X, pubKey.Y)) == ckbPubkeyHex, nil
-}
+// func VerifySign(msg []byte, sign []byte, ckbPubkeyHex string) (bool, error) {
+// 	recoveredPub, err := crypto.Ecrecover(msg, sign)
+// 	if err != nil {
+// 		return false, err
+// 	}
+// 	pubKey, err := crypto.UnmarshalPubkey(recoveredPub)
+// 	if err != nil {
+// 		return false, err
+// 	}
+// 	return hex.EncodeToString(ethSecp256k1.CompressPubkey(pubKey.X, pubKey.Y)) == ckbPubkeyHex, nil
+// }
 
 func byteString(b []byte) (s string) {
 	s = ""

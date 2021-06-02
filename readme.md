@@ -112,3 +112,7 @@ curl --location --request POST 'http://localhost:8222' \
     }
 }
 ```
+
+### Search time optimization
+
+deploy this server in the `ckb_node` server.    
