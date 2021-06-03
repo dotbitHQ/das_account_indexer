@@ -118,7 +118,9 @@ func runRpcServer(client rpc.Client) error {
 	})
 	log.Info("rpc serve at:", publicPort)
 	if err := rpcImpl.Start(func(w http.ResponseWriter, r *http.Request) {
-		// todo
+		// append value to request' ctx
+		// newCtx := context.WithValue(r.Context(), "X-Real-IP", "")
+		// *r = *r.WithContext(newCtx)
 	}); err != nil {
 		return err
 	}

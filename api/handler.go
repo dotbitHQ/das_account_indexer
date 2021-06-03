@@ -49,7 +49,7 @@ func (r *RpcHandler) Hello() string {
 	return "hi"
 }
 
-func (r *RpcHandler) SearchAccount(account string) common.ReqResp {
+func (r *RpcHandler) SearchAccount(ctx context.Context, account string) common.ReqResp {
 	log.Info("accept SearchAccount:", account)
 	timeStart := time.Now()
 	dasAccount := celltype.DasAccountFromStr(account)

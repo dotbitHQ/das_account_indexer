@@ -1,5 +1,8 @@
 ### simple das-account-indexer server
 
+A tool service provided by DAS official,which can be used to query the information of successfully registered accounts on the chain.
+
+
 #### build
 
 `make rpc-win`
