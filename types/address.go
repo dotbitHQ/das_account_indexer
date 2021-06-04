@@ -14,7 +14,7 @@ import (
  * Copyright (C), 2019-2021
  * FileName: address
  * Author:   LinGuanHong
- * Date:     2021/5/6 10:45 上午
+ * Date:     2021/5/6 10:45
  * Description:
  */
 type Address string

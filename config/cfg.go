@@ -9,7 +9,7 @@ import (
  * FileName: bn_config
  * Author:   LinGuanHong
  * Date:     2019-10-23 17:55
- * Description: yaml 配置文件
+ * Description: yaml
  */
 
 type DasConfig struct {

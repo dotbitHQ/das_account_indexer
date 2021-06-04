@@ -26,7 +26,7 @@ import (
  * Copyright (C), 2019-2021
  * FileName: main
  * Author:   LinGuanHong
- * Date:     2021/4/1 3:56 下午
+ * Date:     2021/4/1 3:56
  * Description:
  */
 

@@ -1,7 +1,8 @@
 ### simple das-account-indexer server
 
-A tool service provided by DAS official,which can be used to query the information of successfully registered accounts on the chain.
+A tool service provided by DAS official, which can be used to query the information of successfully registered accounts on the chain.
 
+For more information, please visit DAS official website: <a target="_blank" href="https://da.services/">https://da.services/ </a>
 
 #### build
 
