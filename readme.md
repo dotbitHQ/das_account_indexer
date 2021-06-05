@@ -4,7 +4,17 @@ A tool service provided by DAS official, which can be used to query the informat
 
 More about DAS information, please visit DAS official website: <a target="_blank" href="https://da.services/">https://da.services/ </a>
 
+### Quick start
+
+* OS Support: Linux, Mac OS and Windows
+* Go 1.12.x or later
+* Git
+
 #### build
+
+`git clone https://github.com/DA-Services/das_account_indexer.git`
+
+`cd $dir`
 
 `make rpc-win`
 
