@@ -1,7 +1,6 @@
 package celltype
 
 import (
-	"encoding/hex"
 	"fmt"
 	"github.com/DA-Services/das_commonlib/common"
 	"github.com/nervosnetwork/ckb-sdk-go/crypto/blake2b"
@@ -12,17 +11,10 @@ import (
  * Copyright (C), 2019-2020
  * FileName: publishaccountcell
  * Author:   LinGuanHong
- * Date:     2020/12/25 5:51 下午
+ * Date:     2020/12/25 5:51
  * Description:
  */
 
-/**
-table DataEntity {
-    index: Uint32, // 表明此数据项属于 inputs/outputs 中的第几个 cell
-    version: Uint32, // 表明 entity 数据结构的版本号
-    entity: Bytes, // 代表具体的数据结构
-}
-*/
 var DefaultAccountCellParam = func(param *AccountCellTxDataParam,dasLockParam *DasLockParam,dataBytes []byte) *AccountCellParam {
 	acp := &AccountCellParam{
 		Version: 1,
@@ -166,9 +158,9 @@ func (c *AccountCell) accountCellOutputData() ([]byte, error) {
 	account := AccountCharsToAccount(*newData.AccountInfo.Account())
 	accountId := newData.AccountInfo.Id()
 
-	fmt.Println("accountCellOutputData -------accountId------> ", hex.EncodeToString(accountId.RawData()))
-	fmt.Println("accountCellOutputData -------account__------> ", account)
-	fmt.Println("accountCellOutputData -------expired__------> ", newData.ExpiredAt)
+	// fmt.Println("accountCellOutputData -------accountId------> ", hex.EncodeToString(accountId.RawData()))
+	// fmt.Println("accountCellOutputData -------account__------> ", account)
+	// fmt.Println("accountCellOutputData -------expired__------> ", newData.ExpiredAt)
 
 	dataBytes = append(dataBytes, accountInfoDataBytes...)
 	dataBytes = append(dataBytes, accountId.RawData()...)                // id

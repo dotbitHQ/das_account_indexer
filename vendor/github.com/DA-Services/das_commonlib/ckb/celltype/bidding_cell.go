@@ -7,7 +7,7 @@ package celltype
 //  * Copyright (C), 2019-2021
 //  * FileName: bidding_cell
 //  * Author:   LinGuanHong
-//  * Date:     2021/2/22 2:24 下午
+//  * Date:     2021/2/22 2:24
 //  * Description:
 //  */
 //

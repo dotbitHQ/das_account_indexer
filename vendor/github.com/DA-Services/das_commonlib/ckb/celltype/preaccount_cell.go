@@ -9,7 +9,7 @@ import (
  * Copyright (C), 2019-2020
  * FileName: statecell
  * Author:   LinGuanHong
- * Date:     2020/12/18 3:58 下午
+ * Date:     2020/12/18 3:58
  * Description:
  */
 
@@ -25,14 +25,6 @@ var DefaultPreAccountCellParam = func(account DasAccount, new *PreAccountCellDat
 		AlwaysSpendableScriptInfo: DasAnyOneCanSendCellInfo,
 	}
 }
-
-/**
-lock: <lock_script>
-type: <apply_register_script>
-data:
-  hash(pubkey_hash + account)
-  Timestamp // cell 创建时 TimeCell 的时间
-*/
 
 type PreAccountCell struct {
 	p *PreAccountCellParam
@@ -81,13 +73,6 @@ func (c *PreAccountCell) TableType() TableType {
 	return TableType_PRE_ACCOUNT_CELL
 }
 
-/**
-lock: <always_success>
-type: <pre_account_script>
-data:
-  hash(data: PreAccountCellData)
-  id // account ID，生成算法为 hash(account)，然后取前 10 bytes
-*/
 func (c *PreAccountCell) Data() ([]byte, error) {
 	dataHash, err := blake2b.Blake256(c.p.TxDataParam.NewAccountCellData.AsSlice())
 	if err != nil {

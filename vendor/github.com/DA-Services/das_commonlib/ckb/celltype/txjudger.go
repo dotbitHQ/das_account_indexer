@@ -6,7 +6,7 @@ import "github.com/nervosnetwork/ckb-sdk-go/types"
  * Copyright (C), 2019-2021
  * FileName: txjudger
  * Author:   LinGuanHong
- * Date:     2021/5/12 4:37 下午
+ * Date:     2021/5/12 4:37
  * Description:
  */
 

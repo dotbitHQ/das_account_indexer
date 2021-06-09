@@ -11,7 +11,7 @@ import (
  * Copyright (C), 2019-2021
  * FileName: ckb
  * Author:   LinGuanHong
- * Date:     2021/2/25 10:04 上午
+ * Date:     2021/2/25 10:04
  * Description:
  */
 
@@ -33,8 +33,7 @@ func LoadLiveCellsWithSize(client rpc.Client, key *indexer.SearchKey, capLimit, 
 	if latest {
 		order = indexer.SearchOrderDesc
 	}
-	c := collector.NewLiveCellCollector(
-		client, key, order, size, "", normal)
+	c := collector.NewLiveCellCollector(client, key, order, size, "", normal)
 	iterator, err := c.Iterator()
 	if err != nil {
 		return nil, 0, fmt.Errorf("LoadLiveCells Collect failed: %s", err.Error())

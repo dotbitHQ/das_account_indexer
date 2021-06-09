@@ -6,7 +6,7 @@ import "github.com/DA-Services/das_commonlib/common"
  * Copyright (C), 2019-2020
  * FileName: value
  * Author:   LinGuanHong
- * Date:     2020/12/20 3:12 下午
+ * Date:     2020/12/20 3:12
  * Description:
  */
 
@@ -23,10 +23,8 @@ const OneCkb = uint64(1e8)
 const DasAccountSuffix = ".bit"
 const CkbTxMinOutputCKBValue = 61 * OneCkb
 const AccountCellDataAccountIdStartIndex = 72
-const RefCellBaseCap = 105 * OneCkb
 const AccountCellBaseCap = 200 * OneCkb
 const IncomeCellBaseCap  = 106 * OneCkb
-const WalletCellBaseCap = 84 * OneCkb
 const OneYearSec = int64(3600 * 24 * 365)
 const HashBytesLen = 32
 const ETHScriptLockWitnessBytesLen = 65
@@ -34,6 +32,8 @@ const MinAccountCharsLen = 2
 const DiscountRateBase = 10000
 const DasLockArgsMinBytesLen = 1 + 20 + 1 + 20
 var RootAccountDataAccountByte = []byte{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
+var EmptyDataHash = []byte{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+var EmptyAccountId = DasAccountId{}
 
 const (
 	PwLockMainNetCodeHash = "0xbf43c3602455798c1a61a596e0d95278864c552fafe231c063b3fabf97a8febc"
@@ -44,15 +44,15 @@ const (
 const (
 	ContractCodeHash          = "00000000000000000000000000000000000000000000000000545950455f4944"
 	DasPwLockCellCodeArgs     = "d5eee5a3ac9d65658535b4bdad25e22a81c032f5bbdf5ace45605a33482eeb45"
-	DasLockCellCodeArgs       = "eedd10c7d8fee85c119daf2077fea9cf76b9a92ddca546f1f8e0031682e65aee"
-	ConfigCellCodeArgs        = "34363fad2018db0b3b6919c26870f302da74c3c4ef4456e5665b82c4118eda51"
+	DasLockCellCodeArgs       = "0xc3fd71e4f537b8d77a412b896304abf1a60daaa7f0fab10f83e8649a4f1e9713"
+	ConfigCellCodeArgs        = "0x92610ed55bbc6d865ab4d84da3259606951417c537edb5b47c8cd0bc7b7b492e"
 	WalletCellCodeArgs        = "9b6d4934ad0366a3a047f24778197000d776c45b2dc68b2738477e730b5b6b91"
-	ApplyRegisterCellCodeArgs = "c78fa9066af1624e600ccfb21df9546f900b2afe5d7940d91aefc115653f90d9"
+	ApplyRegisterCellCodeArgs = "0x43b56d4fa45b57680b4cea21819ea5100c209ebb9434f141a53a05bdee93e4d6"
 	RefCellCodeArgs           = "34572aae7e930aa06fdd58cd7b42d3db005f27a2d11333cf08a74188128fc090"
-	PreAccountCellCodeArgs    = "d3f7ad59632a2ebdc2fe9d41aa69708ed1069b074cd8b297b205f835335d3a6b"
-	ProposeCellCodeArgs       = "03d0bb128bd10e666975d9a07c148f6abebe811f511e9574048b30600b065b9a"
-	AccountCellCodeArgs       = "fb452ea8da6f8a2d999d0fa795035d38607af3ca88a7427b02ee998cb8789fba"
-	IncomeCellCodeArgs        = "d7b9d8213671aec03f3a3ab95171e0e79481db2c084586b9ea99914c00ff3716"
+	PreAccountCellCodeArgs    = "0x9d608a334270b7ee7c5b61422bcb5a6021552fa4ec1f2d31acc02b2c4306265e"
+	ProposeCellCodeArgs       = "0xe789cf86f36fe1c67c04b2aad300867d1fc2778511365ce0b169d0518e860175"
+	AccountCellCodeArgs       = "0x37844013d5230454359d93dea9074d653f94dadc1a36fbe88fc01ac8456cddc7"
+	IncomeCellCodeArgs        = "0x54d53b0db02b7ca2ecaf1cf6bbe5a9011c8ae6e1dba6d45444e1f3f79eb13896"
 )
 
 var (
@@ -75,16 +75,13 @@ const (
 	RefCellType_Manager = 1
 )
 
-var EmptyDataHash = []byte{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
-var EmptyAccountId = DasAccountId{}
-
 type TableType uint32
 type AccountCharType uint32
 type AccountCellStatus uint8
 type DataEntityChangeType uint
 
 func (t TableType) IsConfigType() bool {
-	return t >= TableTyte_CONFIG_CELL_ACCOUNT
+	return t >= TableType_CONFIG_CELL_ACCOUNT
 }
 
 /**
@@ -108,32 +105,36 @@ const ConfigCellPreservedAccount00 = 150,
 */
 func (t TableType) ValidateType() bool {
 	return t <= TableType_INCOME_CELL ||
-		(t >= TableTyte_CONFIG_CELL_ACCOUNT && t <= TableTyte_CONFIG_CELL_RECORD_NAMESPACE) ||
-		t == TableTyte_CONFIG_CELL_PreservedAccount00
+		(t >= TableType_CONFIG_CELL_ACCOUNT && t <= TableType_CONFIG_CELL_RECORD_NAMESPACE) ||
+		t == TableType_CONFIG_CELL_PreservedAccount00 ||
+		(t >=TableType_CONFIG_CELL_CharSetEmoji && t <= TableType_CONFIG_CELL_CharSetEn)
 }
 const (
 	TableType_ACTION       TableType = 0
 	TableType_ACCOUNT_CELL TableType = 1
-	// TableType_REGISTER_CELL TableType = 3
 	TableType_ON_SALE_CELL     TableType = 2
 	TableType_BIDDING_CELL     TableType = 3
 	TableType_PROPOSE_CELL     TableType = 4
 	TableType_PRE_ACCOUNT_CELL TableType = 5
 	TableType_INCOME_CELL 	   TableType = 6
 
-	TableTyte_CONFIG_CELL_ACCOUNT       TableType = 100
-	TableTyte_CONFIG_CELL_APPLY         TableType = 101
-	TableTyte_CONFIG_CELL_CHARSET         TableType = 102
-	TableTyte_CONFIG_CELL_INCOME         TableType = 103
+	TableType_CONFIG_CELL_ACCOUNT       TableType = 100
+	TableType_CONFIG_CELL_APPLY         TableType = 101
+	TableType_CONFIG_CELL_CHARSET         TableType = 102
+	TableType_CONFIG_CELL_INCOME         TableType = 103
 
-	TableTyte_CONFIG_CELL_MAIN         TableType = 104
-	TableTyte_CONFIG_CELL_PRICE         TableType = 105
-	TableTyte_CONFIG_CELL_PROPOSAL         TableType = 106
-	TableTyte_CONFIG_CELL_PROFITRATE         TableType = 107
+	TableType_CONFIG_CELL_MAIN         TableType = 104
+	TableType_CONFIG_CELL_PRICE         TableType = 105
+	TableType_CONFIG_CELL_PROPOSAL         TableType = 106
+	TableType_CONFIG_CELL_PROFITRATE         TableType = 107
 
-	TableTyte_CONFIG_CELL_RECORD_NAMESPACE       TableType = 108
-	TableTyte_CONFIG_CELL_PreservedAccount00     TableType = 150
-	// TableTyte_CONFIG_CELL_BLOOM_FILTER TableType = 11
+	TableType_CONFIG_CELL_RECORD_NAMESPACE       TableType = 108
+	TableType_CONFIG_CELL_PreservedAccount00     TableType = 150
+
+	TableType_CONFIG_CELL_CharSetEmoji TableType = 100000
+	TableType_CONFIG_CELL_CharSetDigit TableType = 100001
+	TableType_CONFIG_CELL_CharSetEn TableType = 100002
+	// TableType_CONFIG_CELL_BLOOM_FILTER TableType = 11
 )
 
 func (a AccountCellStatus) Str() string {
@@ -193,9 +194,9 @@ type DasAccountSearchStatus int
 const (
 	SearchStatus_NotOpenRegister  DasAccountSearchStatus = -1
 	SearchStatus_Registerable     DasAccountSearchStatus = 0
-	SearchStatus_ReservedAccount  DasAccountSearchStatus = 1 // 候选
+	SearchStatus_ReservedAccount  DasAccountSearchStatus = 1 
 	SearchStatus_OnePriceSell     DasAccountSearchStatus = 2
-	SearchStatus_AuctionSell      DasAccountSearchStatus = 3 // 竞拍，候选 -> 竞拍
+	SearchStatus_AuctionSell      DasAccountSearchStatus = 3
 	SearchStatus_CandidateAccount DasAccountSearchStatus = 4
 	SearchStatus_Registered       DasAccountSearchStatus = 5
 )

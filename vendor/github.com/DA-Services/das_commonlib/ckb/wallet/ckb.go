@@ -15,7 +15,7 @@ import (
  * Copyright (C), 2019-2020
  * FileName: contract_owner
  * Author:   LinGuanHong
- * Date:     2020/12/21 10:10 下午
+ * Date:     2020/12/21 10:10
  * Description:
  */
 

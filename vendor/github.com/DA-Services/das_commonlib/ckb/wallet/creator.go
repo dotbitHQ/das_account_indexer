@@ -4,7 +4,7 @@ package wallet
  * Copyright (C), 2019-2021
  * FileName: creator
  * Author:   LinGuanHong
- * Date:     2021/3/29 3:00 下午
+ * Date:     2021/3/29 3:00
  * Description:
  */
 // https://github.com/vsergeev/btckeygenie

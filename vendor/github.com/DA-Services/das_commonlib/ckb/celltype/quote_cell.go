@@ -8,7 +8,7 @@ import (
  * Copyright (C), 2019-2021
  * FileName: quote_cell
  * Author:   LinGuanHong
- * Date:     2021/4/19 10:45 上午
+ * Date:     2021/4/19 10:45
  * Description:
  */
 

@@ -692,14 +692,16 @@ type ConfigCellAccountBuilder struct {
 basic_capacity Uint64
 expiration_grace_period Uint32
 record_min_ttl Uint32
+record_size_limit Uint32
+operate_throttle Uint32
 }
         
 
 func (s *ConfigCellAccountBuilder) Build() ConfigCellAccount {
     b := new(bytes.Buffer)
 
-    totalSize := HeaderSizeUint * (4 + 1)
-    offsets := make([]uint32, 0, 4)
+    totalSize := HeaderSizeUint * (6 + 1)
+    offsets := make([]uint32, 0, 6)
 
     offsets = append(offsets, totalSize)
 totalSize += uint32(len(s.max_length.AsSlice()))
@@ -709,6 +711,10 @@ offsets = append(offsets, totalSize)
 totalSize += uint32(len(s.expiration_grace_period.AsSlice()))
 offsets = append(offsets, totalSize)
 totalSize += uint32(len(s.record_min_ttl.AsSlice()))
+offsets = append(offsets, totalSize)
+totalSize += uint32(len(s.record_size_limit.AsSlice()))
+offsets = append(offsets, totalSize)
+totalSize += uint32(len(s.operate_throttle.AsSlice()))
 
     b.Write(packNumber(Number(totalSize)))
 
@@ -720,6 +726,8 @@ totalSize += uint32(len(s.record_min_ttl.AsSlice()))
 b.Write(s.basic_capacity.AsSlice())
 b.Write(s.expiration_grace_period.AsSlice())
 b.Write(s.record_min_ttl.AsSlice())
+b.Write(s.record_size_limit.AsSlice())
+b.Write(s.operate_throttle.AsSlice())
     return ConfigCellAccount{inner: b.Bytes()}
 }
                 
@@ -748,8 +756,20 @@ func (s *ConfigCellAccountBuilder) RecordMinTtl(v Uint32) *ConfigCellAccountBuil
 }
             
 
+func (s *ConfigCellAccountBuilder) RecordSizeLimit(v Uint32) *ConfigCellAccountBuilder {
+    s.record_size_limit = v
+    return s
+}
+            
+
+func (s *ConfigCellAccountBuilder) OperateThrottle(v Uint32) *ConfigCellAccountBuilder {
+    s.operate_throttle = v
+    return s
+}
+            
+
 func NewConfigCellAccountBuilder() *ConfigCellAccountBuilder {
-	return &ConfigCellAccountBuilder{ max_length: Uint32Default(),basic_capacity: Uint64Default(),expiration_grace_period: Uint32Default(),record_min_ttl: Uint32Default() }
+	return &ConfigCellAccountBuilder{ max_length: Uint32Default(),basic_capacity: Uint64Default(),expiration_grace_period: Uint32Default(),record_min_ttl: Uint32Default(),record_size_limit: Uint32Default(),operate_throttle: Uint32Default() }
 }
     
 
@@ -767,7 +787,7 @@ func (s *ConfigCellAccount) AsSlice() []byte {
             
 
 func ConfigCellAccountDefault() ConfigCellAccount {
-    return *ConfigCellAccountFromSliceUnchecked([]byte{ 40,0,0,0,20,0,0,0,24,0,0,0,32,0,0,0,36,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 })
+    return *ConfigCellAccountFromSliceUnchecked([]byte{ 56,0,0,0,28,0,0,0,32,0,0,0,40,0,0,0,44,0,0,0,48,0,0,0,52,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 })
 }
             
 
@@ -784,7 +804,7 @@ func ConfigCellAccountFromSlice(slice []byte, compatible bool) (*ConfigCellAccou
         return nil, errors.New(errMsg)
     }
 
-    if uint32(sliceLen) == HeaderSizeUint && 4 == 0 {
+    if uint32(sliceLen) == HeaderSizeUint && 6 == 0 {
         return &ConfigCellAccount{inner: slice}, nil
     }
 
@@ -800,9 +820,9 @@ func ConfigCellAccountFromSlice(slice []byte, compatible bool) (*ConfigCellAccou
     }
 
     fieldCount := offsetFirst/4 - 1
-    if fieldCount < 4 {
+    if fieldCount < 6 {
         return nil, errors.New("FieldCountNotMatch")
-    } else if !compatible && fieldCount > 4 {
+    } else if !compatible && fieldCount > 6 {
         return nil, errors.New("FieldCountNotMatch")
     }
 
@@ -851,6 +871,18 @@ if err != nil {
 }
                 
 
+_, err = Uint32FromSlice(slice[offsets[4]:offsets[5]], compatible)
+if err != nil {
+    return nil, err
+}
+                
+
+_, err = Uint32FromSlice(slice[offsets[5]:offsets[6]], compatible)
+if err != nil {
+    return nil, err
+}
+                
+
     return &ConfigCellAccount{inner: slice}, nil
 }
             
@@ -873,11 +905,11 @@ func (s *ConfigCellAccount) IsEmpty() bool {
     return s.Len() == 0
 }
 func (s *ConfigCellAccount) CountExtraFields() uint {
-    return s.FieldCount() - 4
+    return s.FieldCount() - 6
 }
 
 func (s *ConfigCellAccount) HasExtraFields() bool {
-    return 4 != s.FieldCount()
+    return 6 != s.FieldCount()
 }
             
 
@@ -903,10 +935,24 @@ func (s *ConfigCellAccount) ExpirationGracePeriod() *Uint32 {
                
 
 func (s *ConfigCellAccount) RecordMinTtl() *Uint32 {
-    var ret *Uint32
     start := unpackNumber(s.inner[16:])
+    end := unpackNumber(s.inner[20:])
+    return Uint32FromSliceUnchecked(s.inner[start:end])
+}
+               
+
+func (s *ConfigCellAccount) RecordSizeLimit() *Uint32 {
+    start := unpackNumber(s.inner[20:])
+    end := unpackNumber(s.inner[24:])
+    return Uint32FromSliceUnchecked(s.inner[start:end])
+}
+               
+
+func (s *ConfigCellAccount) OperateThrottle() *Uint32 {
+    var ret *Uint32
+    start := unpackNumber(s.inner[24:])
     if s.HasExtraFields() {
-        end := unpackNumber(s.inner[20:])
+        end := unpackNumber(s.inner[28:])
         ret = Uint32FromSliceUnchecked(s.inner[start:end])
     } else {
         ret = Uint32FromSliceUnchecked(s.inner[start:])
@@ -916,7 +962,7 @@ func (s *ConfigCellAccount) RecordMinTtl() *Uint32 {
                         
 
 func (s *ConfigCellAccount) AsBuilder() ConfigCellAccountBuilder {
-    ret := NewConfigCellAccountBuilder().MaxLength(*s.MaxLength()).BasicCapacity(*s.BasicCapacity()).ExpirationGracePeriod(*s.ExpirationGracePeriod()).RecordMinTtl(*s.RecordMinTtl())
+    ret := NewConfigCellAccountBuilder().MaxLength(*s.MaxLength()).BasicCapacity(*s.BasicCapacity()).ExpirationGracePeriod(*s.ExpirationGracePeriod()).RecordMinTtl(*s.RecordMinTtl()).RecordSizeLimit(*s.RecordSizeLimit()).OperateThrottle(*s.OperateThrottle())
     return *ret
 }
         
@@ -1105,574 +1151,6 @@ func (s *ConfigCellApply) ApplyMaxWaitingBlockNumber() *Uint32 {
 
 func (s *ConfigCellApply) AsBuilder() ConfigCellApplyBuilder {
     ret := NewConfigCellApplyBuilder().ApplyMinWaitingBlockNumber(*s.ApplyMinWaitingBlockNumber()).ApplyMaxWaitingBlockNumber(*s.ApplyMaxWaitingBlockNumber())
-    return *ret
-}
-        
-
-type ConfigCellCharSetBuilder struct {
-    char_sets CharSetList
-}
-        
-
-func (s *ConfigCellCharSetBuilder) Build() ConfigCellCharSet {
-    b := new(bytes.Buffer)
-
-    totalSize := HeaderSizeUint * (1 + 1)
-    offsets := make([]uint32, 0, 1)
-
-    offsets = append(offsets, totalSize)
-totalSize += uint32(len(s.char_sets.AsSlice()))
-
-    b.Write(packNumber(Number(totalSize)))
-
-    for i := 0; i < len(offsets); i++ {
-        b.Write(packNumber(Number(offsets[i])))
-    }
-
-    b.Write(s.char_sets.AsSlice())
-    return ConfigCellCharSet{inner: b.Bytes()}
-}
-                
-
-func (s *ConfigCellCharSetBuilder) CharSets(v CharSetList) *ConfigCellCharSetBuilder {
-    s.char_sets = v
-    return s
-}
-            
-
-func NewConfigCellCharSetBuilder() *ConfigCellCharSetBuilder {
-	return &ConfigCellCharSetBuilder{ char_sets: CharSetListDefault() }
-}
-    
-
-type ConfigCellCharSet struct {
-    inner []byte
-}
-        
-
-func ConfigCellCharSetFromSliceUnchecked(slice []byte) *ConfigCellCharSet {
-    return &ConfigCellCharSet{inner: slice}
-}
-func (s *ConfigCellCharSet) AsSlice() []byte {
-    return s.inner
-}
-            
-
-func ConfigCellCharSetDefault() ConfigCellCharSet {
-    return *ConfigCellCharSetFromSliceUnchecked([]byte{ 12,0,0,0,8,0,0,0,4,0,0,0 })
-}
-            
-
-func ConfigCellCharSetFromSlice(slice []byte, compatible bool) (*ConfigCellCharSet, error) {
-    sliceLen := len(slice)
-    if uint32(sliceLen) < HeaderSizeUint {
-        errMsg := strings.Join([]string{"HeaderIsBroken", "ConfigCellCharSet", strconv.Itoa(int(sliceLen)), "<", strconv.Itoa(int(HeaderSizeUint))}, " ")
-        return nil, errors.New(errMsg)
-    }
-
-    totalSize := unpackNumber(slice)
-    if Number(sliceLen) != totalSize {
-        errMsg := strings.Join([]string{"TotalSizeNotMatch", "ConfigCellCharSet", strconv.Itoa(int(sliceLen)), "!=", strconv.Itoa(int(totalSize))}, " ")
-        return nil, errors.New(errMsg)
-    }
-
-    if uint32(sliceLen) == HeaderSizeUint && 1 == 0 {
-        return &ConfigCellCharSet{inner: slice}, nil
-    }
-
-    if uint32(sliceLen) < HeaderSizeUint*2 {
-        errMsg := strings.Join([]string{"TotalSizeNotMatch", "ConfigCellCharSet", strconv.Itoa(int(sliceLen)), "<", strconv.Itoa(int(HeaderSizeUint*2))}, " ")
-        return nil, errors.New(errMsg)
-    }
-
-    offsetFirst := unpackNumber(slice[HeaderSizeUint:])
-    if offsetFirst%4 != 0 || uint32(offsetFirst) < HeaderSizeUint*2 {
-        errMsg := strings.Join([]string{"OffsetsNotMatch", "ConfigCellCharSet", strconv.Itoa(int(offsetFirst%4)), "!= 0", strconv.Itoa(int(offsetFirst)), "<", strconv.Itoa(int(HeaderSizeUint*2))}, " ")
-        return nil, errors.New(errMsg)
-    }
-
-    fieldCount := offsetFirst/4 - 1
-    if fieldCount < 1 {
-        return nil, errors.New("FieldCountNotMatch")
-    } else if !compatible && fieldCount > 1 {
-        return nil, errors.New("FieldCountNotMatch")
-    }
-
-    headerSize := HeaderSizeUint * (uint32(fieldCount) + 1)
-    if uint32(sliceLen) < headerSize {
-        errMsg := strings.Join([]string{"HeaderIsBroken", "ConfigCellCharSet", strconv.Itoa(int(sliceLen)), "<", strconv.Itoa(int(headerSize))}, " ")
-        return nil, errors.New(errMsg)
-    }
-
-    offsets := make([]uint32, fieldCount)
-
-    for i := 0; i < int(fieldCount); i++ {
-        offsets[i] = uint32(unpackNumber(slice[HeaderSizeUint:][int(HeaderSizeUint)*i:]))
-    }
-    offsets = append(offsets, uint32(totalSize))
-
-    for i := 0; i < len(offsets); i++ {
-        if i&1 != 0 && offsets[i-1] > offsets[i] {
-            return nil, errors.New("OffsetsNotMatch")
-        }
-    }
-
-    var err error
-    
-_, err = CharSetListFromSlice(slice[offsets[0]:offsets[1]], compatible)
-if err != nil {
-    return nil, err
-}
-                
-
-    return &ConfigCellCharSet{inner: slice}, nil
-}
-            
-
-func (s *ConfigCellCharSet) TotalSize() uint {
-    return uint(unpackNumber(s.inner))
-}
-func (s *ConfigCellCharSet) FieldCount() uint {
-    var number uint = 0
-    if uint32(s.TotalSize()) == HeaderSizeUint {
-        return number
-    }
-    number = uint(unpackNumber(s.inner[HeaderSizeUint:]))/4 - 1
-    return number
-}
-func (s *ConfigCellCharSet) Len() uint {
-    return s.FieldCount()
-}
-func (s *ConfigCellCharSet) IsEmpty() bool {
-    return s.Len() == 0
-}
-func (s *ConfigCellCharSet) CountExtraFields() uint {
-    return s.FieldCount() - 1
-}
-
-func (s *ConfigCellCharSet) HasExtraFields() bool {
-    return 1 != s.FieldCount()
-}
-            
-
-func (s *ConfigCellCharSet) CharSets() *CharSetList {
-    var ret *CharSetList
-    start := unpackNumber(s.inner[4:])
-    if s.HasExtraFields() {
-        end := unpackNumber(s.inner[8:])
-        ret = CharSetListFromSliceUnchecked(s.inner[start:end])
-    } else {
-        ret = CharSetListFromSliceUnchecked(s.inner[start:])
-    }
-    return ret
-}
-                        
-
-func (s *ConfigCellCharSet) AsBuilder() ConfigCellCharSetBuilder {
-    ret := NewConfigCellCharSetBuilder().CharSets(*s.CharSets())
-    return *ret
-}
-        
-
-type CharSetListBuilder struct {
-    inner []CharSet
-}
-    
-
-func (s *CharSetListBuilder) Build() CharSetList {
-    itemCount := len(s.inner)
-
-    b := new(bytes.Buffer)
-
-    // Empty dyn vector, just return size's bytes
-    if itemCount == 0 {
-        b.Write(packNumber(Number(HeaderSizeUint)))
-        return CharSetList{inner: b.Bytes()}
-    }
-
-    // Calculate first offset then loop for rest items offsets
-    totalSize := HeaderSizeUint * uint32(itemCount+1)
-    offsets := make([]uint32, 0, itemCount)
-    offsets = append(offsets, totalSize)
-    for i := 1; i < itemCount; i++ {
-        totalSize += uint32(len(s.inner[i-1].AsSlice()))
-        offsets = append(offsets, offsets[i-1]+uint32(len(s.inner[i-1].AsSlice())))
-    }
-    totalSize += uint32(len(s.inner[itemCount-1].AsSlice()))
-
-    b.Write(packNumber(Number(totalSize)))
-
-    for i := 0; i < itemCount; i++ {
-        b.Write(packNumber(Number(offsets[i])))
-    }
-
-    for i := 0; i < itemCount; i++ {
-        b.Write(s.inner[i].AsSlice())
-    }
-
-    return CharSetList{inner: b.Bytes()}
-}
-          
-
-func (s *CharSetListBuilder) Set(v []CharSet) *CharSetListBuilder {
-    s.inner = v
-    return s
-}
-func (s *CharSetListBuilder) Push(v CharSet) *CharSetListBuilder {
-    s.inner = append(s.inner, v)
-    return s
-}
-func (s *CharSetListBuilder) Extend(iter []CharSet) *CharSetListBuilder {
-    for i:=0; i < len(iter); i++ {
-        s.inner = append(s.inner, iter[i])
-    }
-    return s
-}
-    
-
-func NewCharSetListBuilder() *CharSetListBuilder {
-	return &CharSetListBuilder{ []CharSet{} }
-}
-        
-
-type CharSetList struct {
-    inner []byte
-}
-        
-
-func CharSetListFromSliceUnchecked(slice []byte) *CharSetList {
-    return &CharSetList{inner: slice}
-}
-func (s *CharSetList) AsSlice() []byte {
-    return s.inner
-}
-            
-
-func CharSetListDefault() CharSetList {
-    return *CharSetListFromSliceUnchecked([]byte{ 4,0,0,0 })
-}
-            
-
-func CharSetListFromSlice(slice []byte, compatible bool) (*CharSetList, error) {
-    sliceLen := len(slice)
-
-    if uint32(sliceLen) < HeaderSizeUint {
-        errMsg := strings.Join([]string{"HeaderIsBroken", "CharSetList", strconv.Itoa(int(sliceLen)), "<", strconv.Itoa(int(HeaderSizeUint))}, " ")
-        return nil, errors.New(errMsg)
-    }
-
-    totalSize := unpackNumber(slice)
-    if Number(sliceLen) != totalSize {
-        errMsg := strings.Join([]string{"TotalSizeNotMatch", "CharSetList", strconv.Itoa(int(sliceLen)), "!=", strconv.Itoa(int(totalSize))}, " ")
-        return nil, errors.New(errMsg)
-    }
-
-    if uint32(sliceLen) == HeaderSizeUint {
-        return &CharSetList{inner: slice}, nil
-    }
-
-    if uint32(sliceLen) < HeaderSizeUint*2 {
-        errMsg := strings.Join([]string{"TotalSizeNotMatch", "CharSetList", strconv.Itoa(int(sliceLen)), "<", strconv.Itoa(int(HeaderSizeUint*2))}, " ")
-        return nil, errors.New(errMsg)
-    }
-
-    offsetFirst := unpackNumber(slice[HeaderSizeUint:])
-    if offsetFirst%4 != 0 || uint32(offsetFirst) < HeaderSizeUint*2 {
-        errMsg := strings.Join([]string{"OffsetsNotMatch", "CharSetList", strconv.Itoa(int(offsetFirst%4)), "!= 0", strconv.Itoa(int(offsetFirst)), "<", strconv.Itoa(int(HeaderSizeUint*2))}, " ")
-        return nil, errors.New(errMsg)
-    }
-
-    itemCount := offsetFirst/4 - 1
-    headerSize := HeaderSizeUint * (uint32(itemCount) + 1)
-    if uint32(sliceLen) < headerSize {
-        errMsg := strings.Join([]string{"HeaderIsBroken", "CharSetList", strconv.Itoa(int(sliceLen)), "<", strconv.Itoa(int(headerSize))}, " ")
-        return nil, errors.New(errMsg)
-    }
-
-    offsets := make([]uint32, itemCount)
-
-    for i := 0; i < int(itemCount); i++ {
-        offsets[i] = uint32(unpackNumber(slice[HeaderSizeUint:][4*i:]))
-    }
-
-    offsets = append(offsets, uint32(totalSize))
-
-    for i := 0; i < len(offsets); i++ {
-        if i&1 != 0 && offsets[i-1] > offsets[i] {
-            errMsg := strings.Join([]string{"OffsetsNotMatch", "CharSetList"}, " ")
-            return nil, errors.New(errMsg)
-        }
-    }
-
-    for i := 0; i < len(offsets); i++ {
-        if i&1 != 0 {
-            start := offsets[i-1]
-            end := offsets[i]
-            _, err := CharSetFromSlice(slice[start:end], compatible)
-
-            if err != nil {
-                return nil, err
-            }
-        }
-    }
-
-    return &CharSetList{inner: slice}, nil
-}
-            
-
-func (s *CharSetList) TotalSize() uint {
-    return uint(unpackNumber(s.inner))
-}
-func (s *CharSetList) ItemCount() uint {
-    var number uint = 0
-    if uint32(s.TotalSize()) == HeaderSizeUint {
-        return number
-    }
-    number = uint(unpackNumber(s.inner[HeaderSizeUint:]))/4 - 1
-    return number
-}
-func (s *CharSetList) Len() uint {
-    return s.ItemCount()
-}
-func (s *CharSetList) IsEmpty() bool {
-    return s.Len() == 0
-}
-// if *CharSet is nil, index is out of bounds
-func (s *CharSetList) Get(index uint) *CharSet {
-    var b *CharSet
-    if index < s.Len() {
-        start_index := uint(HeaderSizeUint) * (1 + index)
-        start := unpackNumber(s.inner[start_index:]);
-
-        if index == s.Len()-1 {
-            b = CharSetFromSliceUnchecked(s.inner[start:])
-        } else {
-            end_index := start_index + uint(HeaderSizeUint)
-            end := unpackNumber(s.inner[end_index:])
-            b = CharSetFromSliceUnchecked(s.inner[start:end])
-        }
-    }
-    return b
-}
-            
-
-func (s *CharSetList) AsBuilder() CharSetListBuilder {
-    size := s.ItemCount()
-    t := NewCharSetListBuilder()
-    for i:=uint(0); i < size; i++ {
-        t.Push(*s.Get(i))
-    }
-    return *t
-}
-        
-
-type CharSetBuilder struct {
-    name Uint32
-global Uint8
-chars Chars
-}
-        
-
-func (s *CharSetBuilder) Build() CharSet {
-    b := new(bytes.Buffer)
-
-    totalSize := HeaderSizeUint * (3 + 1)
-    offsets := make([]uint32, 0, 3)
-
-    offsets = append(offsets, totalSize)
-totalSize += uint32(len(s.name.AsSlice()))
-offsets = append(offsets, totalSize)
-totalSize += uint32(len(s.global.AsSlice()))
-offsets = append(offsets, totalSize)
-totalSize += uint32(len(s.chars.AsSlice()))
-
-    b.Write(packNumber(Number(totalSize)))
-
-    for i := 0; i < len(offsets); i++ {
-        b.Write(packNumber(Number(offsets[i])))
-    }
-
-    b.Write(s.name.AsSlice())
-b.Write(s.global.AsSlice())
-b.Write(s.chars.AsSlice())
-    return CharSet{inner: b.Bytes()}
-}
-                
-
-func (s *CharSetBuilder) Name(v Uint32) *CharSetBuilder {
-    s.name = v
-    return s
-}
-            
-
-func (s *CharSetBuilder) Global(v Uint8) *CharSetBuilder {
-    s.global = v
-    return s
-}
-            
-
-func (s *CharSetBuilder) Chars(v Chars) *CharSetBuilder {
-    s.chars = v
-    return s
-}
-            
-
-func NewCharSetBuilder() *CharSetBuilder {
-	return &CharSetBuilder{ name: Uint32Default(),global: Uint8Default(),chars: CharsDefault() }
-}
-    
-
-type CharSet struct {
-    inner []byte
-}
-        
-
-func CharSetFromSliceUnchecked(slice []byte) *CharSet {
-    return &CharSet{inner: slice}
-}
-func (s *CharSet) AsSlice() []byte {
-    return s.inner
-}
-            
-
-func CharSetDefault() CharSet {
-    return *CharSetFromSliceUnchecked([]byte{ 25,0,0,0,16,0,0,0,20,0,0,0,21,0,0,0,0,0,0,0,0,4,0,0,0 })
-}
-            
-
-func CharSetFromSlice(slice []byte, compatible bool) (*CharSet, error) {
-    sliceLen := len(slice)
-    if uint32(sliceLen) < HeaderSizeUint {
-        errMsg := strings.Join([]string{"HeaderIsBroken", "CharSet", strconv.Itoa(int(sliceLen)), "<", strconv.Itoa(int(HeaderSizeUint))}, " ")
-        return nil, errors.New(errMsg)
-    }
-
-    totalSize := unpackNumber(slice)
-    if Number(sliceLen) != totalSize {
-        errMsg := strings.Join([]string{"TotalSizeNotMatch", "CharSet", strconv.Itoa(int(sliceLen)), "!=", strconv.Itoa(int(totalSize))}, " ")
-        return nil, errors.New(errMsg)
-    }
-
-    if uint32(sliceLen) == HeaderSizeUint && 3 == 0 {
-        return &CharSet{inner: slice}, nil
-    }
-
-    if uint32(sliceLen) < HeaderSizeUint*2 {
-        errMsg := strings.Join([]string{"TotalSizeNotMatch", "CharSet", strconv.Itoa(int(sliceLen)), "<", strconv.Itoa(int(HeaderSizeUint*2))}, " ")
-        return nil, errors.New(errMsg)
-    }
-
-    offsetFirst := unpackNumber(slice[HeaderSizeUint:])
-    if offsetFirst%4 != 0 || uint32(offsetFirst) < HeaderSizeUint*2 {
-        errMsg := strings.Join([]string{"OffsetsNotMatch", "CharSet", strconv.Itoa(int(offsetFirst%4)), "!= 0", strconv.Itoa(int(offsetFirst)), "<", strconv.Itoa(int(HeaderSizeUint*2))}, " ")
-        return nil, errors.New(errMsg)
-    }
-
-    fieldCount := offsetFirst/4 - 1
-    if fieldCount < 3 {
-        return nil, errors.New("FieldCountNotMatch")
-    } else if !compatible && fieldCount > 3 {
-        return nil, errors.New("FieldCountNotMatch")
-    }
-
-    headerSize := HeaderSizeUint * (uint32(fieldCount) + 1)
-    if uint32(sliceLen) < headerSize {
-        errMsg := strings.Join([]string{"HeaderIsBroken", "CharSet", strconv.Itoa(int(sliceLen)), "<", strconv.Itoa(int(headerSize))}, " ")
-        return nil, errors.New(errMsg)
-    }
-
-    offsets := make([]uint32, fieldCount)
-
-    for i := 0; i < int(fieldCount); i++ {
-        offsets[i] = uint32(unpackNumber(slice[HeaderSizeUint:][int(HeaderSizeUint)*i:]))
-    }
-    offsets = append(offsets, uint32(totalSize))
-
-    for i := 0; i < len(offsets); i++ {
-        if i&1 != 0 && offsets[i-1] > offsets[i] {
-            return nil, errors.New("OffsetsNotMatch")
-        }
-    }
-
-    var err error
-    
-_, err = Uint32FromSlice(slice[offsets[0]:offsets[1]], compatible)
-if err != nil {
-    return nil, err
-}
-                
-
-_, err = Uint8FromSlice(slice[offsets[1]:offsets[2]], compatible)
-if err != nil {
-    return nil, err
-}
-                
-
-_, err = CharsFromSlice(slice[offsets[2]:offsets[3]], compatible)
-if err != nil {
-    return nil, err
-}
-                
-
-    return &CharSet{inner: slice}, nil
-}
-            
-
-func (s *CharSet) TotalSize() uint {
-    return uint(unpackNumber(s.inner))
-}
-func (s *CharSet) FieldCount() uint {
-    var number uint = 0
-    if uint32(s.TotalSize()) == HeaderSizeUint {
-        return number
-    }
-    number = uint(unpackNumber(s.inner[HeaderSizeUint:]))/4 - 1
-    return number
-}
-func (s *CharSet) Len() uint {
-    return s.FieldCount()
-}
-func (s *CharSet) IsEmpty() bool {
-    return s.Len() == 0
-}
-func (s *CharSet) CountExtraFields() uint {
-    return s.FieldCount() - 3
-}
-
-func (s *CharSet) HasExtraFields() bool {
-    return 3 != s.FieldCount()
-}
-            
-
-func (s *CharSet) Name() *Uint32 {
-    start := unpackNumber(s.inner[4:])
-    end := unpackNumber(s.inner[8:])
-    return Uint32FromSliceUnchecked(s.inner[start:end])
-}
-               
-
-func (s *CharSet) Global() *Uint8 {
-    start := unpackNumber(s.inner[8:])
-    end := unpackNumber(s.inner[12:])
-    return Uint8FromSliceUnchecked(s.inner[start:end])
-}
-               
-
-func (s *CharSet) Chars() *Chars {
-    var ret *Chars
-    start := unpackNumber(s.inner[12:])
-    if s.HasExtraFields() {
-        end := unpackNumber(s.inner[16:])
-        ret = CharsFromSliceUnchecked(s.inner[start:end])
-    } else {
-        ret = CharsFromSliceUnchecked(s.inner[start:])
-    }
-    return ret
-}
-                        
-
-func (s *CharSet) AsBuilder() CharSetBuilder {
-    ret := NewCharSetBuilder().Name(*s.Name()).Global(*s.Global()).Chars(*s.Chars())
     return *ret
 }
         
@@ -4414,7 +3892,7 @@ func (s *ProposalItem) AsSlice() []byte {
             
 
 func ProposalItemDefault() ProposalItem {
-    return *ProposalItemFromSliceUnchecked([]byte{ 37,0,0,0,16,0,0,0,26,0,0,0,27,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 })
+    return *ProposalItemFromSliceUnchecked([]byte{ 57,0,0,0,16,0,0,0,36,0,0,0,37,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 })
 }
             
 
@@ -5127,6 +4605,7 @@ type AccountCellDataBuilder struct {
     id AccountId
 account AccountChars
 registered_at Uint64
+updated_at Uint64
 status Uint8
 records Records
 }
@@ -5135,8 +4614,8 @@ records Records
 func (s *AccountCellDataBuilder) Build() AccountCellData {
     b := new(bytes.Buffer)
 
-    totalSize := HeaderSizeUint * (5 + 1)
-    offsets := make([]uint32, 0, 5)
+    totalSize := HeaderSizeUint * (6 + 1)
+    offsets := make([]uint32, 0, 6)
 
     offsets = append(offsets, totalSize)
 totalSize += uint32(len(s.id.AsSlice()))
@@ -5144,6 +4623,8 @@ offsets = append(offsets, totalSize)
 totalSize += uint32(len(s.account.AsSlice()))
 offsets = append(offsets, totalSize)
 totalSize += uint32(len(s.registered_at.AsSlice()))
+offsets = append(offsets, totalSize)
+totalSize += uint32(len(s.updated_at.AsSlice()))
 offsets = append(offsets, totalSize)
 totalSize += uint32(len(s.status.AsSlice()))
 offsets = append(offsets, totalSize)
@@ -5158,6 +4639,7 @@ totalSize += uint32(len(s.records.AsSlice()))
     b.Write(s.id.AsSlice())
 b.Write(s.account.AsSlice())
 b.Write(s.registered_at.AsSlice())
+b.Write(s.updated_at.AsSlice())
 b.Write(s.status.AsSlice())
 b.Write(s.records.AsSlice())
     return AccountCellData{inner: b.Bytes()}
@@ -5182,6 +4664,12 @@ func (s *AccountCellDataBuilder) RegisteredAt(v Uint64) *AccountCellDataBuilder 
 }
             
 
+func (s *AccountCellDataBuilder) UpdatedAt(v Uint64) *AccountCellDataBuilder {
+    s.updated_at = v
+    return s
+}
+            
+
 func (s *AccountCellDataBuilder) Status(v Uint8) *AccountCellDataBuilder {
     s.status = v
     return s
@@ -5195,7 +4683,7 @@ func (s *AccountCellDataBuilder) Records(v Records) *AccountCellDataBuilder {
             
 
 func NewAccountCellDataBuilder() *AccountCellDataBuilder {
-	return &AccountCellDataBuilder{ id: AccountIdDefault(),account: AccountCharsDefault(),registered_at: Uint64Default(),status: Uint8Default(),records: RecordsDefault() }
+	return &AccountCellDataBuilder{ id: AccountIdDefault(),account: AccountCharsDefault(),registered_at: Uint64Default(),updated_at: Uint64Default(),status: Uint8Default(),records: RecordsDefault() }
 }
     
 
@@ -5213,7 +4701,7 @@ func (s *AccountCellData) AsSlice() []byte {
             
 
 func AccountCellDataDefault() AccountCellData {
-    return *AccountCellDataFromSliceUnchecked([]byte{ 51,0,0,0,24,0,0,0,34,0,0,0,38,0,0,0,46,0,0,0,47,0,0,0,0,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,4,0,0,0 })
+    return *AccountCellDataFromSliceUnchecked([]byte{ 73,0,0,0,28,0,0,0,48,0,0,0,52,0,0,0,60,0,0,0,68,0,0,0,69,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,0,0,0 })
 }
             
 
@@ -5230,7 +4718,7 @@ func AccountCellDataFromSlice(slice []byte, compatible bool) (*AccountCellData, 
         return nil, errors.New(errMsg)
     }
 
-    if uint32(sliceLen) == HeaderSizeUint && 5 == 0 {
+    if uint32(sliceLen) == HeaderSizeUint && 6 == 0 {
         return &AccountCellData{inner: slice}, nil
     }
 
@@ -5246,9 +4734,9 @@ func AccountCellDataFromSlice(slice []byte, compatible bool) (*AccountCellData, 
     }
 
     fieldCount := offsetFirst/4 - 1
-    if fieldCount < 5 {
+    if fieldCount < 6 {
         return nil, errors.New("FieldCountNotMatch")
-    } else if !compatible && fieldCount > 5 {
+    } else if !compatible && fieldCount > 6 {
         return nil, errors.New("FieldCountNotMatch")
     }
 
@@ -5291,13 +4779,19 @@ if err != nil {
 }
                 
 
-_, err = Uint8FromSlice(slice[offsets[3]:offsets[4]], compatible)
+_, err = Uint64FromSlice(slice[offsets[3]:offsets[4]], compatible)
 if err != nil {
     return nil, err
 }
                 
 
-_, err = RecordsFromSlice(slice[offsets[4]:offsets[5]], compatible)
+_, err = Uint8FromSlice(slice[offsets[4]:offsets[5]], compatible)
+if err != nil {
+    return nil, err
+}
+                
+
+_, err = RecordsFromSlice(slice[offsets[5]:offsets[6]], compatible)
 if err != nil {
     return nil, err
 }
@@ -5325,11 +4819,11 @@ func (s *AccountCellData) IsEmpty() bool {
     return s.Len() == 0
 }
 func (s *AccountCellData) CountExtraFields() uint {
-    return s.FieldCount() - 5
+    return s.FieldCount() - 6
 }
 
 func (s *AccountCellData) HasExtraFields() bool {
-    return 5 != s.FieldCount()
+    return 6 != s.FieldCount()
 }
             
 
@@ -5354,18 +4848,25 @@ func (s *AccountCellData) RegisteredAt() *Uint64 {
 }
                
 
-func (s *AccountCellData) Status() *Uint8 {
+func (s *AccountCellData) UpdatedAt() *Uint64 {
     start := unpackNumber(s.inner[16:])
     end := unpackNumber(s.inner[20:])
+    return Uint64FromSliceUnchecked(s.inner[start:end])
+}
+               
+
+func (s *AccountCellData) Status() *Uint8 {
+    start := unpackNumber(s.inner[20:])
+    end := unpackNumber(s.inner[24:])
     return Uint8FromSliceUnchecked(s.inner[start:end])
 }
                
 
 func (s *AccountCellData) Records() *Records {
     var ret *Records
-    start := unpackNumber(s.inner[20:])
+    start := unpackNumber(s.inner[24:])
     if s.HasExtraFields() {
-        end := unpackNumber(s.inner[24:])
+        end := unpackNumber(s.inner[28:])
         ret = RecordsFromSliceUnchecked(s.inner[start:end])
     } else {
         ret = RecordsFromSliceUnchecked(s.inner[start:])
@@ -5375,17 +4876,17 @@ func (s *AccountCellData) Records() *Records {
                         
 
 func (s *AccountCellData) AsBuilder() AccountCellDataBuilder {
-    ret := NewAccountCellDataBuilder().Id(*s.Id()).Account(*s.Account()).RegisteredAt(*s.RegisteredAt()).Status(*s.Status()).Records(*s.Records())
+    ret := NewAccountCellDataBuilder().Id(*s.Id()).Account(*s.Account()).RegisteredAt(*s.RegisteredAt()).UpdatedAt(*s.UpdatedAt()).Status(*s.Status()).Records(*s.Records())
     return *ret
 }
         
 
 type AccountIdBuilder struct {
-	inner [10]Byte
+	inner [20]Byte
 }
 
 func NewAccountIdBuilder() *AccountIdBuilder {
-	return &AccountIdBuilder{inner: [10]Byte{ByteDefault(),ByteDefault(),ByteDefault(),ByteDefault(),ByteDefault(),ByteDefault(),ByteDefault(),ByteDefault(),ByteDefault(),ByteDefault()}}
+	return &AccountIdBuilder{inner: [20]Byte{ByteDefault(),ByteDefault(),ByteDefault(),ByteDefault(),ByteDefault(),ByteDefault(),ByteDefault(),ByteDefault(),ByteDefault(),ByteDefault(),ByteDefault(),ByteDefault(),ByteDefault(),ByteDefault(),ByteDefault(),ByteDefault(),ByteDefault(),ByteDefault(),ByteDefault(),ByteDefault()}}
 }
 
 func (s *AccountIdBuilder) Build() AccountId {
@@ -5398,7 +4899,7 @@ func (s *AccountIdBuilder) Build() AccountId {
 }
         
 
-func (s *AccountIdBuilder) Set(v [10]Byte) *AccountIdBuilder {
+func (s *AccountIdBuilder) Set(v [20]Byte) *AccountIdBuilder {
 	s.inner = v
 	return s
 }
@@ -5464,6 +4965,66 @@ func (s *AccountIdBuilder) Nth9(v Byte) *AccountIdBuilder {
 }
                 
 
+func (s *AccountIdBuilder) Nth10(v Byte) *AccountIdBuilder {
+	s.inner[10] = v
+	return s
+}
+                
+
+func (s *AccountIdBuilder) Nth11(v Byte) *AccountIdBuilder {
+	s.inner[11] = v
+	return s
+}
+                
+
+func (s *AccountIdBuilder) Nth12(v Byte) *AccountIdBuilder {
+	s.inner[12] = v
+	return s
+}
+                
+
+func (s *AccountIdBuilder) Nth13(v Byte) *AccountIdBuilder {
+	s.inner[13] = v
+	return s
+}
+                
+
+func (s *AccountIdBuilder) Nth14(v Byte) *AccountIdBuilder {
+	s.inner[14] = v
+	return s
+}
+                
+
+func (s *AccountIdBuilder) Nth15(v Byte) *AccountIdBuilder {
+	s.inner[15] = v
+	return s
+}
+                
+
+func (s *AccountIdBuilder) Nth16(v Byte) *AccountIdBuilder {
+	s.inner[16] = v
+	return s
+}
+                
+
+func (s *AccountIdBuilder) Nth17(v Byte) *AccountIdBuilder {
+	s.inner[17] = v
+	return s
+}
+                
+
+func (s *AccountIdBuilder) Nth18(v Byte) *AccountIdBuilder {
+	s.inner[18] = v
+	return s
+}
+                
+
+func (s *AccountIdBuilder) Nth19(v Byte) *AccountIdBuilder {
+	s.inner[19] = v
+	return s
+}
+                
+
 type AccountId struct {
     inner []byte
 }
@@ -5478,14 +5039,14 @@ func (s *AccountId) AsSlice() []byte {
             
 
 func AccountIdDefault() AccountId {
-    return *AccountIdFromSliceUnchecked([]byte{ 0,0,0,0,0,0,0,0,0,0 })
+    return *AccountIdFromSliceUnchecked([]byte{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 })
 }
             
 
 func AccountIdFromSlice(slice []byte, _compatible bool) (*AccountId, error) {
     sliceLen := len(slice)
-    if sliceLen != 10 {
-        errMsg := strings.Join([]string{"TotalSizeNotMatch", "AccountId", strconv.Itoa(int(sliceLen)), "!=", strconv.Itoa(10)}, " ")
+    if sliceLen != 20 {
+        errMsg := strings.Join([]string{"TotalSizeNotMatch", "AccountId", strconv.Itoa(int(sliceLen)), "!=", strconv.Itoa(20)}, " ")
         return nil, errors.New(errMsg)
     }
     return &AccountId{inner: slice}, nil
@@ -5557,6 +5118,66 @@ func (s *AccountId) Nth9() *Byte {
 }
             
 
+func (s *AccountId) Nth10() *Byte {
+    ret := ByteFromSliceUnchecked(s.inner[10:11])
+    return ret
+}
+            
+
+func (s *AccountId) Nth11() *Byte {
+    ret := ByteFromSliceUnchecked(s.inner[11:12])
+    return ret
+}
+            
+
+func (s *AccountId) Nth12() *Byte {
+    ret := ByteFromSliceUnchecked(s.inner[12:13])
+    return ret
+}
+            
+
+func (s *AccountId) Nth13() *Byte {
+    ret := ByteFromSliceUnchecked(s.inner[13:14])
+    return ret
+}
+            
+
+func (s *AccountId) Nth14() *Byte {
+    ret := ByteFromSliceUnchecked(s.inner[14:15])
+    return ret
+}
+            
+
+func (s *AccountId) Nth15() *Byte {
+    ret := ByteFromSliceUnchecked(s.inner[15:16])
+    return ret
+}
+            
+
+func (s *AccountId) Nth16() *Byte {
+    ret := ByteFromSliceUnchecked(s.inner[16:17])
+    return ret
+}
+            
+
+func (s *AccountId) Nth17() *Byte {
+    ret := ByteFromSliceUnchecked(s.inner[17:18])
+    return ret
+}
+            
+
+func (s *AccountId) Nth18() *Byte {
+    ret := ByteFromSliceUnchecked(s.inner[18:19])
+    return ret
+}
+            
+
+func (s *AccountId) Nth19() *Byte {
+    ret := ByteFromSliceUnchecked(s.inner[19:20])
+    return ret
+}
+            
+
 func (s *AccountId) AsBuilder() AccountIdBuilder {
 	t := NewAccountIdBuilder()
 	t.Nth0(*s.Nth0())
@@ -5569,6 +5190,16 @@ t.Nth6(*s.Nth6())
 t.Nth7(*s.Nth7())
 t.Nth8(*s.Nth8())
 t.Nth9(*s.Nth9())
+t.Nth10(*s.Nth10())
+t.Nth11(*s.Nth11())
+t.Nth12(*s.Nth12())
+t.Nth13(*s.Nth13())
+t.Nth14(*s.Nth14())
+t.Nth15(*s.Nth15())
+t.Nth16(*s.Nth16())
+t.Nth17(*s.Nth17())
+t.Nth18(*s.Nth18())
+t.Nth19(*s.Nth19())
 	return *t
 }
         

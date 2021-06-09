@@ -11,7 +11,7 @@ import (
  * Copyright (C), 2019-2020
  * FileName: config
  * Author:   LinGuanHong
- * Date:     2020/12/21 11:26 上午
+ * Date:     2020/12/21 11:26
  * Description:
  */
 

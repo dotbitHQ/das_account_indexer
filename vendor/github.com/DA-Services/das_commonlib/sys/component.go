@@ -16,7 +16,7 @@ import (
  * FileName: component
  * Author:   LinGuanHong
  * Date:     2019-11-12 11:38
- * Description: 组件组装
+ * Description:
  */
 
 // exit the program gracefully
@@ -51,7 +51,6 @@ func AddConfigFileWatcher(configFilePath string, handler func(optName fsnotify.O
 			if fileName != target {
 				return
 			}
-			// 更新配置文件
 			go func() {
 				fmt.Println(fmt.Sprintf("configuration file change detected: %s, time: %s", optName, time.Now().Format("2006-01-02 15:04:05")))
 				handler(optName)

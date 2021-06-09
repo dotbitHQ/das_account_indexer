@@ -6,7 +6,7 @@ import "github.com/nervosnetwork/ckb-sdk-go/types"
  * Copyright (C), 2019-2020
  * FileName: icelltype
  * Author:   LinGuanHong
- * Date:     2020/12/20 3:25 下午
+ * Date:     2020/12/20 3:25
  * Description:
  */
 

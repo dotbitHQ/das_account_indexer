@@ -10,7 +10,7 @@ import (
  * Copyright (C), 2019-2020
  * FileName: statecell
  * Author:   LinGuanHong
- * Date:     2020/12/18 3:58 下午
+ * Date:     2020/12/18 3:58
  * Description:
  */
 
@@ -27,14 +27,6 @@ var DefaultApplyRegisterCellParam = func(args []byte, account DasAccount, height
 		},
 	}
 }
-
-/**
-lock: <lock_script>
-type: <apply_register_script>
-data:
-  hash(pubkey_hash + account)
-  Timestamp // cell 创建时 TimeCell 的时间
-*/
 
 type ApplyRegisterCell struct {
 	p *ApplyRegisterCellParam

@@ -8,7 +8,7 @@ package celltype
 //  * Copyright (C), 2019-2020
 //  * FileName: refcell
 //  * Author:   LinGuanHong
-//  * Date:     2020/12/27 11:17 上午
+//  * Date:     2020/12/27 11:17
 //  * Description:
 //  */
 //
@@ -72,11 +72,6 @@ package celltype
 // 	}
 // }
 //
-// /**
-// data:
-//   id // 10 Bytes 的 Account ID
-//   role // 1 Bytes 的身份区分符
-// */
 // func (c *Refcell) Data() ([]byte, error) {
 // 	return append(c.p.AccountId.Bytes(), []byte{uint8(c.p.RefType)}...), nil
 // }

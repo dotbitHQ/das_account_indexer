@@ -9,7 +9,7 @@ import (
  * Copyright (C), 2019-2021
  * FileName: bytes
  * Author:   LinGuanHong
- * Date:     2021/1/15 2:48 下午
+ * Date:     2021/1/15 2:48
  * Description:
  */
 

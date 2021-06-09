@@ -13,7 +13,7 @@ import (
  * Copyright (C), 2019-2020
  * FileName: types
  * Author:   LinGuanHong
- * Date:     2020/12/18 3:58 下午
+ * Date:     2020/12/18 3:58
  * Description:
  */
 
@@ -48,12 +48,6 @@ type DASWitnessDataObj struct {
 	TableBys  []byte    `json:"table_bys"`
 }
 
-/**
-- 整块数据为使用 molecule 编码的 Bytes 类型，这是因为 CKB 的交易数据每个字段都必须是 molecule 编码；
-- 通过 molecule 解码后，[0:3] 前 3 个字节固定值为 `0x646173`，这是 `das` 三个字母的 ascii 编码，指明接下来的数据是 DAS 系统数据；
-- 通过 molecule 解码后，[4:7] 4 个字节为 molecule 编码的 Uint32 整形，实际上就是小端序的 u32 类型，它是对第 8 字节之后数据类型的标识，具体值详见[Type 常量列表](#Type 常量列表)。首先要通过这个标识判断出具体的数据类型，然后才能用 molecule 编码去解码，下文会解释什么是 molecule 编码；
-- [8:] 第 8 字节开始往后的都是 molecule 编码的特殊数据结构，其整体结构如下；
-*/
 func NewDasWitnessDataFromSlice(rawData []byte) (*DASWitnessDataObj, error) {
 	tempByte := make([]byte,len(rawData))
 	copy(tempByte,rawData)
@@ -235,40 +229,6 @@ type IncomeCellParam struct {
 	AlwaysSpendableScriptInfo DASCellBaseInfo `json:"always_spendable_script_info"`
 }
 
-/**
-lock: <always_success>
-type:
-  code_hash: <bidding_script>
-  type: type
-  args: [id] // AccountCell 的 ID
-data: hash(data: BiddingCellData)
-
-witness:
-  table Data {
-    old: table DataEntityOpt {
-    	index: Uint32,
-    	version: Uint32,
-    	entity: BiddingCellData
-    },
-    new: table DataEntityOpt {
-      index: Uint32,
-      version: Uint32,
-      entity: BiddingCellData
-    },
-  }
-
-======
-table BiddingCellData {
-    // market type, 0x01 for primary，0x02 for secondary
-    market_type: Uint8,
-    // starting bidding price
-    starting_price: Uint64,
-    // current bidding price
-    current_price: Uint64,
-    // latest bidder's lock script
-    current_bidder: ScriptOpt,
-}
-*/
 type BiddingCellParam struct {
 	Version                   uint32          `json:"version"`
 	Data                      Data            `json:"data"`

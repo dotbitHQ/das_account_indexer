@@ -9,7 +9,7 @@ import (
  * Copyright (C), 2019-2021
  * FileName: on_sale_cell
  * Author:   LinGuanHong
- * Date:     2021/2/22 11:05 上午
+ * Date:     2021/2/22 11:05
  * Description:
  */
 
