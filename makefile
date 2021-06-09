@@ -22,7 +22,6 @@ rpc-win:
 rpc-linux: BIN_BINARY_NAME=rpc_server
 rpc-linux: export GOOS=linux
 rpc-linux: export GOARCH=amd64
-rpc-linux: export CGO_ENABLED=0
 rpc-linux:
 	$(GOBUILD) -o $(BIN_BINARY_NAME) cmd/main.go
 	mv $(BIN_BINARY_NAME) bin/linux/
