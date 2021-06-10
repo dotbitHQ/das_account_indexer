@@ -2,7 +2,7 @@ package common
 
 import (
 	"fmt"
-	"github.com/DA-Services/das_commonlib/ckb/collector"
+	"github.com/DeAccountSystems/das_commonlib/ckb/collector"
 	"github.com/nervosnetwork/ckb-sdk-go/indexer"
 	"github.com/nervosnetwork/ckb-sdk-go/rpc"
 )

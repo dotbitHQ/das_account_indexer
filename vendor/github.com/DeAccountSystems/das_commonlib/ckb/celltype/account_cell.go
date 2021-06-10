@@ -2,7 +2,7 @@ package celltype
 
 import (
 	"fmt"
-	"github.com/DA-Services/das_commonlib/common"
+	"github.com/DeAccountSystems/das_commonlib/common"
 	"github.com/nervosnetwork/ckb-sdk-go/crypto/blake2b"
 	"github.com/nervosnetwork/ckb-sdk-go/types"
 )

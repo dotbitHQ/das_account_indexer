@@ -1,6 +1,6 @@
 package celltype
 
-import "github.com/DA-Services/das_commonlib/common"
+import "github.com/DeAccountSystems/das_commonlib/common"
 
 /**
  * Copyright (C), 2019-2020

@@ -1,6 +1,6 @@
 package common
 
-import "github.com/DA-Services/das_commonlib/common/dascode"
+import "github.com/DeAccountSystems/das_commonlib/common/dascode"
 
 /**
  * Copyright (C), 2019-2020

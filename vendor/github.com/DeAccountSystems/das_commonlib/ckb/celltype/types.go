@@ -299,6 +299,9 @@ type DasLockArgsPairParam struct {
 }
 
 func (d DasLockArgsPairParam) Bytes() []byte {
+	if len(d.Script.Args) == DasLockArgsMinBytesLen {
+		return d.Script.Args
+	}
 	return append(d.HashIndexType.Bytes(),d.Script.Args...)
 }
 
