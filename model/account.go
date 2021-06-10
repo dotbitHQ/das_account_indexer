@@ -1,7 +1,7 @@
 package model
 
 import (
-	"github.com/DA-Services/das_commonlib/ckb/celltype"
+	"github.com/DeAccountSystems/das_commonlib/ckb/celltype"
 	"github.com/nervosnetwork/ckb-sdk-go/types"
 )
 

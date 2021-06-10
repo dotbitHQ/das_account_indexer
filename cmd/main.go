@@ -12,10 +12,10 @@ import (
 	"das_account_indexer/api"
 	"das_account_indexer/config"
 
-	"github.com/DA-Services/das_commonlib/cfg"
-	"github.com/DA-Services/das_commonlib/ckb/celltype"
-	"github.com/DA-Services/das_commonlib/dasrpc"
-	"github.com/DA-Services/das_commonlib/sys"
+	"github.com/DeAccountSystems/das_commonlib/cfg"
+	"github.com/DeAccountSystems/das_commonlib/ckb/celltype"
+	"github.com/DeAccountSystems/das_commonlib/dasrpc"
+	"github.com/DeAccountSystems/das_commonlib/sys"
 	"github.com/eager7/elog"
 	"github.com/fsnotify/fsnotify"
 	"github.com/nervosnetwork/ckb-sdk-go/rpc"
@@ -86,7 +86,7 @@ func runServer(ctx *cli.Context) error {
 		log.Info("exist server success!")
 		exit <- true
 	})
-	celltype.UseVersion2SystemScriptCodeHash()
+	celltype.UseVersion3SystemScriptCodeHash()
 	rpcClient, err := rpc.DialWithIndexer(config.Cfg.Chain.CKB.NodeUrl, config.Cfg.Chain.CKB.IndexerUrl)
 	if err != nil {
 		panic(fmt.Errorf("init rpcClient failed: %s", err.Error()))
