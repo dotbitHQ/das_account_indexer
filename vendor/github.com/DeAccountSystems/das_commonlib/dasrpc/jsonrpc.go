@@ -26,10 +26,11 @@ type RpcServiceDelegate struct {
 }
 
 type JsonrpcServiceImpl struct {
-	port           string
-	httpServer     *http.Server
-	delegates      []*RpcServiceDelegate
-	allowedOrigins []string
+	port            string
+	httpServer      *http.Server
+	delegates       []*RpcServiceDelegate
+	allowedOrigins  []string
+	allowOriginFunc func(string) bool
 }
 
 func NewJsonrpcService(port string, delegate ...*RpcServiceDelegate) *JsonrpcServiceImpl {
@@ -63,6 +64,10 @@ func (j *JsonrpcServiceImpl) SetOrigins(origins []string) {
 	j.allowedOrigins = origins
 }
 
+func (j *JsonrpcServiceImpl) SetAllowOriginFunc(f func(string) bool) {
+	j.allowOriginFunc = f
+}
+
 func (j *JsonrpcServiceImpl) Start(beforeServeFunc BeforeServeFunc) error {
 	if j.httpServer != nil {
 		return nil
@@ -78,7 +83,7 @@ func (j *JsonrpcServiceImpl) Start(beforeServeFunc BeforeServeFunc) error {
 	if listener, err = net.Listen("tcp", ":"+j.port); err != nil {
 		panic(err.Error())
 	}
-	j.httpServer = &http.Server{Handler: newCorsHandler(handler, j.allowedOrigins, beforeServeFunc)}
+	j.httpServer = &http.Server{Handler: newCorsHandler(handler, j.allowedOrigins, beforeServeFunc, j.allowOriginFunc)}
 	if err = j.httpServer.Serve(listener); err != nil {
 		return fmt.Errorf("jsonrpc serve err: %s", err.Error())
 	}
@@ -91,7 +96,19 @@ func (j *JsonrpcServiceImpl) Stop() {
 	}
 }
 
-func newCorsHandler(srv *rpc.Server, allowedOrigins []string, bf BeforeServeFunc) http.Handler {
+func newCorsHandler(srv *rpc.Server, allowedOrigins []string, bf BeforeServeFunc, aof func(string) bool) http.Handler {
+	if aof != nil {
+		c := cors.New(cors.Options{
+			AllowedOrigins:   allowedOrigins,
+			AllowedMethods:   []string{"POST", "GET", "OPTIONS"},
+			MaxAge:           600,
+			AllowedHeaders:   []string{"*"},
+			AllowCredentials: true,
+			Debug:            false,
+			AllowOriginFunc:  aof,
+		})
+		return NewRPCHandler(srv, c, bf)
+	}
 	if len(allowedOrigins) == 0 {
 		return srv
 	}

@@ -6,6 +6,7 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
+	"github.com/DeAccountSystems/das_commonlib/ckb/gotype"
 	"time"
 
 	"das_account_indexer/types"
@@ -31,6 +32,8 @@ var (
 	log      = elog.NewLogger("rpc_handler", elog.NoticeLevel)
 	emptyErr = errors.New("not exist")
 )
+
+const maxAccountNumber = 100000
 
 type RpcHandler struct {
 	rpcClient     rpc.Client
@@ -69,7 +72,7 @@ func (r *RpcHandler) SearchAccount(ctx context.Context, account string) common.R
 
 func (r *RpcHandler) GetAddressAccount(address string) common.ReqResp {
 	log.Info("accept GetAddressAccount:", address)
-	accountInfo, err := r.loadOneAccountCellByLockScript(types.Address(address))
+	accountInfo, err := r.loadOneAccountCellByLockScript(gotype.Address(address))
 	if err != nil {
 		if err == emptyErr {
 			return common.ReqResp{ErrNo: dascode.Err_AccountNotExist, ErrMsg: err.Error()}
@@ -79,8 +82,8 @@ func (r *RpcHandler) GetAddressAccount(address string) common.ReqResp {
 	return common.ReqResp{ErrNo: dascode.DAS_SUCCESS, Data: accountInfo}
 }
 
-func (r *RpcHandler) loadOneAccountCellByLockScript(address types.Address) ([]*types.AccountReturnObj, error) {
-	addrLockScript, err := address.LockScript(r.systemScripts.SecpSingleSigCell.CellHash)
+func (r *RpcHandler) loadOneAccountCellByLockScript(address gotype.Address) ([]*types.AccountReturnObj, error) {
+	addrLockScriptOwnerArgs, err := address.HexBys(r.systemScripts.SecpSingleSigCell.CellHash)
 	if err != nil {
 		return nil, fmt.Errorf("LockScript err: %s", err.Error())
 	}
@@ -88,9 +91,9 @@ func (r *RpcHandler) loadOneAccountCellByLockScript(address types.Address) ([]*t
 		Script:     celltype.DasAccountCellScript.Out.Script(),
 		ScriptType: indexer.ScriptTypeType,
 	}
-	liveCells, _, err := common.LoadLiveCells(r.rpcClient, searchKey, 10000000*celltype.AccountCellBaseCap, true, false, func(cell *indexer.LiveCell) bool {
+	liveCells, _, err := common.LoadLiveCellsWithSize(r.rpcClient, searchKey, maxAccountNumber*celltype.AccountCellBaseCap, maxAccountNumber, true, false, func(cell *indexer.LiveCell) bool {
 		ownerBytes := cell.Output.Lock.Args[1 : celltype.DasLockArgsMinBytesLen/2]
-		return bytes.Compare(ownerBytes, addrLockScript.Args) == 0
+		return bytes.Compare(ownerBytes, addrLockScriptOwnerArgs) == 0
 	})
 	if len(liveCells) == 0 {
 		return nil, emptyErr
@@ -166,9 +169,9 @@ func (r *RpcHandler) parseLiveCellToAccount(cell *indexer.LiveCell, filter func(
 			if err != nil {
 				return false, fmt.Errorf("ParseTxWitnessToDasWitnessObj err: %s", err.Error())
 			}
-			accountCellData, err := celltype.AccountCellDataFromSlice(witnessObj.MoleculeNewDataEntity.Entity().RawData(), false)
+			accountCellData, err := gotype.VersionCompatibleAccountCellDataFromSlice(witnessObj.MoleculeNewDataEntity)
 			if err != nil {
-				return false, fmt.Errorf("AccountCellDataFromSlice err: %s", err.Error())
+				return false, fmt.Errorf("VersionCompatibleAccountCellDataFromSlice err: %s", err.Error())
 			}
 			if filter != nil && !filter(accountCellData) {
 				return false, nil // next one

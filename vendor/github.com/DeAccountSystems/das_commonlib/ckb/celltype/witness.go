@@ -264,37 +264,6 @@ func CalAccountSpend(account DasAccount) uint64 {
 	return uint64(len([]byte(account))) * OneCkb
 }
 
-func registerFee(price, quote, discount uint64) uint64 {
-	// CKB 年费 = CKB 年费 - (CKB 年费 * 折扣率 / 10000)
-	if discount >= DiscountRateBase {
-		discount = DiscountRateBase - 1
-	}
-	var retVal uint64
-	if price < quote {
-		retVal = (price * OneCkb) / quote
-	} else {
-		retVal = (price / quote) * OneCkb
-	}
-	if discount == 0 {
-		return retVal
-	}
-	retVal = retVal - (retVal*discount)/DiscountRateBase
-	return retVal
-}
-
-func CalPreAccountCellCap(years uint, price, quote, discountRate, accountCellBaseCap uint64, account DasAccount, isRenew bool) uint64 {
-	registerYearFee := registerFee(price, quote, discountRate) * uint64(years)
-	accountCharFee := uint64(len([]byte(account))) * OneCkb
-	if isRenew {
-		return registerYearFee
-	}
-	return registerYearFee + accountCellBaseCap + accountCharFee
-}
-
-func CalBuyAccountYearSec(years uint) int64 {
-	return OneYearSec * int64(years)
-}
-
 func ParseTxWitnessToDasWitnessObj(rawData []byte) (*ParseDasWitnessBysDataObj, error) {
 	ret := &ParseDasWitnessBysDataObj{}
 	dasWitnessObj, err := NewDasWitnessDataFromSlice(rawData)
@@ -333,13 +302,35 @@ func ParseTxWitnessToDasWitnessObj(rawData []byte) (*ParseDasWitnessBysDataObj, 
 	return ret, nil
 }
 
-func BuildDasCommonMoleculeDataObj(depIndex, oldIndex, newIndex uint32, depMolecule, oldMolecule, newMolecule ICellData) *Data {
+var (
+	accountCellType = reflect.TypeOf(&AccountCellData{})
+	accountCellVersion1FieldCount = uint(5)
+)
+func IsVersion2AccountCell(cellData *AccountCellData) bool {
+	if cellData.Len() == accountCellVersion1FieldCount {return true}
+	empty_TS := TimestampDefault()
+	emptyEMA := bytes.Compare(cellData.LastEditManagerAt().RawData(),empty_TS.RawData()) == 0
+	emptyERA := bytes.Compare(cellData.LastEditRecordsAt().RawData(),empty_TS.RawData()) == 0
+	emptyETA := bytes.Compare(cellData.LastTransferAccountAt().RawData(),empty_TS.RawData()) == 0
+	return emptyERA && emptyEMA && emptyETA
+}
+func BuildDasCommonMoleculeDataObj(depIndex, oldIndex, newIndex uint32, depMolecule, oldMolecule, newMolecule ICellData) (*Data,error) {
+	version := GoUint32ToMoleculeU32(DasCellDataVersion1) // default is version 1
+	switch reflect.TypeOf(newMolecule) {
+	case accountCellType:
+		if accountCellData,err := AccountCellDataFromSlice(newMolecule.AsSlice(),false); err != nil {
+			return nil, fmt.Errorf("AccountCellDataFromSlice err: %s",err.Error())
+		} else if IsVersion2AccountCell(accountCellData) { // version 2
+			version = GoUint32ToMoleculeU32(DasCellDataVersion2)
+		}
+		break
+	}
 	var (
 		depData DataEntity
 		oldData DataEntity
 		newData = NewDataEntityBuilder().
 			Index(GoUint32ToMoleculeU32(newIndex)).
-			Version(GoUint32ToMoleculeU32(1)).
+			Version(version).
 			Entity(GoBytesToMoleculeBytes(newMolecule.AsSlice())).
 			Build()
 		dataBuilder = NewDataBuilder().
@@ -348,7 +339,7 @@ func BuildDasCommonMoleculeDataObj(depIndex, oldIndex, newIndex uint32, depMolec
 	if !IsInterfaceNil(depMolecule) {
 		depData = NewDataEntityBuilder().
 			Index(GoUint32ToMoleculeU32(depIndex)).
-			Version(GoUint32ToMoleculeU32(1)).
+			Version(version).
 			Entity(GoBytesToMoleculeBytes(depMolecule.AsSlice())).
 			Build()
 		dataBuilder.Dep(NewDataEntityOptBuilder().Set(depData).Build())
@@ -358,7 +349,7 @@ func BuildDasCommonMoleculeDataObj(depIndex, oldIndex, newIndex uint32, depMolec
 	if !IsInterfaceNil(oldMolecule) {
 		oldData = NewDataEntityBuilder().
 			Index(GoUint32ToMoleculeU32(oldIndex)).
-			Version(GoUint32ToMoleculeU32(1)).
+			Version(version).
 			Entity(GoBytesToMoleculeBytes(oldMolecule.AsSlice())).
 			Build()
 		dataBuilder.Old(NewDataEntityOptBuilder().Set(oldData).Build())
@@ -366,7 +357,7 @@ func BuildDasCommonMoleculeDataObj(depIndex, oldIndex, newIndex uint32, depMolec
 		dataBuilder.Old(DataEntityOptDefault())
 	}
 	d := dataBuilder.Build()
-	return &d
+	return &d, nil
 }
 
 type ReqFindTargetTypeScriptParam struct {
@@ -500,21 +491,6 @@ func ChangeMoleculeData(changeType DataEntityChangeType, index uint32, originWit
 	newDataBytes := (&newData).AsSlice()
 	newWitnessData := NewDasWitnessData(witnessObj.TableType, newDataBytes)
 	return newWitnessData.ToWitness(), nil
-}
-
-func CalAccountCellExpiredAt(param CalAccountCellExpiredAtParam, registerAt int64) (uint64, error) {
-	// fmt.Println("CalAccountCellExpiredAt Param ====>", param.Json())
-	if param.PreAccountCellCap < param.AccountCellCap+param.RefCellCap {
-		return 0, fmt.Errorf("CalAccountCellExpiredAt invalid cap, preAccCell: %d, accCell: %d", param.PreAccountCellCap, param.AccountCellCap)
-	} else {
-		paid := param.PreAccountCellCap - param.AccountCellCap - param.RefCellCap
-		registerFee := registerFee(param.PriceConfigNew, param.Quote, param.DiscountRate)
-		durationInt := paid * oneYearDays / registerFee * oneDaySec
-		// fmt.Println("CalAccountCellExpiredAt registerFee ====>", registerFee)
-		// fmt.Println("CalAccountCellExpiredAt storageFee ====>", paid)
-		// fmt.Println("CalAccountCellExpiredAt duration   ====>", durationInt)
-		return uint64(registerAt) + durationInt, nil // 1648195213
-	}
 }
 
 func GetScriptTypeFromLockScript(ckbSysScript *utils.SystemScripts, lockScript *types.Script) (LockScriptType, error) {
