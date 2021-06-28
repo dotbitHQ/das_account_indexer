@@ -321,6 +321,7 @@ type AccountCellDatas struct {
 	NewAccountCellData *AccountCellTxDataParam `json:"-"`
 }
 type AccountCellParam struct {
+	TestNet                   bool `json:"test_net"`
 	TxDataParam               *AccountCellTxDataParam `json:"-"`
 	DataBytes                 []byte `json:"data_bytes"`
 	Version                   uint32                  `json:"version"`

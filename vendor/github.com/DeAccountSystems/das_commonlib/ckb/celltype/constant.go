@@ -15,8 +15,8 @@ const (
 	witnessDasCharLen = 3
 	witnessDasTableTypeEndIndex = 7
 )
-const oneDaySec = uint64(24 * 3600)
-const oneYearDays = uint64(365)
+const OneDaySec = uint64(24 * 3600)
+const OneYearDays = uint64(365)
 const CellVersionByteLen = 4
 const MoleculeBytesHeaderSize = 4
 const OneCkb = uint64(1e8)
@@ -31,9 +31,18 @@ const ETHScriptLockWitnessBytesLen = 65
 const MinAccountCharsLen = 2
 const DiscountRateBase = 10000
 const DasLockArgsMinBytesLen = 1 + 20 + 1 + 20
-var RootAccountDataAccountByte = []byte{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
-var EmptyDataHash = []byte{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
-var EmptyAccountId = DasAccountId{}
+
+const (
+	DasCellDataVersion1 = uint32(1)
+	DasCellDataVersion2 = uint32(2)
+)
+
+var (
+	NullDasLockManagerArg = make([]byte,DasLockArgsMinBytesLen / 2 -1)
+	RootAccountDataAccountByte = make([]byte,29)
+	EmptyDataHash  = make([]byte,HashBytesLen)
+	EmptyAccountId = DasAccountId{}
+)
 
 const (
 	PwLockMainNetCodeHash = "0xbf43c3602455798c1a61a596e0d95278864c552fafe231c063b3fabf97a8febc"
@@ -41,7 +50,7 @@ const (
 )
 
 // type cell's args
-const (
+var (
 	ContractCodeHash          = "00000000000000000000000000000000000000000000000000545950455f4944"
 	DasPwLockCellCodeArgs     = "d5eee5a3ac9d65658535b4bdad25e22a81c032f5bbdf5ace45605a33482eeb45"
 	DasLockCellCodeArgs       = "0xc3fd71e4f537b8d77a412b896304abf1a60daaa7f0fab10f83e8649a4f1e9713"
@@ -107,7 +116,7 @@ func (t TableType) ValidateType() bool {
 	return t <= TableType_INCOME_CELL ||
 		(t >= TableType_CONFIG_CELL_ACCOUNT && t <= TableType_CONFIG_CELL_RECORD_NAMESPACE) ||
 		t == TableType_CONFIG_CELL_PreservedAccount00 ||
-		(t >=TableType_CONFIG_CELL_CharSetEmoji && t <= TableType_CONFIG_CELL_CharSetEn)
+		(t >=TableType_CONFIG_CELL_CharSetEmoji && t <= TableType_CONFIG_CELL_CharSetHanT)
 }
 const (
 	TableType_ACTION       TableType = 0
@@ -133,7 +142,9 @@ const (
 
 	TableType_CONFIG_CELL_CharSetEmoji TableType = 100000
 	TableType_CONFIG_CELL_CharSetDigit TableType = 100001
-	TableType_CONFIG_CELL_CharSetEn TableType = 100002
+	TableType_CONFIG_CELL_CharSetEn    TableType = 100002
+	TableType_CONFIG_CELL_CharSetHanS  TableType = 100003
+	TableType_CONFIG_CELL_CharSetHanT  TableType = 100004
 	// TableType_CONFIG_CELL_BLOOM_FILTER TableType = 11
 )
 
@@ -170,10 +181,14 @@ const (
 type LockScriptType int
 
 const (
+	// use to group inputs when combine tx
 	ScriptType_User LockScriptType = 0
 	ScriptType_Any  LockScriptType = 1
 	ScriptType_ETH  LockScriptType = 2
 	ScriptType_BTC  LockScriptType = 3
+	ScriptType_DasManager_User  LockScriptType = 4
+	ScriptType_DasOwner_User    LockScriptType = 5
+	ScriptType_TRON  LockScriptType = 6
 )
 
 func (l LockScriptType) ToDasLockCodeHashIndexType() DasLockCodeHashIndexType {
@@ -184,6 +199,8 @@ func (l LockScriptType) ToDasLockCodeHashIndexType() DasLockCodeHashIndexType {
 		return DasLockCodeHashIndexType_CKB_AnyOne
 	case ScriptType_ETH:
 		return DasLockCodeHashIndexType_ETH_Normal
+	case ScriptType_TRON:
+		return DasLockCodeHashIndexType_TRON_Normal
 	default:
 		return DasLockCodeHashIndexType_CKB_Normal
 	}
@@ -223,32 +240,33 @@ const (
 	DasLockCodeHashIndexType_CKB_MultiS DasLockCodeHashIndexType = 1
 	DasLockCodeHashIndexType_CKB_AnyOne DasLockCodeHashIndexType = 2
 	DasLockCodeHashIndexType_ETH_Normal DasLockCodeHashIndexType = 3
+	DasLockCodeHashIndexType_TRON_Normal DasLockCodeHashIndexType = 4
 )
 
 func (t DasLockCodeHashIndexType) Bytes() []byte {
 	return common.Uint8ToBytes(uint8(t))
 }
 
-func (t DasLockCodeHashIndexType) ToScriptType() LockScriptType {
+func (t DasLockCodeHashIndexType) ToScriptType(fromOwner bool) LockScriptType {
 	switch t {
 	case DasLockCodeHashIndexType_CKB_Normal:
-		return ScriptType_User
+		if fromOwner {
+			return ScriptType_DasOwner_User
+		} else {
+			return ScriptType_DasManager_User
+		}
 	case DasLockCodeHashIndexType_CKB_AnyOne:
 		return ScriptType_Any
 	case DasLockCodeHashIndexType_ETH_Normal:
 		return ScriptType_ETH
+	case DasLockCodeHashIndexType_TRON_Normal:
+		return ScriptType_TRON
 	default:
 		return ScriptType_User
 	}
 }
 
 const (
-	/**
-	- status ，状态字段：
-	  - 0 ，正常；
-	  - 1 ，出售中；
-	  - 2 ，拍卖中；
-	*/
 	AccountCellStatus_Normal AccountCellStatus = 0
 	AccountCellStatus_OnSale AccountCellStatus = 1
 	AccountCellStatus_OnBid  AccountCellStatus = 2

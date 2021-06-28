@@ -1,14 +1,16 @@
 # github.com/Andrew-M-C/go.emoji v0.0.0-20210303022417-b8fefdaedb50
 github.com/Andrew-M-C/go.emoji/official
-# github.com/DeAccountSystems/das_commonlib v0.0.0-20210610085548-80c85f306c09
+# github.com/DeAccountSystems/das_commonlib v0.0.0-20210625102726-36425ff597c2
 github.com/DeAccountSystems/das_commonlib/ckb/celltype
+github.com/DeAccountSystems/das_commonlib/ckb/gotype
 github.com/DeAccountSystems/das_commonlib/common
 github.com/DeAccountSystems/das_commonlib/common/dascode
 github.com/DeAccountSystems/das_commonlib/cfg
 github.com/DeAccountSystems/das_commonlib/dasrpc
 github.com/DeAccountSystems/das_commonlib/sys
-github.com/DeAccountSystems/das_commonlib/ckb/wallet
 github.com/DeAccountSystems/das_commonlib/ckb/collector
+github.com/DeAccountSystems/das_commonlib/ckb/gotype/configcells
+github.com/DeAccountSystems/das_commonlib/ckb/wallet
 github.com/DeAccountSystems/das_commonlib/sys/filewatcher
 # github.com/StackExchange/wmi v0.0.0-20180116203802-5d049714c4a6
 github.com/StackExchange/wmi
@@ -28,6 +30,7 @@ github.com/elastic/gosigar/sys/windows
 # github.com/ethereum/go-ethereum v1.9.14
 github.com/ethereum/go-ethereum/common
 github.com/ethereum/go-ethereum/common/hexutil
+github.com/ethereum/go-ethereum/rlp
 github.com/ethereum/go-ethereum/rpc
 github.com/ethereum/go-ethereum/log
 github.com/ethereum/go-ethereum/metrics
@@ -84,6 +87,8 @@ github.com/rs/cors
 github.com/rs/xhandler
 # github.com/russross/blackfriday/v2 v2.0.1
 github.com/russross/blackfriday/v2
+# github.com/shopspring/decimal v1.2.0
+github.com/shopspring/decimal
 # github.com/shurcooL/sanitized_anchor_name v1.0.0
 github.com/shurcooL/sanitized_anchor_name
 # github.com/spf13/afero v1.1.2

@@ -36,7 +36,13 @@ var (
 		TxIndex: 0,
 		DepType: types.DepTypeCode,
 	}
-	// 0xb988070e97c6eda68705e146985bcf2d3b3215cbb619eb61337523bc440d42e0
+
+	TestNetTRONSoScriptDep = DASCellBaseInfoDep{
+		TxHash:  types.HexToHash("0x9f6b5041638b10e9d53498e0b27db51778274c75efaffddceca93f6ab9e2053c"),
+		TxIndex: 0,
+		DepType: types.DepTypeCode,
+	}
+
 	TestNetCKBSoScriptDep = DASCellBaseInfoDep{
 		TxHash:  types.HexToHash("0xe08b6487bab378df62d1abe58faebecdfefc5dc4297627c1f7240441db69355b"),
 		TxIndex: 0,
@@ -338,6 +344,33 @@ func initMap() {
 
 }
 
+// testnet version 2
+func UseVersion2SystemScriptCodeHash() {
+
+	TestNetCKBSoScriptDep.TxHash = types.HexToHash("0x209b35208da7d20d882f0871f3979c68c53981bcc4caa71274c035449074d082")
+	TestNetETHSoScriptDep.TxHash = types.HexToHash("0xb035c200bf759537d3796edf49b5d6a8ec5f5d78326713f987f31ad24d0b0171")
+	TestNetTRONSoScriptDep.TxHash = types.HexToHash("0x7dc4ae8fe597045fbd7fe78f2bd26435644a69b755de3824a856f681bacb732b")
+
+	DasApplyRegisterCellScript.ContractTypeScript.Args = types.HexToHash("0xc78fa9066af1624e600ccfb21df9546f900b2afe5d7940d91aefc115653f90d9").Bytes()
+	DasPreAccountCellScript.ContractTypeScript.Args = types.HexToHash("0xd3f7ad59632a2ebdc2fe9d41aa69708ed1069b074cd8b297b205f835335d3a6b").Bytes()
+	DasAccountCellScript.ContractTypeScript.Args = types.HexToHash("0x6f0b8328b703617508d62d1f017b0d91fab2056de320a7b7faed4c777a356b7b").Bytes()
+	DasProposeCellScript.ContractTypeScript.Args = types.HexToHash("0x03d0bb128bd10e666975d9a07c148f6abebe811f511e9574048b30600b065b9a").Bytes()
+	DasLockCellScript.ContractTypeScript.Args = types.HexToHash("0xeedd10c7d8fee85c119daf2077fea9cf76b9a92ddca546f1f8e0031682e65aee").Bytes()
+	DasConfigCellScript.ContractTypeScript.Args = types.HexToHash("0x34363fad2018db0b3b6919c26870f302da74c3c4ef4456e5665b82c4118eda51").Bytes()
+	DasIncomeCellScript.ContractTypeScript.Args = types.HexToHash("0xd7b9d8213671aec03f3a3ab95171e0e79481db2c084586b9ea99914c00ff3716").Bytes()
+
+	DasApplyRegisterCellScript.Out.CodeHash = types.HexToHash("0x0fbff871dd05aee1fda2be38786ad21d52a2765c6025d1ef6927d761d51a3cd1")
+	DasPreAccountCellScript.Out.CodeHash = types.HexToHash("0x6c8441233f00741955f65e476721a1a5417997c1e4368801c99c7f617f8b7544")
+	DasAccountCellScript.Out.CodeHash = types.HexToHash("0x1106d9eaccde0995a7e07e80dd0ce7509f21752538dfdd1ee2526d24574846b1")
+	DasProposeCellScript.Out.CodeHash = types.HexToHash("0x67d48c0911e406518de2116bd91c6af37c05f1db23334ca829d2af3042427e44")
+	DasLockCellScript.Out.CodeHash = types.HexToHash("0x326df166e3f0a900a0aee043e31a4dea0f01ea3307e6e235f09d1b4220b75fbd")
+	DasConfigCellScript.Out.CodeHash = types.HexToHash("0x030ac2acd9c016f9a4ab13d52c244d23aaea636e0cbd386ec660b79974946517")
+	DasIncomeCellScript.Out.CodeHash = types.HexToHash("0x08d1cdc6ab92d9cabe0096a2c7642f73d0ef1b24c94c43f21c6c3a32ffe0bb5e")
+	DasAnyOneCanSendCellInfo.Out.CodeHash = types.HexToHash("0xf1ef61b6977508d9ec56fe43399a01e576086a76cf0f7c687d1418335e8c401f")
+
+	initMap()
+}
+
 // testnet version 3
 func UseVersion3SystemScriptCodeHash() {
 	DasApplyRegisterCellScript.Out.CodeHash = types.HexToHash("0xd8e70cbc0d61daee85b8e121fcb6f278c4536ac26cf9cdce36957a2aa289d4d9")
@@ -355,13 +388,13 @@ func UseVersion3SystemScriptCodeHash() {
 }
 
 type TimingAsyncSystemCodeScriptParam struct {
-	RpcClient     rpc.Client
-	SuperLock     *types.Script
-	Duration      time.Duration
-	Ctx           context.Context
-	ErrHandle     func(err error)
-	SuccessHandle func()
-	InitHandle    func() bool
+	RpcClient            rpc.Client
+	SuperLock            *types.Script
+	Duration             time.Duration
+	Ctx                  context.Context
+	ErrHandle            func(err error)
+	SuccessHandle        func()
+	InitHandle           func() bool
 	FirstSuccessCallBack func()
 }
 
@@ -386,11 +419,11 @@ func TimingAsyncSystemCodeScriptOutPoint(p *TimingAsyncSystemCodeScriptParam) {
 			searchKey := &indexer.SearchKey{
 				Script:     p.SuperLock,
 				ScriptType: indexer.ScriptTypeLock,
-				Filter:     &indexer.CellsFilter{
+				Filter: &indexer.CellsFilter{
 					Script: &item.ContractTypeScript,
 				},
 			}
-			c := collector.NewLiveCellCollector(p.RpcClient, searchKey, indexer.SearchOrderDesc, 20, "",false)
+			c := collector.NewLiveCellCollector(p.RpcClient, searchKey, indexer.SearchOrderDesc, 20, "", false)
 			iterator, err := c.Iterator()
 			if err != nil {
 				p.ErrHandle(fmt.Errorf("LoadLiveCells Collect failed: %s", err.Error()))
@@ -402,7 +435,7 @@ func TimingAsyncSystemCodeScriptOutPoint(p *TimingAsyncSystemCodeScriptParam) {
 					p.ErrHandle(fmt.Errorf("LoadLiveCells, read iterator current err: %s", err.Error()))
 					return false
 				}
-				liveCells = append(liveCells,*liveCell)
+				liveCells = append(liveCells, *liveCell)
 				if err = iterator.Next(); err != nil {
 					p.ErrHandle(fmt.Errorf("LoadLiveCells, read iterator next err: %s", err.Error()))
 					return false
