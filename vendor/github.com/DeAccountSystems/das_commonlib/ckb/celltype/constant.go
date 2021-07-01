@@ -37,6 +37,10 @@ const (
 	DasCellDataVersion2 = uint32(2)
 )
 
+func LatestVersion() uint32 {
+	return DasCellDataVersion2
+}
+
 var (
 	NullDasLockManagerArg = make([]byte,DasLockArgsMinBytesLen / 2 -1)
 	RootAccountDataAccountByte = make([]byte,29)

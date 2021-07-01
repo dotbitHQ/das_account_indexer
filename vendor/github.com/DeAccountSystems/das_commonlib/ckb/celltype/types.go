@@ -281,7 +281,7 @@ type AccountCellTxDataParam struct {
 	NextAccountId DasAccountId `json:"next_account_id"`
 	// RegisteredAt  uint64          `json:"registered_at"`
 	ExpiredAt   uint64          `json:"expired_at"`
-	AccountInfo AccountCellData `json:"-"`
+	AccountInfo VersionAccountCell `json:"-"`
 }
 
 /**
