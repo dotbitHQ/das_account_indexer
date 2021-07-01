@@ -4,8 +4,8 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/DeAccountSystems/das_commonlib/ckb/gotype/configcells"
 	"github.com/DeAccountSystems/das_commonlib/ckb/celltype"
+	"github.com/DeAccountSystems/das_commonlib/ckb/gotype/configcells"
 	"github.com/nervosnetwork/ckb-sdk-go/types"
 	"github.com/shopspring/decimal"
 	"golang.org/x/sync/syncmap"
@@ -94,8 +94,32 @@ func (c *ConfigCell) profitRate() *celltype.ConfigCellProfitRate {
 	return (v.(configcells.IConfigChild)).MocluObj().(*celltype.ConfigCellProfitRate)
 }
 
+func (c *ConfigCell) CKBSingleSoCellDepHash() types.Hash {
+	return types.BytesToHash(c.main().DasLockOutPointTable().CkbSignall().TxHash().RawData())
+}
+
+func (c *ConfigCell) CKBMultiSoCellDepHash() types.Hash {
+	return types.BytesToHash(c.main().DasLockOutPointTable().CkbMultisign().TxHash().RawData())
+}
+
+func (c *ConfigCell) ETHSoCellDepHash() types.Hash {
+	return types.BytesToHash(c.main().DasLockOutPointTable().Eth().TxHash().RawData())
+}
+
+func (c *ConfigCell) TRONSoCellDepHash() types.Hash {
+	return types.BytesToHash(c.main().DasLockOutPointTable().Tron().TxHash().RawData())
+}
+
 func (c *ConfigCell) AccountCellBaseCap() (uint64, error) {
 	val, err := celltype.MoleculeU64ToGo(c.account().BasicCapacity().RawData())
+	if err != nil {
+		return 0, err
+	}
+	return val, nil
+}
+
+func (c *ConfigCell) PreparedFeeCapacity() (uint64, error) {
+	val, err := celltype.MoleculeU64ToGo(c.account().PreparedFeeCapacity().RawData())
 	if err != nil {
 		return 0, err
 	}
@@ -142,6 +166,22 @@ func (c *ConfigCell) EditRecordsThrottle() (uint32, error) {
 	return val, nil
 }
 
+func (c *ConfigCell) EditManagerThrottle() (uint32, error) {
+	val, err := celltype.MoleculeU32ToGo(c.account().EditManagerThrottle().RawData())
+	if err != nil {
+		return 0, err
+	}
+	return val, nil
+}
+
+func (c *ConfigCell) TransferThrottle() (uint32, error) {
+	val, err := celltype.MoleculeU32ToGo(c.account().TransferAccountThrottle().RawData())
+	if err != nil {
+		return 0, err
+	}
+	return val, nil
+}
+
 func (c *ConfigCell) IncomeCellBaseCap() (uint64, error) {
 	val, err := celltype.MoleculeU64ToGo(c.income().BasicCapacity().RawData())
 	if err != nil {
@@ -150,8 +190,8 @@ func (c *ConfigCell) IncomeCellBaseCap() (uint64, error) {
 	return val, nil
 }
 
-func (c *ConfigCell) IncomeCellMinTransferValue() (uint32, error) {
-	val, err := celltype.MoleculeU32ToGo(c.income().MinTransferCapacity().RawData())
+func (c *ConfigCell) IncomeCellMinTransferValue() (uint64, error) {
+	val, err := celltype.MoleculeU64ToGo(c.income().MinTransferCapacity().RawData())
 	if err != nil {
 		return 0, err
 	}
@@ -334,7 +374,7 @@ func (c *ConfigCell) GetAccountPriceConfig(account celltype.DasAccount) (*cellty
 	return nil, fmt.Errorf("account price not found, account: %s", account)
 }
 
-func (c *ConfigCell) GetAccountPrice(account celltype.DasAccount,isRenew bool) (*celltype.PriceConfig, uint64, error) {
+func (c *ConfigCell) GetAccountPrice(account celltype.DasAccount, isRenew bool) (*celltype.PriceConfig, uint64, error) {
 	price, err := c.GetAccountPriceConfig(account)
 	if err != nil {
 		return nil, 0, err
@@ -379,7 +419,7 @@ type ProfitRate struct {
 	Channel        float64
 	ProposeCreate  float64
 	ProposeConfirm float64
-	MergeRate float64
+	MergeRate      float64
 }
 
 func ParseRegisterProfitConfig(configCell *ConfigCell) (*ProfitRate, error) {
@@ -395,14 +435,14 @@ func ParseRegisterProfitConfig(configCell *ConfigCell) (*ProfitRate, error) {
 	if inviterRate+channelRate+propoCreate+propConfirm+mergeFeeRat > 1 {
 		return nil, fmt.Errorf("invalid profitRate, more than 100,"+
 			" inviter: %f, channel: %f, creator: %f, confirm: %f, merge: %f",
-			inviterRate, channelRate, propoCreate, propConfirm,mergeFeeRat)
+			inviterRate, channelRate, propoCreate, propConfirm, mergeFeeRat)
 	}
 	return &ProfitRate{
 		Invite:         inviterRate,
 		Channel:        channelRate,
 		ProposeCreate:  propoCreate,
 		ProposeConfirm: propConfirm,
-		MergeRate: 		mergeFeeRat,
+		MergeRate:      mergeFeeRat,
 	}, nil
 }
 
@@ -423,8 +463,9 @@ func BindConfigCellDataFromTx(tx *types.Transaction, configCell *ConfigCell) err
 			},
 			DepType: types.DepTypeCode,
 		}
+		configTableType := witnessParseObj.WitnessObj.TableType
 		cellData := witnessParseObj.MoleculeNewDataEntity.Entity().RawData()
-		v, ok := configCell.ConfigCellChildMap.Load(witnessParseObj.WitnessObj.TableType)
+		v, ok := configCell.ConfigCellChildMap.Load(configTableType)
 		if !ok {
 			return false, nil
 		}
@@ -433,6 +474,12 @@ func BindConfigCellDataFromTx(tx *types.Transaction, configCell *ConfigCell) err
 			WitnessData:  rawWitnessData,
 			MoleculeData: cellData,
 		})
+		if configTableType == celltype.TableType_CONFIG_CELL_MAIN {
+			celltype.CKBSoScriptDep.TxHash  = configCell.CKBSingleSoCellDepHash()
+			celltype.ETHSoScriptDep.TxHash  = configCell.ETHSoCellDepHash()
+			celltype.TRONSoScriptDep.TxHash = configCell.TRONSoCellDepHash()
+			celltype.CKBMultiSoScriptDep.TxHash  = configCell.CKBMultiSoCellDepHash()
+		}
 		return false, nil
 	})
 	return err

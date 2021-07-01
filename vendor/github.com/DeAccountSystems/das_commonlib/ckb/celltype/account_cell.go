@@ -39,9 +39,9 @@ func NewAccountCell(p *AccountCellParam) *AccountCell {
 
 func (c *AccountCell) SoDeps() []types.CellDep {
 	return []types.CellDep{
-		*TestNetETHSoScriptDep.ToDepCell(),
-		*TestNetCKBSoScriptDep.ToDepCell(),
-		*TestNetTRONSoScriptDep.ToDepCell(),
+		*ETHSoScriptDep.ToDepCell(),
+		*CKBSoScriptDep.ToDepCell(),
+		*TRONSoScriptDep.ToDepCell(),
 	}
 }
 
@@ -155,10 +155,10 @@ func DefaultAccountCellDataBytes(accountId, nextAccountId DasAccountId) []byte {
 func (c *AccountCell) accountCellOutputData() ([]byte, error) {
 	newData := c.p.TxDataParam
 	dataBytes := []byte{}
-	accountInfoDataBytes, _ := blake2b.Blake256(newData.AccountInfo.AsSlice())
+	accountInfoDataBytes, _ := blake2b.Blake256(newData.AccountInfo.OriginSlice)
 
-	account := AccountCharsToAccount(*newData.AccountInfo.Account())
-	accountId := newData.AccountInfo.Id()
+	account := AccountCharsToAccount(*newData.AccountInfo.CellData.Account())
+	accountId := newData.AccountInfo.CellData.Id()
 
 	// fmt.Println("accountCellOutputData -------accountId------> ", hex.EncodeToString(accountId.RawData()))
 	// fmt.Println("accountCellOutputData -------account__------> ", account)

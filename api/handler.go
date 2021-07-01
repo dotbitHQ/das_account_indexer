@@ -169,14 +169,14 @@ func (r *RpcHandler) parseLiveCellToAccount(cell *indexer.LiveCell, filter func(
 			if err != nil {
 				return false, fmt.Errorf("ParseTxWitnessToDasWitnessObj err: %s", err.Error())
 			}
-			accountCellData, err := gotype.VersionCompatibleAccountCellDataFromSlice(witnessObj.MoleculeNewDataEntity)
+			versionAccount, err := gotype.VersionCompatibleAccountCellDataFromSlice(witnessObj.MoleculeNewDataEntity)
 			if err != nil {
 				return false, fmt.Errorf("VersionCompatibleAccountCellDataFromSlice err: %s", err.Error())
 			}
-			if filter != nil && !filter(accountCellData) {
+			if filter != nil && !filter(versionAccount.CellData) {
 				return false, nil // next one
 			}
-			thisAccountCellData = accountCellData
+			thisAccountCellData = versionAccount.CellData
 			witnessData = rawWitnessData
 			return true, nil
 		}

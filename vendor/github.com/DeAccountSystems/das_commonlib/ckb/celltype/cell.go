@@ -199,19 +199,22 @@ func (s *ActionData) AsBuilder() ActionDataBuilder {
 type ConfigCellMainBuilder struct {
     status Uint8
 type_id_table TypeIdTable
+das_lock_out_point_table DasLockOutPointTable
 }
         
 
 func (s *ConfigCellMainBuilder) Build() ConfigCellMain {
     b := new(bytes.Buffer)
 
-    totalSize := HeaderSizeUint * (2 + 1)
-    offsets := make([]uint32, 0, 2)
+    totalSize := HeaderSizeUint * (3 + 1)
+    offsets := make([]uint32, 0, 3)
 
     offsets = append(offsets, totalSize)
 totalSize += uint32(len(s.status.AsSlice()))
 offsets = append(offsets, totalSize)
 totalSize += uint32(len(s.type_id_table.AsSlice()))
+offsets = append(offsets, totalSize)
+totalSize += uint32(len(s.das_lock_out_point_table.AsSlice()))
 
     b.Write(packNumber(Number(totalSize)))
 
@@ -221,6 +224,7 @@ totalSize += uint32(len(s.type_id_table.AsSlice()))
 
     b.Write(s.status.AsSlice())
 b.Write(s.type_id_table.AsSlice())
+b.Write(s.das_lock_out_point_table.AsSlice())
     return ConfigCellMain{inner: b.Bytes()}
 }
                 
@@ -237,8 +241,14 @@ func (s *ConfigCellMainBuilder) TypeIdTable(v TypeIdTable) *ConfigCellMainBuilde
 }
             
 
+func (s *ConfigCellMainBuilder) DasLockOutPointTable(v DasLockOutPointTable) *ConfigCellMainBuilder {
+    s.das_lock_out_point_table = v
+    return s
+}
+            
+
 func NewConfigCellMainBuilder() *ConfigCellMainBuilder {
-	return &ConfigCellMainBuilder{ status: Uint8Default(),type_id_table: TypeIdTableDefault() }
+	return &ConfigCellMainBuilder{ status: Uint8Default(),type_id_table: TypeIdTableDefault(),das_lock_out_point_table: DasLockOutPointTableDefault() }
 }
     
 
@@ -256,7 +266,7 @@ func (s *ConfigCellMain) AsSlice() []byte {
             
 
 func ConfigCellMainDefault() ConfigCellMain {
-    return *ConfigCellMainFromSliceUnchecked([]byte{ 13,1,0,0,12,0,0,0,13,0,0,0,0,0,1,0,0,32,0,0,0,64,0,0,0,96,0,0,0,128,0,0,0,160,0,0,0,192,0,0,0,224,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 })
+    return *ConfigCellMainFromSliceUnchecked([]byte{ 221,1,0,0,16,0,0,0,17,0,0,0,17,1,0,0,0,0,1,0,0,32,0,0,0,64,0,0,0,96,0,0,0,128,0,0,0,160,0,0,0,192,0,0,0,224,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,204,0,0,0,24,0,0,0,60,0,0,0,96,0,0,0,132,0,0,0,168,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 })
 }
             
 
@@ -273,7 +283,7 @@ func ConfigCellMainFromSlice(slice []byte, compatible bool) (*ConfigCellMain, er
         return nil, errors.New(errMsg)
     }
 
-    if uint32(sliceLen) == HeaderSizeUint && 2 == 0 {
+    if uint32(sliceLen) == HeaderSizeUint && 3 == 0 {
         return &ConfigCellMain{inner: slice}, nil
     }
 
@@ -289,9 +299,9 @@ func ConfigCellMainFromSlice(slice []byte, compatible bool) (*ConfigCellMain, er
     }
 
     fieldCount := offsetFirst/4 - 1
-    if fieldCount < 2 {
+    if fieldCount < 3 {
         return nil, errors.New("FieldCountNotMatch")
-    } else if !compatible && fieldCount > 2 {
+    } else if !compatible && fieldCount > 3 {
         return nil, errors.New("FieldCountNotMatch")
     }
 
@@ -328,6 +338,12 @@ if err != nil {
 }
                 
 
+_, err = DasLockOutPointTableFromSlice(slice[offsets[2]:offsets[3]], compatible)
+if err != nil {
+    return nil, err
+}
+                
+
     return &ConfigCellMain{inner: slice}, nil
 }
             
@@ -350,11 +366,11 @@ func (s *ConfigCellMain) IsEmpty() bool {
     return s.Len() == 0
 }
 func (s *ConfigCellMain) CountExtraFields() uint {
-    return s.FieldCount() - 2
+    return s.FieldCount() - 3
 }
 
 func (s *ConfigCellMain) HasExtraFields() bool {
-    return 2 != s.FieldCount()
+    return 3 != s.FieldCount()
 }
             
 
@@ -366,20 +382,27 @@ func (s *ConfigCellMain) Status() *Uint8 {
                
 
 func (s *ConfigCellMain) TypeIdTable() *TypeIdTable {
-    var ret *TypeIdTable
     start := unpackNumber(s.inner[8:])
+    end := unpackNumber(s.inner[12:])
+    return TypeIdTableFromSliceUnchecked(s.inner[start:end])
+}
+               
+
+func (s *ConfigCellMain) DasLockOutPointTable() *DasLockOutPointTable {
+    var ret *DasLockOutPointTable
+    start := unpackNumber(s.inner[12:])
     if s.HasExtraFields() {
-        end := unpackNumber(s.inner[12:])
-        ret = TypeIdTableFromSliceUnchecked(s.inner[start:end])
+        end := unpackNumber(s.inner[16:])
+        ret = DasLockOutPointTableFromSliceUnchecked(s.inner[start:end])
     } else {
-        ret = TypeIdTableFromSliceUnchecked(s.inner[start:])
+        ret = DasLockOutPointTableFromSliceUnchecked(s.inner[start:])
     }
     return ret
 }
                         
 
 func (s *ConfigCellMain) AsBuilder() ConfigCellMainBuilder {
-    ret := NewConfigCellMainBuilder().Status(*s.Status()).TypeIdTable(*s.TypeIdTable())
+    ret := NewConfigCellMainBuilder().Status(*s.Status()).TypeIdTable(*s.TypeIdTable()).DasLockOutPointTable(*s.DasLockOutPointTable())
     return *ret
 }
         
@@ -683,6 +706,263 @@ func (s *TypeIdTable) ProposalCell() *Hash {
 
 func (s *TypeIdTable) AsBuilder() TypeIdTableBuilder {
     ret := NewTypeIdTableBuilder().AccountCell(*s.AccountCell()).ApplyRegisterCell(*s.ApplyRegisterCell()).BiddingCell(*s.BiddingCell()).IncomeCell(*s.IncomeCell()).OnSaleCell(*s.OnSaleCell()).PreAccountCell(*s.PreAccountCell()).ProposalCell(*s.ProposalCell())
+    return *ret
+}
+        
+
+type DasLockOutPointTableBuilder struct {
+    ckb_signall OutPoint
+ckb_multisign OutPoint
+ckb_anyone_can_pay OutPoint
+eth OutPoint
+tron OutPoint
+}
+        
+
+func (s *DasLockOutPointTableBuilder) Build() DasLockOutPointTable {
+    b := new(bytes.Buffer)
+
+    totalSize := HeaderSizeUint * (5 + 1)
+    offsets := make([]uint32, 0, 5)
+
+    offsets = append(offsets, totalSize)
+totalSize += uint32(len(s.ckb_signall.AsSlice()))
+offsets = append(offsets, totalSize)
+totalSize += uint32(len(s.ckb_multisign.AsSlice()))
+offsets = append(offsets, totalSize)
+totalSize += uint32(len(s.ckb_anyone_can_pay.AsSlice()))
+offsets = append(offsets, totalSize)
+totalSize += uint32(len(s.eth.AsSlice()))
+offsets = append(offsets, totalSize)
+totalSize += uint32(len(s.tron.AsSlice()))
+
+    b.Write(packNumber(Number(totalSize)))
+
+    for i := 0; i < len(offsets); i++ {
+        b.Write(packNumber(Number(offsets[i])))
+    }
+
+    b.Write(s.ckb_signall.AsSlice())
+b.Write(s.ckb_multisign.AsSlice())
+b.Write(s.ckb_anyone_can_pay.AsSlice())
+b.Write(s.eth.AsSlice())
+b.Write(s.tron.AsSlice())
+    return DasLockOutPointTable{inner: b.Bytes()}
+}
+                
+
+func (s *DasLockOutPointTableBuilder) CkbSignall(v OutPoint) *DasLockOutPointTableBuilder {
+    s.ckb_signall = v
+    return s
+}
+            
+
+func (s *DasLockOutPointTableBuilder) CkbMultisign(v OutPoint) *DasLockOutPointTableBuilder {
+    s.ckb_multisign = v
+    return s
+}
+            
+
+func (s *DasLockOutPointTableBuilder) CkbAnyoneCanPay(v OutPoint) *DasLockOutPointTableBuilder {
+    s.ckb_anyone_can_pay = v
+    return s
+}
+            
+
+func (s *DasLockOutPointTableBuilder) Eth(v OutPoint) *DasLockOutPointTableBuilder {
+    s.eth = v
+    return s
+}
+            
+
+func (s *DasLockOutPointTableBuilder) Tron(v OutPoint) *DasLockOutPointTableBuilder {
+    s.tron = v
+    return s
+}
+            
+
+func NewDasLockOutPointTableBuilder() *DasLockOutPointTableBuilder {
+	return &DasLockOutPointTableBuilder{ ckb_signall: OutPointDefault(),ckb_multisign: OutPointDefault(),ckb_anyone_can_pay: OutPointDefault(),eth: OutPointDefault(),tron: OutPointDefault() }
+}
+    
+
+type DasLockOutPointTable struct {
+    inner []byte
+}
+        
+
+func DasLockOutPointTableFromSliceUnchecked(slice []byte) *DasLockOutPointTable {
+    return &DasLockOutPointTable{inner: slice}
+}
+func (s *DasLockOutPointTable) AsSlice() []byte {
+    return s.inner
+}
+            
+
+func DasLockOutPointTableDefault() DasLockOutPointTable {
+    return *DasLockOutPointTableFromSliceUnchecked([]byte{ 204,0,0,0,24,0,0,0,60,0,0,0,96,0,0,0,132,0,0,0,168,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 })
+}
+            
+
+func DasLockOutPointTableFromSlice(slice []byte, compatible bool) (*DasLockOutPointTable, error) {
+    sliceLen := len(slice)
+    if uint32(sliceLen) < HeaderSizeUint {
+        errMsg := strings.Join([]string{"HeaderIsBroken", "DasLockOutPointTable", strconv.Itoa(int(sliceLen)), "<", strconv.Itoa(int(HeaderSizeUint))}, " ")
+        return nil, errors.New(errMsg)
+    }
+
+    totalSize := unpackNumber(slice)
+    if Number(sliceLen) != totalSize {
+        errMsg := strings.Join([]string{"TotalSizeNotMatch", "DasLockOutPointTable", strconv.Itoa(int(sliceLen)), "!=", strconv.Itoa(int(totalSize))}, " ")
+        return nil, errors.New(errMsg)
+    }
+
+    if uint32(sliceLen) == HeaderSizeUint && 5 == 0 {
+        return &DasLockOutPointTable{inner: slice}, nil
+    }
+
+    if uint32(sliceLen) < HeaderSizeUint*2 {
+        errMsg := strings.Join([]string{"TotalSizeNotMatch", "DasLockOutPointTable", strconv.Itoa(int(sliceLen)), "<", strconv.Itoa(int(HeaderSizeUint*2))}, " ")
+        return nil, errors.New(errMsg)
+    }
+
+    offsetFirst := unpackNumber(slice[HeaderSizeUint:])
+    if offsetFirst%4 != 0 || uint32(offsetFirst) < HeaderSizeUint*2 {
+        errMsg := strings.Join([]string{"OffsetsNotMatch", "DasLockOutPointTable", strconv.Itoa(int(offsetFirst%4)), "!= 0", strconv.Itoa(int(offsetFirst)), "<", strconv.Itoa(int(HeaderSizeUint*2))}, " ")
+        return nil, errors.New(errMsg)
+    }
+
+    fieldCount := offsetFirst/4 - 1
+    if fieldCount < 5 {
+        return nil, errors.New("FieldCountNotMatch")
+    } else if !compatible && fieldCount > 5 {
+        return nil, errors.New("FieldCountNotMatch")
+    }
+
+    headerSize := HeaderSizeUint * (uint32(fieldCount) + 1)
+    if uint32(sliceLen) < headerSize {
+        errMsg := strings.Join([]string{"HeaderIsBroken", "DasLockOutPointTable", strconv.Itoa(int(sliceLen)), "<", strconv.Itoa(int(headerSize))}, " ")
+        return nil, errors.New(errMsg)
+    }
+
+    offsets := make([]uint32, fieldCount)
+
+    for i := 0; i < int(fieldCount); i++ {
+        offsets[i] = uint32(unpackNumber(slice[HeaderSizeUint:][int(HeaderSizeUint)*i:]))
+    }
+    offsets = append(offsets, uint32(totalSize))
+
+    for i := 0; i < len(offsets); i++ {
+        if i&1 != 0 && offsets[i-1] > offsets[i] {
+            return nil, errors.New("OffsetsNotMatch")
+        }
+    }
+
+    var err error
+    
+_, err = OutPointFromSlice(slice[offsets[0]:offsets[1]], compatible)
+if err != nil {
+    return nil, err
+}
+                
+
+_, err = OutPointFromSlice(slice[offsets[1]:offsets[2]], compatible)
+if err != nil {
+    return nil, err
+}
+                
+
+_, err = OutPointFromSlice(slice[offsets[2]:offsets[3]], compatible)
+if err != nil {
+    return nil, err
+}
+                
+
+_, err = OutPointFromSlice(slice[offsets[3]:offsets[4]], compatible)
+if err != nil {
+    return nil, err
+}
+                
+
+_, err = OutPointFromSlice(slice[offsets[4]:offsets[5]], compatible)
+if err != nil {
+    return nil, err
+}
+                
+
+    return &DasLockOutPointTable{inner: slice}, nil
+}
+            
+
+func (s *DasLockOutPointTable) TotalSize() uint {
+    return uint(unpackNumber(s.inner))
+}
+func (s *DasLockOutPointTable) FieldCount() uint {
+    var number uint = 0
+    if uint32(s.TotalSize()) == HeaderSizeUint {
+        return number
+    }
+    number = uint(unpackNumber(s.inner[HeaderSizeUint:]))/4 - 1
+    return number
+}
+func (s *DasLockOutPointTable) Len() uint {
+    return s.FieldCount()
+}
+func (s *DasLockOutPointTable) IsEmpty() bool {
+    return s.Len() == 0
+}
+func (s *DasLockOutPointTable) CountExtraFields() uint {
+    return s.FieldCount() - 5
+}
+
+func (s *DasLockOutPointTable) HasExtraFields() bool {
+    return 5 != s.FieldCount()
+}
+            
+
+func (s *DasLockOutPointTable) CkbSignall() *OutPoint {
+    start := unpackNumber(s.inner[4:])
+    end := unpackNumber(s.inner[8:])
+    return OutPointFromSliceUnchecked(s.inner[start:end])
+}
+               
+
+func (s *DasLockOutPointTable) CkbMultisign() *OutPoint {
+    start := unpackNumber(s.inner[8:])
+    end := unpackNumber(s.inner[12:])
+    return OutPointFromSliceUnchecked(s.inner[start:end])
+}
+               
+
+func (s *DasLockOutPointTable) CkbAnyoneCanPay() *OutPoint {
+    start := unpackNumber(s.inner[12:])
+    end := unpackNumber(s.inner[16:])
+    return OutPointFromSliceUnchecked(s.inner[start:end])
+}
+               
+
+func (s *DasLockOutPointTable) Eth() *OutPoint {
+    start := unpackNumber(s.inner[16:])
+    end := unpackNumber(s.inner[20:])
+    return OutPointFromSliceUnchecked(s.inner[start:end])
+}
+               
+
+func (s *DasLockOutPointTable) Tron() *OutPoint {
+    var ret *OutPoint
+    start := unpackNumber(s.inner[20:])
+    if s.HasExtraFields() {
+        end := unpackNumber(s.inner[24:])
+        ret = OutPointFromSliceUnchecked(s.inner[start:end])
+    } else {
+        ret = OutPointFromSliceUnchecked(s.inner[start:])
+    }
+    return ret
+}
+                        
+
+func (s *DasLockOutPointTable) AsBuilder() DasLockOutPointTableBuilder {
+    ret := NewDasLockOutPointTableBuilder().CkbSignall(*s.CkbSignall()).CkbMultisign(*s.CkbMultisign()).CkbAnyoneCanPay(*s.CkbAnyoneCanPay()).Eth(*s.Eth()).Tron(*s.Tron())
     return *ret
 }
         
