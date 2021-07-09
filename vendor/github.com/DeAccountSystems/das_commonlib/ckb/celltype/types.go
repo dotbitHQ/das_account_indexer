@@ -17,6 +17,8 @@ import (
  * Description:
  */
 
+var DasActionWitness = NewDasWitnessData(TableType_ACTION, []byte{})
+
 type TypeInputCell struct {
 	InputIndex uint32          `json:"input_index"`
 	Input      types.CellInput `json:"input"`
@@ -51,7 +53,7 @@ type DASWitnessDataObj struct {
 func NewDasWitnessDataFromSlice(rawData []byte) (*DASWitnessDataObj, error) {
 	tempByte := make([]byte,len(rawData))
 	copy(tempByte,rawData)
-	if size := len(tempByte); size <= 8 { // header'size + min(data)'size
+	if size := len(tempByte); size <= 8 { // header's size + min(data)'s size
 		return nil, fmt.Errorf("invalid rawData size: %d", size)
 	}
 	dasStrTag := string(tempByte[:witnessDasCharLen])
@@ -68,8 +70,6 @@ func NewDasWitnessDataFromSlice(rawData []byte) (*DASWitnessDataObj, error) {
 		TableBys:  tempByte[witnessDasTableTypeEndIndex:],
 	}, nil
 }
-
-var DasActionWitness = NewDasWitnessData(TableType_ACTION, []byte{})
 
 func NewDasWitnessData(tableType TableType, tableBys []byte) *DASWitnessDataObj {
 	return &DASWitnessDataObj{

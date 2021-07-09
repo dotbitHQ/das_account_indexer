@@ -1,6 +1,6 @@
 # github.com/Andrew-M-C/go.emoji v0.0.0-20210303022417-b8fefdaedb50
 github.com/Andrew-M-C/go.emoji/official
-# github.com/DeAccountSystems/das_commonlib v0.0.0-20210701022836-a9348ec022c2
+# github.com/DeAccountSystems/das_commonlib v0.0.0-20210709030043-e2da4f341238
 github.com/DeAccountSystems/das_commonlib/ckb/celltype
 github.com/DeAccountSystems/das_commonlib/ckb/gotype
 github.com/DeAccountSystems/das_commonlib/common
@@ -9,6 +9,7 @@ github.com/DeAccountSystems/das_commonlib/cfg
 github.com/DeAccountSystems/das_commonlib/dasrpc
 github.com/DeAccountSystems/das_commonlib/sys
 github.com/DeAccountSystems/das_commonlib/ckb/collector
+github.com/DeAccountSystems/das_commonlib/chain/tron_chain
 github.com/DeAccountSystems/das_commonlib/ckb/gotype/configcells
 github.com/DeAccountSystems/das_commonlib/ckb/wallet
 github.com/DeAccountSystems/das_commonlib/sys/filewatcher
@@ -16,6 +17,10 @@ github.com/DeAccountSystems/das_commonlib/sys/filewatcher
 github.com/StackExchange/wmi
 # github.com/aristanetworks/goarista v0.0.0-20170210015632-ea17b1a17847
 github.com/aristanetworks/goarista/monotime
+# github.com/btcsuite/btcd v0.0.0-20171128150713-2e60448ffcc6
+github.com/btcsuite/btcd/btcec
+# github.com/btcsuite/btcutil v0.0.0-20190425235716-9e5f4b9a998d
+github.com/btcsuite/btcutil/base58
 # github.com/cpuguy83/go-md2man/v2 v2.0.0-20190314233015-f79a8a8ca69d
 github.com/cpuguy83/go-md2man/v2/md2man
 # github.com/deckarep/golang-set v0.0.0-20180603214616-504e848d77ea
@@ -32,6 +37,7 @@ github.com/ethereum/go-ethereum/common
 github.com/ethereum/go-ethereum/common/hexutil
 github.com/ethereum/go-ethereum/rlp
 github.com/ethereum/go-ethereum/rpc
+github.com/ethereum/go-ethereum/crypto
 github.com/ethereum/go-ethereum/log
 github.com/ethereum/go-ethereum/metrics
 github.com/ethereum/go-ethereum/p2p/netutil
@@ -102,6 +108,8 @@ github.com/spf13/jwalterweatherman
 github.com/spf13/pflag
 # github.com/spf13/viper v1.4.0
 github.com/spf13/viper
+# github.com/tron-us/go-common v1.0.2
+github.com/tron-us/go-common/crypto
 # github.com/urfave/cli v1.22.1
 github.com/urfave/cli
 # go.uber.org/atomic v1.4.0

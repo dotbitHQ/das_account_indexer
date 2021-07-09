@@ -2,16 +2,13 @@ package celltype
 
 import (
 	"bytes"
-	"context"
 	"encoding/binary"
 	"encoding/hex"
 	"errors"
 	"fmt"
 	"github.com/DeAccountSystems/das_commonlib/common"
 	"github.com/nervosnetwork/ckb-sdk-go/crypto/blake2b"
-	"github.com/nervosnetwork/ckb-sdk-go/rpc"
 	"github.com/nervosnetwork/ckb-sdk-go/types"
-	"github.com/nervosnetwork/ckb-sdk-go/utils"
 	"math/big"
 	"reflect"
 	"strings"
@@ -24,6 +21,12 @@ import (
  * Date:     2020/12/18 2:57
  * Description:
  */
+
+var (
+	accountCellType = reflect.TypeOf(&AccountCellData{})
+	versionAccountCellType = reflect.TypeOf(&VersionAccountCell{})
+	accountCellVersion1FieldCount = uint(5)
+)
 
 func GoBytesToMoleculeHash(bytes []byte) Hash {
 	byteArr := [32]Byte{}
@@ -167,36 +170,6 @@ func MoleculeRecordsToGo(records Records) EditRecordItemList {
 	return retList
 }
 
-func AccountCharsToAccount(accountChars AccountChars) DasAccount {
-	index := uint(0)
-	accountRawBytes := []byte{}
-	accountCharsSize := accountChars.ItemCount()
-	for ; index < accountCharsSize; index++ {
-		char := accountChars.Get(index)
-		accountRawBytes = append(accountRawBytes, char.Bytes().RawData()...)
-	}
-	accountStr := string(accountRawBytes)
-	if accountStr != "" && !strings.HasSuffix(accountStr, DasAccountSuffix) {
-		accountStr = accountStr + DasAccountSuffix
-	}
-	return DasAccount(accountStr)
-}
-
-func AccountCharsToAccountId(accountChars AccountChars) DasAccountId {
-	index := uint(0)
-	accountCharsSize := accountChars.ItemCount()
-	accountRawBytes := []byte{}
-	for ; index < accountCharsSize; index++ {
-		char := accountChars.Get(index)
-		accountRawBytes = append(accountRawBytes, char.Bytes().RawData()...)
-	}
-	accountStr := string(accountRawBytes)
-	if !strings.HasSuffix(accountStr, DasAccountSuffix) {
-		accountStr = accountStr + DasAccountSuffix
-	}
-	return DasAccountFromStr(accountStr).AccountId()
-}
-
 func MoleculeU8ToGo(bys []byte) (uint8, error) {
 	var t uint8
 	bytesBuffer := bytes.NewBuffer(bys)
@@ -244,17 +217,6 @@ func MoleculeU32ToGoPercentage(bys []byte) (float64, error) {
 	return r, nil
 }
 
-func CalDasAwardCap(cap uint64, rate float64) (uint64, error) {
-	a := new(big.Rat).SetFloat64(float64(cap))
-	b := new(big.Rat).SetFloat64(rate)
-	r, _ := new(big.Rat).Mul(a, b).Float64()
-	return uint64(r), nil
-}
-
-func CalAccountSpend(account DasAccount) uint64 {
-	return uint64(len([]byte(account))) * OneCkb
-}
-
 func ParseTxWitnessToDasWitnessObj(rawData []byte) (*ParseDasWitnessBysDataObj, error) {
 	ret := &ParseDasWitnessBysDataObj{}
 	dasWitnessObj, err := NewDasWitnessDataFromSlice(rawData)
@@ -293,11 +255,6 @@ func ParseTxWitnessToDasWitnessObj(rawData []byte) (*ParseDasWitnessBysDataObj, 
 	return ret, nil
 }
 
-var (
-	accountCellType = reflect.TypeOf(&AccountCellData{})
-	versionAccountCellType = reflect.TypeOf(&VersionAccountCell{})
-	accountCellVersion1FieldCount = uint(5)
-)
 type VersionAccountCell struct {
 	Version     uint32
 	OriginSlice []byte
@@ -390,55 +347,6 @@ func BuildDasCommonMoleculeDataObj(depIndex, oldIndex, newIndex uint32, depMolec
 	return &d, nil
 }
 
-type ReqFindTargetTypeScriptParam struct {
-	Ctx       context.Context
-	RpcClient rpc.Client
-	InputList []*types.CellInput
-	IsLock    bool
-	CodeHash  types.Hash
-}
-type FindTargetTypeScriptRet struct {
-	Output *types.CellOutput
-	Data   []byte
-	Tx     *types.Transaction
-}
-
-func FindTargetTypeScriptByInputList(p *ReqFindTargetTypeScriptParam) (*FindTargetTypeScriptRet, error) {
-	codeHash := p.CodeHash
-	for _, item := range p.InputList {
-		tx, err := p.RpcClient.GetTransaction(p.Ctx, item.PreviousOutput.TxHash)
-		if err != nil {
-			return nil, fmt.Errorf("FindSenderLockScriptByInputList err: %s", err.Error())
-		}
-		size := len(tx.Transaction.Outputs)
-		for i := 0; i < size; i++ {
-			output := tx.Transaction.Outputs[i]
-			if p.IsLock {
-				if output.Lock != nil && output.Lock.CodeHash == codeHash &&
-					output.Lock.HashType == types.HashTypeType && item.PreviousOutput.Index == uint(i) {
-					return &FindTargetTypeScriptRet{
-						Output: output,
-						Data:   tx.Transaction.OutputsData[i],
-						Tx:     tx.Transaction,
-					}, nil
-				}
-			} else {
-				if output.Type != nil &&
-					output.Type.CodeHash == codeHash &&
-					output.Type.HashType == types.HashTypeType &&
-					item.PreviousOutput.Index == uint(i) {
-					return &FindTargetTypeScriptRet{
-						Output: output,
-						Data:   tx.Transaction.OutputsData[i],
-						Tx:     tx.Transaction,
-					}, nil
-				}
-			}
-		}
-	}
-	return nil, errors.New("FindSenderLockScriptByInputList not found")
-}
-
 // const sameIndexMark = 999999
 // func ChangeMoleculeDataSameIndex(changeType DataEntityChangeType, originWitnessData []byte) ([]byte, error) {
 // 	return ChangeMoleculeData(changeType,sameIndexMark, originWitnessData)
@@ -521,32 +429,6 @@ func ChangeMoleculeData(changeType DataEntityChangeType, index uint32, originWit
 	newDataBytes := (&newData).AsSlice()
 	newWitnessData := NewDasWitnessData(witnessObj.TableType, newDataBytes)
 	return newWitnessData.ToWitness(), nil
-}
-
-func GetScriptTypeFromLockScript(ckbSysScript *utils.SystemScripts, lockScript *types.Script) (LockScriptType, error) {
-	lockCodeHash := lockScript.CodeHash
-	switch lockCodeHash {
-	case ckbSysScript.SecpSingleSigCell.CellHash:
-		return ScriptType_User, nil
-	case DasAnyOneCanSendCellInfo.Out.CodeHash:
-		return ScriptType_Any, nil
-	case DasETHLockCellInfo.Out.CodeHash:
-		return ScriptType_ETH, nil
-	case DasBTCLockCellInfo.CodeHash:
-		return ScriptType_BTC, nil
-	default:
-		return -1, errors.New("invalid lockScript")
-	}
-}
-
-func IsValidETHLockScriptSignature(signBytes []byte) error {
-	if len(signBytes) != ETHScriptLockWitnessBytesLen {
-		return fmt.Errorf("invalid signed bys, signed bytes len: %d", ETHScriptLockWitnessBytesLen)
-	}
-	if signBytes[0] != byte(PwCoreLockScriptType_ETH) {
-		return fmt.Errorf("invalid signed bys, first byte must 1, %d", signBytes[0])
-	}
-	return nil
 }
 
 func CalTypeIdFromScript(script *types.Script) types.Hash {
