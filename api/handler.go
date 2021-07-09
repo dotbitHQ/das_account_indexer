@@ -117,6 +117,7 @@ func (r *RpcHandler) loadOneAccountCellByLockScript(address gotype.Address) ([]*
 }
 
 func (r *RpcHandler) loadOneAccountCellById(targetAccountId celltype.DasAccountId) (*types.AccountReturnObj, error) {
+	timeStart := time.Now()
 	searchKey := &indexer.SearchKey{
 		Script:     celltype.DasAccountCellScript.Out.Script(),
 		ScriptType: indexer.ScriptTypeType,
@@ -140,12 +141,16 @@ func (r *RpcHandler) loadOneAccountCellById(targetAccountId celltype.DasAccountI
 	if len(liveCells) == 0 {
 		return nil, emptyErr
 	}
-	return r.parseLiveCellToAccount(&liveCells[0], func(cellData *celltype.AccountCellData) bool {
+	log.Warn("load account time spend:", time.Since(timeStart).String())
+	timeStart1 := time.Now()
+	obj, err := r.parseLiveCellToAccount(&liveCells[0], func(cellData *celltype.AccountCellData) bool {
 		if targetAccountId != celltype.AccountCharsToAccount(*cellData.Account()).AccountId() {
 			return false
 		}
 		return true
 	})
+	log.Warn("parse account time spend:", time.Since(timeStart1).String())
+	return obj, err
 }
 
 func (r *RpcHandler) parseLiveCellToAccount(cell *indexer.LiveCell, filter func(cellData *celltype.AccountCellData) bool) (*types.AccountReturnObj, error) {
