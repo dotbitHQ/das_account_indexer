@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"math/big"
 	"time"
 
 	"github.com/DeAccountSystems/das_commonlib/ckb/celltype"
@@ -476,4 +477,14 @@ func BytesToAccountCellTxValue(bys []byte) (*AccountCell, error) {
 	return ret, nil
 }
 
+func CalDasAwardCap(cap uint64, rate float64) (uint64, error) {
+	a := new(big.Rat).SetFloat64(float64(cap))
+	b := new(big.Rat).SetFloat64(rate)
+	r, _ := new(big.Rat).Mul(a, b).Float64()
+	return uint64(r), nil
+}
+
+func CalAccountSpend(account celltype.DasAccount) uint64 {
+	return uint64(len([]byte(account))) * celltype.OneCkb
+}
 

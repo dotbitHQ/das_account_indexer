@@ -54,9 +54,33 @@ func NewDefaultConfigCell() *ConfigCell {
 	c.ConfigCellChildMap.Store(celltype.TableType_CONFIG_CELL_PROPOSAL, &configcells.CfgProposal{})
 	c.ConfigCellChildMap.Store(celltype.TableType_CONFIG_CELL_INCOME, &configcells.CfgIncome{})
 	c.ConfigCellChildMap.Store(celltype.TableType_CONFIG_CELL_RECORD_NAMESPACE, &configcells.CfgNameSpace{})
-	c.ConfigCellChildMap.Store(celltype.TableType_CONFIG_CELL_PreservedAccount00, &configcells.CfgPreservedAccount00{})
+
+	c.StorePreservedAccountMap(configcells.NewCfgPreservedAccount(celltype.TableType_CONFIG_CELL_PreservedAccount00,"PreservedAccount00"))
+	c.StorePreservedAccountMap(configcells.NewCfgPreservedAccount(celltype.TableType_CONFIG_CELL_PreservedAccount01,"PreservedAccount01"))
+	c.StorePreservedAccountMap(configcells.NewCfgPreservedAccount(celltype.TableType_CONFIG_CELL_PreservedAccount02,"PreservedAccount02"))
+	c.StorePreservedAccountMap(configcells.NewCfgPreservedAccount(celltype.TableType_CONFIG_CELL_PreservedAccount03,"PreservedAccount03"))
+	c.StorePreservedAccountMap(configcells.NewCfgPreservedAccount(celltype.TableType_CONFIG_CELL_PreservedAccount04,"PreservedAccount04"))
+	c.StorePreservedAccountMap(configcells.NewCfgPreservedAccount(celltype.TableType_CONFIG_CELL_PreservedAccount05,"PreservedAccount05"))
+	c.StorePreservedAccountMap(configcells.NewCfgPreservedAccount(celltype.TableType_CONFIG_CELL_PreservedAccount06,"PreservedAccount06"))
+	c.StorePreservedAccountMap(configcells.NewCfgPreservedAccount(celltype.TableType_CONFIG_CELL_PreservedAccount07,"PreservedAccount07"))
+	c.StorePreservedAccountMap(configcells.NewCfgPreservedAccount(celltype.TableType_CONFIG_CELL_PreservedAccount08,"PreservedAccount08"))
+	c.StorePreservedAccountMap(configcells.NewCfgPreservedAccount(celltype.TableType_CONFIG_CELL_PreservedAccount09,"PreservedAccount09"))
+	c.StorePreservedAccountMap(configcells.NewCfgPreservedAccount(celltype.TableType_CONFIG_CELL_PreservedAccount10,"PreservedAccount10"))
+	c.StorePreservedAccountMap(configcells.NewCfgPreservedAccount(celltype.TableType_CONFIG_CELL_PreservedAccount11,"PreservedAccount11"))
+	c.StorePreservedAccountMap(configcells.NewCfgPreservedAccount(celltype.TableType_CONFIG_CELL_PreservedAccount12,"PreservedAccount12"))
+	c.StorePreservedAccountMap(configcells.NewCfgPreservedAccount(celltype.TableType_CONFIG_CELL_PreservedAccount13,"PreservedAccount13"))
+	c.StorePreservedAccountMap(configcells.NewCfgPreservedAccount(celltype.TableType_CONFIG_CELL_PreservedAccount14,"PreservedAccount14"))
+	c.StorePreservedAccountMap(configcells.NewCfgPreservedAccount(celltype.TableType_CONFIG_CELL_PreservedAccount15,"PreservedAccount15"))
+	c.StorePreservedAccountMap(configcells.NewCfgPreservedAccount(celltype.TableType_CONFIG_CELL_PreservedAccount16,"PreservedAccount16"))
+	c.StorePreservedAccountMap(configcells.NewCfgPreservedAccount(celltype.TableType_CONFIG_CELL_PreservedAccount17,"PreservedAccount17"))
+	c.StorePreservedAccountMap(configcells.NewCfgPreservedAccount(celltype.TableType_CONFIG_CELL_PreservedAccount18,"PreservedAccount18"))
+	c.StorePreservedAccountMap(configcells.NewCfgPreservedAccount(celltype.TableType_CONFIG_CELL_PreservedAccount19,"PreservedAccount19"))
 
 	return c
+}
+
+func (c *ConfigCell) StorePreservedAccountMap(xx *configcells.CfgPreservedAccountXX) {
+	c.ConfigCellChildMap.Store(xx.TableType,xx)
 }
 
 func (c *ConfigCell) main() *celltype.ConfigCellMain {

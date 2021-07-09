@@ -4,7 +4,7 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
-
+	"github.com/DeAccountSystems/das_commonlib/chain/tron_chain"
 	"github.com/DeAccountSystems/das_commonlib/ckb/celltype"
 	"github.com/DeAccountSystems/das_commonlib/ckb/wallet"
 	"github.com/nervosnetwork/ckb-sdk-go/types"
@@ -25,6 +25,10 @@ func (r Address) Str() string {
 	return strings.ToLower(string(r))
 }
 
+func (r Address) OriginStr() string {
+	return string(r)
+}
+
 func (r Address) HexBys(singleSigCellHash types.Hash) ([]byte, error) {
 	addrStr := r.Str()
 	if len(addrStr) < 3 {
@@ -43,14 +47,21 @@ func (r Address) HexBys(singleSigCellHash types.Hash) ([]byte, error) {
 			return nil, err
 		}
 		return args, nil
-	case "41":
-		args, err := hex.DecodeString(addrStr[2:])
-		if err != nil {
-			return nil, err
-		}
-		return args, nil
 	default:
-		return nil, errors.New("unSupport chain address")
+		pubkeyHex,err := tron_chain.PubkeyHexFromBase58(r.OriginStr())
+		if err != nil {
+			return nil, fmt.Errorf("tron PubkeyHexFromBase58 err: %s",err.Error())
+		}
+		switch pubkeyHex[0:2] {
+		case tron_chain.TronAddrHexPrefix:
+			args, err := hex.DecodeString(pubkeyHex[2:])
+			if err != nil {
+				return nil, err
+			}
+			return args, nil
+		default:
+			return nil, errors.New("unSupport chain address")
+		}
 	}
 }
 
@@ -88,7 +99,7 @@ func (r Address) DasLockScript(indexType celltype.DasLockCodeHashIndexType) (*ty
 	addrStr := r.Str()
 	if strings.HasPrefix(addrStr, "0x") {
 		addrStr = addrStr[2:]
-	} else if strings.HasPrefix(addrStr, "41") {
+	} else if strings.HasPrefix(addrStr, tron_chain.TronAddrHexPrefix) {
 		addrStr = addrStr[2:]
 	}
 	argBys, err := hex.DecodeString(addrStr)

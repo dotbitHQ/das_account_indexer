@@ -3,12 +3,14 @@ package wallet
 import (
 	"crypto/rand"
 	"encoding/hex"
+	"encoding/json"
 	"fmt"
 	"github.com/minio/blake2b-simd"
 	"github.com/nervosnetwork/ckb-sdk-go/crypto/bech32"
 	"github.com/nervosnetwork/ckb-sdk-go/crypto/secp256k1"
 	"github.com/nervosnetwork/ckb-sdk-go/types"
 	"github.com/nervosnetwork/ckb-sdk-go/utils"
+	"strings"
 )
 
 /**
@@ -46,14 +48,33 @@ func InitCkbWallet(privateKeyHex string, systemScript *utils.SystemScripts) (*Ck
 	}, nil
 }
 
-func GetShortAddressFromLockScriptArgs(args string) {
-
+// payload = type(01) | code hash index(00) | pubkey Blake160
+// docs: https://github.com/nervosnetwork/rfcs/blob/master/rfcs/0021-ckb-address-format/0021-ckb-address-format.md
+func GetShortAddressFromLockScriptArgs(args string,isTestNet bool) (string,error) {
+	prefix := PREFIX_MAINNET
+	if isTestNet {
+		prefix = PREFIX_TESTNET
+	}
+	hexStr, err := toHexStrObj(args)
+	if err != nil {
+		return "", err
+	}
+	payload := append([]byte{
+		byte(uint8(1)), 	// type
+		byte(uint8(0))}, 	// code_hash_index
+		hexStr.Bytes()...)
+	return encodeAddress(prefix,payload)
 }
 
 type NewWalletObj struct {
 	PriKeyHex  string
 	PubKeyHex  string
 	AddressHex string
+}
+
+func (n *NewWalletObj) Json() string {
+	bys,_ := json.Marshal(n)
+	return string(bys)
 }
 func CreateCKBWallet(isTestNet bool) (*NewWalletObj,error) {
 	seed := rand.Reader
@@ -141,4 +162,52 @@ func genCkbAddr(prefix string, blake160Addr []byte) (string,error) {
 	} else {
 		return addr, nil
 	}
+}
+
+func encodeAddress(prefix string, payload []byte) (string, error) {
+	payload, err := bech32.ConvertBits(payload, 8, 5, true)
+	if err != nil {
+		return "", fmt.Errorf("bech32.ConvertBits err: %s",err.Error())
+	}
+	addr, err := bech32.Encode(prefix, payload)
+	if err != nil {
+		return "", fmt.Errorf("bech32.Encode err: %s",err.Error())
+	}
+	return addr, nil
+}
+
+type HexStrObj struct {
+	bytes  []byte
+	hexStr string
+}
+
+func toHexStrObj(hexStr string) (*HexStrObj, error) {
+	HexStrPrefix := "0x"
+	if !strings.HasPrefix(hexStr, HexStrPrefix) {
+		hexStr = HexStrPrefix + hexStr
+	}
+	if len(hexStr) == 2 {
+		return &HexStrObj{
+			bytes:  []byte{},
+			hexStr: HexStrPrefix,
+		}, nil
+	}
+
+	body := hexStr[2:]
+	if len(body)%2 == 1 {
+		body = "0" + body
+	}
+
+	b, err := hex.DecodeString(body)
+	if err != nil {
+		return nil, fmt.Errorf("DecodeString err: %s",err.Error())
+	}
+	return &HexStrObj{
+		bytes:  b,
+		hexStr: HexStrPrefix + body,
+	}, nil
+}
+
+func (hs *HexStrObj) Bytes() []byte {
+	return hs.bytes
 }
