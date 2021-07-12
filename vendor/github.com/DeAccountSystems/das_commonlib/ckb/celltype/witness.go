@@ -468,3 +468,20 @@ func IsInterfaceNil(i interface{}) bool {
 	}
 	return ret
 }
+
+func GetActionNameFromWitnessData(tx *types.Transaction) (string, error) {
+	start := len(tx.Inputs)
+	if size := len(tx.Witnesses); size <= start {
+		return "", fmt.Errorf("not a DAS tx, maybe normal tx, witness array size not enough, at less: %d", start+1)
+	}
+	actionBytes := tx.Witnesses[start] // [das] [action: apply_register] [...]
+	if actionDataSize := len(actionBytes); actionDataSize == 0 {
+		return "", errors.New("not a DAS tx, action witness data size is zero")
+	} else if actionWitness, err := NewDasWitnessDataFromSlice(actionBytes); err != nil {
+		return "", fmt.Errorf("not a DAS tx, action witness data format invalid: %s", err.Error())
+	} else if actionCellData, err := ActionDataFromSlice(actionWitness.TableBys, false); err != nil {
+		return "", fmt.Errorf("not a valid DAS tx, data: [%s], pass this", string(actionBytes))
+	} else {
+		return string(actionCellData.Action().RawData()), nil
+	}
+}
