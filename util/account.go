@@ -50,7 +50,7 @@ func ParseChainAccountToJsonFormat(tx *ckbTypes.Transaction, filter types.Accoun
 				WitnessData:     rawWitnessData,
 				OutputIndex:     index,
 			})
-			return true, nil
+			return false, nil
 		}
 		return false, nil
 	}, func(err error) {
@@ -93,8 +93,8 @@ func ParseChainAccountToJsonFormat(tx *ckbTypes.Transaction, filter types.Accoun
 				Account:           celltype.AccountCharsToAccount(*item.AccountCellData.Account()).Str(),
 				AccountIdHex:      celltype.DasAccountIdFromBytes(item.AccountCellData.Id().RawData()).HexStr(),
 				NextAccountIdHex:  nextAccountId.HexStr(),
-				OwnerLockArgsHex:  hex.EncodeToString(ownerBys),
-				ManagerLockArgHex: hex.EncodeToString(managerBys),
+				OwnerLockArgsHex:  hex.EncodeToString(ownerBys[1:]),
+				ManagerLockArgHex: hex.EncodeToString(managerBys[1:]),
 				CreateAtUnix:      registerAt,
 				ExpiredAtUnix:     uint64(expiredAt),
 				Status:            celltype.AccountCellStatus(accountStatus),
