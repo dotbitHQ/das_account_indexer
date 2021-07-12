@@ -9,18 +9,18 @@ More about DAS information, please visit DAS official website: <a target="_blank
 * OS Support: Linux, Mac OS and Windows
 * Go 1.12.x or later
 * Git
+* RocksDB
 
 #### build
 
-`https://github.com/DeAccountSystems/das_account_indexer.git`
+1. according your system to install the RocksDB, here is the document: https://github.com/facebook/rocksdb/blob/master/INSTALL.md;
 
-`cd $dir`
+2. git clone `https://github.com/DeAccountSystems/das_account_indexer.git`
 
-`make rpc-win`
-
-`make rpc-mac`
-
-`make rpc-linux`
+3. `cd $dir`
+    * `make rpc-win`
+    * `make rpc-mac`
+    * `make rpc-linux`
 
 #### run
 
