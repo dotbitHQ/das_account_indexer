@@ -143,6 +143,8 @@ func runServer(ctx *cli.Context) error {
 					return
 				default:
 					if txParser.BlockSyncFinish() {
+						close(rpcWait)
+						rpcWait = nil
 						if err = runRpcServer(rpcClient, infoDb); err != nil {
 							log.Error("runRpcServer err: %s", err.Error())
 						}
