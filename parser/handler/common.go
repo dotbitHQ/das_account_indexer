@@ -21,7 +21,7 @@ func storeAccountInfoToRocksDb(db *gorocksdb.DB, writeBatch *gorocksdb.WriteBatc
 		item := accountList[i]
 		jsonBys := item.AccountData.JsonBys()
 		writeBatch.Put(AccountKey_AccountId(item.AccountData.AccountId()), jsonBys)
-		fmt.Println("OwnerLockArgsHex:", item.AccountData.OwnerLockArgsHex)
+		// fmt.Println("OwnerLockArgsHex:", item.AccountData.OwnerLockArgsHex)
 		ownerLockArgsHexKey := AccountKey_OwnerArgHex(item.AccountData.OwnerLockArgsHex)
 		jsonArrBys, err := rocksdb.RocksDbSafeGet(db, ownerLockArgsHexKey)
 		if err != nil {
