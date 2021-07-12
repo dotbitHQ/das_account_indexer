@@ -148,7 +148,7 @@ func runServer(ctx *cli.Context) error {
 							rpcWait = nil
 						}
 						if err = runRpcServer(rpcClient, infoDb); err != nil {
-							log.Error("runRpcServer err: %s", err.Error())
+							log.Error(fmt.Sprintf("runRpcServer err: %s", err.Error()))
 						}
 					}
 				}
