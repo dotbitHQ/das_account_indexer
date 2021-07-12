@@ -21,7 +21,7 @@ chain:
           times: 2
           delay_ms: 1000
         scan_control:
-          round_delay_ms: 1000
+          round_delay_ms: 30
           catch_delay_ms: 300
         start_height: 1870000 # block parser start scan block height
 
