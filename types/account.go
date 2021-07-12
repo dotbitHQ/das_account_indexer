@@ -1,8 +1,8 @@
 package types
 
 import (
-	"encoding/hex"
 	"encoding/json"
+	"fmt"
 	"github.com/DeAccountSystems/das_commonlib/ckb/celltype"
 	"github.com/nervosnetwork/ckb-sdk-go/types"
 )
@@ -30,11 +30,14 @@ type AccountData struct {
 }
 
 func (a AccountData) AccountId() celltype.DasAccountId {
-	bys, _ := hex.DecodeString(a.AccountIdHex)
-	return celltype.DasAccountIdFromBytes(bys)
+	return celltype.DasAccountFromStr(a.Account).AccountId()
 }
 func (a AccountData) JsonBys() []byte {
-	bys, _ := json.Marshal(a)
+	fmt.Println("===>", a)
+	bys, err := json.Marshal(a)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
 	return bys
 }
 
@@ -42,6 +45,11 @@ type AccountReturnObj struct {
 	OutPoint    types.OutPoint `json:"out_point"`
 	WitnessHex  string         `json:"-"`
 	AccountData AccountData    `json:"account_data"`
+}
+
+func (a AccountReturnObj) JsonBys() []byte {
+	bys, _ := json.Marshal(a)
+	return bys
 }
 
 type AccountReturnObjList []AccountReturnObj

@@ -3,6 +3,7 @@ package handler
 import (
 	"context"
 	"das_account_indexer/types"
+	"encoding/json"
 	"fmt"
 	"github.com/DeAccountSystems/das_commonlib/ckb/celltype"
 	"github.com/DeAccountSystems/das_commonlib/ckb/gotype"
@@ -15,6 +16,7 @@ import (
 	ckbTypes "github.com/nervosnetwork/ckb-sdk-go/types"
 	"github.com/tecbot/gorocksdb"
 	"testing"
+	"time"
 )
 
 /**
@@ -27,7 +29,7 @@ import (
 
 func Test_HandleConfirmProposalTx(t *testing.T) {
 
-	host := ""
+	host := "47.242.53.82"
 
 	celltype.UseVersion3SystemScriptCodeHash()
 
@@ -53,9 +55,34 @@ func Test_HandleConfirmProposalTx(t *testing.T) {
 		Rocksdb:   infoDb,
 	}
 	_ = HandleConfirmProposalTx("", p)
+	ret1 := searchAccount(infoDb, "d55213.bit")
+	fmt.Println(ret1.ErrNo)
+	fmt.Println(ret1.Data)
+
 	ret := getAddressAccount("", infoDb)
 	fmt.Println(ret.ErrMsg)
 	fmt.Println(ret.Data)
+}
+
+func searchAccount(rocksdb *gorocksdb.DB, account string) common.ReqResp {
+	log.Info("accept SearchAccount:", account)
+	timeStart := time.Now()
+	dasAccount := celltype.DasAccountFromStr(account)
+	if err := dasAccount.ValidErr(); err != nil {
+		return common.ReqResp{ErrNo: dascode.Err_AccountFormatInvalid, ErrMsg: err.Error()}
+	}
+	jsonBys, err := rocksdbUtil.RocksDbSafeGet(rocksdb, AccountKey_AccountId(dasAccount.AccountId()))
+	if err != nil {
+		return common.ReqResp{ErrNo: dascode.Err_Internal, ErrMsg: fmt.Errorf("RocksDbSafeGet err: %s", err.Error()).Error()}
+	} else if jsonBys == nil {
+		return common.ReqResp{ErrNo: dascode.Err_AccountNotExist, ErrMsg: "account not exist, it may not be stored in the local database yet"}
+	}
+	returnRet := &types.AccountReturnObj{}
+	if err = json.Unmarshal(jsonBys, returnRet); err != nil {
+		return common.ReqResp{ErrNo: dascode.Err_Internal, ErrMsg: fmt.Errorf("unmarshal err: %s", err.Error()).Error()}
+	}
+	log.Info("time spend:", time.Since(timeStart).String())
+	return common.ReqResp{ErrNo: dascode.DAS_SUCCESS, Data: returnRet}
 }
 
 func getAddressAccount(address string, rocksdb *gorocksdb.DB) common.ReqResp {
