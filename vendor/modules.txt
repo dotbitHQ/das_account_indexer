@@ -1,11 +1,14 @@
 # github.com/Andrew-M-C/go.emoji v0.0.0-20210303022417-b8fefdaedb50
 github.com/Andrew-M-C/go.emoji/official
-# github.com/DeAccountSystems/das_commonlib v0.0.0-20210709030043-e2da4f341238
+# github.com/DeAccountSystems/das_commonlib v0.0.0-20210710084209-235076035ef6
 github.com/DeAccountSystems/das_commonlib/ckb/celltype
 github.com/DeAccountSystems/das_commonlib/ckb/gotype
 github.com/DeAccountSystems/das_commonlib/common
 github.com/DeAccountSystems/das_commonlib/common/dascode
+github.com/DeAccountSystems/das_commonlib/common/rocksdb
+github.com/DeAccountSystems/das_commonlib/db
 github.com/DeAccountSystems/das_commonlib/cfg
+github.com/DeAccountSystems/das_commonlib/chain/ckb_rocksdb_parser
 github.com/DeAccountSystems/das_commonlib/dasrpc
 github.com/DeAccountSystems/das_commonlib/sys
 github.com/DeAccountSystems/das_commonlib/ckb/collector
@@ -15,6 +18,9 @@ github.com/DeAccountSystems/das_commonlib/ckb/wallet
 github.com/DeAccountSystems/das_commonlib/sys/filewatcher
 # github.com/StackExchange/wmi v0.0.0-20180116203802-5d049714c4a6
 github.com/StackExchange/wmi
+# github.com/af913337456/blockparser v0.0.0-20210623092134-6f2aea800ad9
+github.com/af913337456/blockparser/scanner
+github.com/af913337456/blockparser/types
 # github.com/aristanetworks/goarista v0.0.0-20170210015632-ea17b1a17847
 github.com/aristanetworks/goarista/monotime
 # github.com/btcsuite/btcd v0.0.0-20171128150713-2e60448ffcc6
@@ -49,6 +55,16 @@ github.com/fsnotify/fsnotify
 # github.com/go-ole/go-ole v1.2.1
 github.com/go-ole/go-ole
 github.com/go-ole/go-ole/oleutil
+# github.com/go-redis/redis v6.15.9+incompatible
+github.com/go-redis/redis
+github.com/go-redis/redis/internal
+github.com/go-redis/redis/internal/consistenthash
+github.com/go-redis/redis/internal/hashtag
+github.com/go-redis/redis/internal/pool
+github.com/go-redis/redis/internal/proto
+github.com/go-redis/redis/internal/util
+# github.com/go-sql-driver/mysql v1.5.0
+github.com/go-sql-driver/mysql
 # github.com/go-stack/stack v1.8.0
 github.com/go-stack/stack
 # github.com/go-yaml/yaml v2.1.0+incompatible
@@ -66,6 +82,10 @@ github.com/hashicorp/hcl/hcl/scanner
 github.com/hashicorp/hcl/hcl/strconv
 github.com/hashicorp/hcl/json/scanner
 github.com/hashicorp/hcl/json/token
+# github.com/jinzhu/gorm v1.9.16
+github.com/jinzhu/gorm
+# github.com/jinzhu/inflection v1.0.0
+github.com/jinzhu/inflection
 # github.com/magiconair/properties v1.8.0
 github.com/magiconair/properties
 # github.com/minio/blake2b-simd v0.0.0-20160723061019-3f5f724cb5b1
@@ -108,6 +128,8 @@ github.com/spf13/jwalterweatherman
 github.com/spf13/pflag
 # github.com/spf13/viper v1.4.0
 github.com/spf13/viper
+# github.com/tecbot/gorocksdb v0.0.0-20191217155057-f0fad39f321c
+github.com/tecbot/gorocksdb
 # github.com/tron-us/go-common v1.0.2
 github.com/tron-us/go-common/crypto
 # github.com/urfave/cli v1.22.1

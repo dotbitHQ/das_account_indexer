@@ -1,6 +1,12 @@
-package celltype
+package gotype
 
-import "github.com/nervosnetwork/ckb-sdk-go/types"
+import (
+	"context"
+	"fmt"
+	"github.com/DeAccountSystems/das_commonlib/ckb/celltype"
+	"github.com/nervosnetwork/ckb-sdk-go/rpc"
+	"github.com/nervosnetwork/ckb-sdk-go/types"
+)
 
 /**
  * Copyright (C), 2019-2021
@@ -17,7 +23,7 @@ func IsEditManagerTx(tx types.Transaction) bool {
 		if output.Type == nil {
 			continue
 		}
-		if DasAccountCellScript.Out.SameScript(output.Type) {
+		if celltype.DasAccountCellScript.Out.SameScript(output.Type) {
 			foundAccountCell = true
 			break
 		}
@@ -31,7 +37,7 @@ func IsTransferAccountTx(tx types.Transaction) bool  {
 		if output.Type == nil {
 			continue
 		}
-		if DasAccountCellScript.Out.SameScript(output.Type) {
+		if celltype.DasAccountCellScript.Out.SameScript(output.Type) {
 			foundAccountCell = true
 			break
 		}
@@ -46,7 +52,7 @@ func IsEditRecordsTx(tx types.Transaction) bool {
 		if output.Type == nil {
 			continue
 		}
-		if DasAccountCellScript.Out.SameScript(output.Type) {
+		if celltype.DasAccountCellScript.Out.SameScript(output.Type) {
 			foundAccountCell = true
 			break
 		} else if dataBytes := tx.OutputsData[i]; len(dataBytes) == 0 {
@@ -63,7 +69,7 @@ func IsRenewAccountTx(tx types.Transaction) bool {
 		if output.Type == nil {
 			continue
 		}
-		if DasAccountCellScript.Out.SameScript(output.Type) {
+		if celltype.DasAccountCellScript.Out.SameScript(output.Type) {
 			foundAccountCell = true
 			break
 		} else if dataBytes := tx.OutputsData[i]; len(dataBytes) == 0 {
@@ -71,6 +77,22 @@ func IsRenewAccountTx(tx types.Transaction) bool {
 		}
 	}
 	return foundAccountCell
+}
+
+func IsConfirmProposeTx(ctx context.Context,rpcClient rpc.Client,inputs []*types.CellInput) error {
+	param := &ReqFindTargetTypeScriptParam{
+		Ctx:       ctx,
+		RpcClient: rpcClient,
+		InputList: inputs,
+		IsLock:    false,
+		CodeHash:  celltype.DasProposeCellScript.Out.CodeHash,
+	}
+	if _, err := FindTargetTypeScriptByInputList(param); err != nil {
+		return fmt.Errorf(
+			"FindSenderLockScriptByInputList proposeCell err: %s, "+
+				"invalid confirmPropose Tx, first input not a proposeCell", err.Error())
+	}
+	return nil
 }
 
 func IsStartAccountAuctionTx(tx types.Transaction) bool {
@@ -82,9 +104,9 @@ func IsStartAccountAuctionTx(tx types.Transaction) bool {
 		if output.Type == nil {
 			continue
 		}
-		if DasAccountCellScript.Out.SameScript(output.Type) {
+		if celltype.DasAccountCellScript.Out.SameScript(output.Type) {
 			foundAccountCell = true
-		} else if DasBiddingCellScript.Out.SameScript(output.Type) {
+		} else if celltype.DasBiddingCellScript.Out.SameScript(output.Type) {
 			foundBiddingCell = true
 		}
 	}
@@ -97,7 +119,7 @@ func IsCancelAccountAuctionTx(tx types.Transaction) bool {
 		if output.Type == nil {
 			continue
 		}
-		if DasAccountCellScript.Out.SameScript(output.Type) {
+		if celltype.DasAccountCellScript.Out.SameScript(output.Type) {
 			foundAccountCell = true
 			break
 		}
@@ -115,9 +137,9 @@ func IsStartAccountSaleTx(tx types.Transaction) (bool,int) {
 		if output.Type == nil {
 			continue
 		}
-		if DasAccountCellScript.Out.SameScript(output.Type) {
+		if celltype.DasAccountCellScript.Out.SameScript(output.Type) {
 			foundAccountCell = true
-		} else if DasOnSaleCellScript.Out.SameScript(output.Type) {
+		} else if celltype.DasOnSaleCellScript.Out.SameScript(output.Type) {
 			foundOnSaleCell = true
 			onSaleIndex = index
 		}
@@ -131,7 +153,7 @@ func IsCancelAccountSaleTx(tx types.Transaction) bool {
 		if output.Type == nil {
 			continue
 		}
-		if DasAccountCellScript.Out.SameScript(output.Type) {
+		if celltype.DasAccountCellScript.Out.SameScript(output.Type) {
 			foundAccountCell = true
 			break
 		}

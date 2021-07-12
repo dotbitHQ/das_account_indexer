@@ -3,7 +3,7 @@ package api
 import (
 	"bytes"
 	"context"
-	"encoding/hex"
+	"das_account_indexer/util"
 	"errors"
 	"fmt"
 	"github.com/DeAccountSystems/das_commonlib/ckb/gotype"
@@ -82,6 +82,10 @@ func (r *RpcHandler) GetAddressAccount(address string) common.ReqResp {
 	return common.ReqResp{ErrNo: dascode.DAS_SUCCESS, Data: accountInfo}
 }
 
+func (r *RpcHandler) Close() {
+
+}
+
 func (r *RpcHandler) loadOneAccountCellByLockScript(address gotype.Address) ([]*types.AccountReturnObj, error) {
 	addrLockScriptOwnerArgs, err := address.HexBys(r.systemScripts.SecpSingleSigCell.CellHash)
 	if err != nil {
@@ -153,7 +157,7 @@ func (r *RpcHandler) loadOneAccountCellById(targetAccountId celltype.DasAccountI
 	return obj, err
 }
 
-func (r *RpcHandler) parseLiveCellToAccount(cell *indexer.LiveCell, filter func(cellData *celltype.AccountCellData) bool) (*types.AccountReturnObj, error) {
+func (r *RpcHandler) parseLiveCellToAccount(cell *indexer.LiveCell, filter types.AccountFilterFunc) (*types.AccountReturnObj, error) {
 	// get witness
 	rawTx, err := r.rpcClient.GetTransaction(context.TODO(), cell.OutPoint.TxHash)
 	if err != nil {
@@ -162,63 +166,12 @@ func (r *RpcHandler) parseLiveCellToAccount(cell *indexer.LiveCell, filter func(
 	if len(rawTx.Transaction.Witnesses) == 0 {
 		return nil, fmt.Errorf("invalid accountCell witness data,it empty, txHash: %s", rawTx.Transaction.Hash.String())
 	}
-	var (
-		thisAccountCellData *celltype.AccountCellData
-		witnessData         []byte
-	)
-	err = celltype.GetTargetCellFromWitness(rawTx.Transaction, func(rawWitnessData []byte, witnessParseObj *celltype.ParseDasWitnessBysDataObj) (bool, error) {
-		witnessDataObj := witnessParseObj.WitnessObj
-		switch witnessDataObj.TableType {
-		case celltype.TableType_ACCOUNT_CELL:
-			witnessObj, err := celltype.ParseTxWitnessToDasWitnessObj(rawWitnessData)
-			if err != nil {
-				return false, fmt.Errorf("ParseTxWitnessToDasWitnessObj err: %s", err.Error())
-			}
-			versionAccount, err := gotype.VersionCompatibleAccountCellDataFromSlice(witnessObj.MoleculeNewDataEntity)
-			if err != nil {
-				return false, fmt.Errorf("VersionCompatibleAccountCellDataFromSlice err: %s", err.Error())
-			}
-			if filter != nil && !filter(versionAccount.CellData) {
-				return false, nil // next one
-			}
-			thisAccountCellData = versionAccount.CellData
-			witnessData = rawWitnessData
-			return true, nil
-		}
-		return false, nil
-	}, func(err error) {
-		log.Warn("GetTargetCellFromWitness [accountCell] skip one item:", err.Error())
-	})
+	list, err := util.ParseChainAccountToJsonFormat(rawTx.Transaction, filter)
 	if err != nil {
 		return nil, err
 	}
-	if thisAccountCellData == nil {
-		return nil, errors.New("skip this account, not match filter")
+	if len(list) == 0 {
+		return nil, errors.New("account not exist")
 	}
-	nextAccountId, err := celltype.NextAccountIdFromOutputData(cell.OutputData)
-	if err != nil {
-		return nil, err
-	}
-	registerAt, err := celltype.MoleculeU64ToGo(thisAccountCellData.RegisteredAt().RawData())
-	if err != nil {
-		return nil, fmt.Errorf("parse registerAt err: %s", err.Error())
-	}
-	expiredAt, err := celltype.ExpiredAtFromOutputData(cell.OutputData)
-	if err != nil {
-		return nil, fmt.Errorf("parse expiredAt err: %s", err.Error())
-	}
-	accountStatus, _ := celltype.MoleculeU8ToGo(thisAccountCellData.Status().RawData())
-	return &types.AccountReturnObj{
-		OutPoint:   *cell.OutPoint,
-		WitnessHex: hex.EncodeToString(witnessData),
-		AccountData: types.AccountData{
-			Account:          celltype.AccountCharsToAccount(*thisAccountCellData.Account()).Str(),
-			AccountIdHex:     celltype.DasAccountIdFromBytes(thisAccountCellData.Id().RawData()).HexStr(),
-			NextAccountIdHex: nextAccountId.HexStr(),
-			CreateAtUnix:     registerAt,
-			ExpiredAtUnix:    uint64(expiredAt),
-			Status:           celltype.AccountCellStatus(accountStatus),
-			Records:          celltype.MoleculeRecordsToGo(*thisAccountCellData.Records()),
-		},
-	}, err
+	return &list[0], nil
 }

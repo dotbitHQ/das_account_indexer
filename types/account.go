@@ -1,6 +1,8 @@
 package types
 
 import (
+	"encoding/hex"
+	"encoding/json"
 	"github.com/DeAccountSystems/das_commonlib/ckb/celltype"
 	"github.com/nervosnetwork/ckb-sdk-go/types"
 )
@@ -13,19 +15,46 @@ import (
  * Description:
  */
 
+type AccountFilterFunc func(cellData *celltype.AccountCellData) bool
+
 type AccountData struct {
-	Account          string                     `json:"account"`
-	AccountIdHex     string                     `json:"account_id_hex"`
-	NextAccountIdHex string                     `json:"next_account_id_hex"`
-	CreateAtUnix     uint64                     `json:"create_at_unix"`
-	ExpiredAtUnix    uint64                     `json:"expired_at_unix"`
-	Status           celltype.AccountCellStatus `json:"status"`
-	// OwnerLockScript   types.Script                `json:"owner_lock_script"`
-	// ManagerLockScript types.Script                `json:"manager_lock_script"`
-	Records celltype.EditRecordItemList `json:"records"`
+	Account           string                      `json:"account"`
+	AccountIdHex      string                      `json:"account_id_hex"`
+	NextAccountIdHex  string                      `json:"next_account_id_hex"`
+	CreateAtUnix      uint64                      `json:"create_at_unix"`
+	ExpiredAtUnix     uint64                      `json:"expired_at_unix"`
+	Status            celltype.AccountCellStatus  `json:"status"`
+	OwnerLockArgsHex  string                      `json:"owner_lock_args_hex"`
+	ManagerLockArgHex string                      `json:"manager_lock_arg_hex"`
+	Records           celltype.EditRecordItemList `json:"records"`
 }
+
+func (a AccountData) AccountId() celltype.DasAccountId {
+	bys, _ := hex.DecodeString(a.AccountIdHex)
+	return celltype.DasAccountIdFromBytes(bys)
+}
+func (a AccountData) JsonBys() []byte {
+	bys, _ := json.Marshal(a)
+	return bys
+}
+
 type AccountReturnObj struct {
 	OutPoint    types.OutPoint `json:"out_point"`
 	WitnessHex  string         `json:"-"`
 	AccountData AccountData    `json:"account_data"`
+}
+
+type AccountReturnObjList []AccountReturnObj
+
+func (a AccountReturnObjList) JsonBys() []byte {
+	bys, _ := json.Marshal(a)
+	return bys
+}
+
+func AccountReturnObjListFromBys(listBys []byte) (AccountReturnObjList, error) {
+	list := &AccountReturnObjList{}
+	if err := json.Unmarshal(listBys, list); err != nil {
+		return nil, err
+	}
+	return *list, nil
 }

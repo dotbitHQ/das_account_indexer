@@ -1,0 +1,1 @@
+./bin/mac/rpc_server --config=conf/local_server.yaml

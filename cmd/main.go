@@ -1,7 +1,14 @@
 package main
 
 import (
+	"context"
+	"das_account_indexer/parser"
 	"fmt"
+	blockparser "github.com/DeAccountSystems/das_commonlib/chain/ckb_rocksdb_parser"
+	"github.com/DeAccountSystems/das_commonlib/db"
+	"github.com/af913337456/blockparser/scanner"
+	blockparserTypes "github.com/af913337456/blockparser/types"
+	"github.com/tecbot/gorocksdb"
 	"net/http"
 	"os"
 	"runtime"
@@ -31,9 +38,12 @@ import (
  */
 
 var (
-	rpcImpl *dasrpc.JsonrpcServiceImpl
-	log     = elog.NewLogger("server", elog.NoticeLevel)
-	exit    = make(chan bool)
+	rpcImpl  *dasrpc.JsonrpcServiceImpl
+	txParser *parser.TxParser
+	_scanner *scanner.BlockScanner
+	log      = elog.NewLogger("server", elog.NoticeLevel)
+	rpcWait  = make(chan bool)
+	exit     = make(chan bool)
 )
 
 func main() {
@@ -69,6 +79,27 @@ func main() {
 	}
 }
 
+func listenAndHandleInterrupt() {
+	sys.ListenSysInterrupt(func(sig os.Signal) {
+		log.Warn(fmt.Sprintf("signal [%s] to exit server...., time: %s", sig.String(), time.Now().String()))
+		if rpcWait != nil {
+			rpcWait <- true
+		}
+		if rpcImpl != nil {
+			log.Warn("stop rpc client...")
+			rpcImpl.Stop()
+		}
+		if _scanner != nil {
+			_scanner.Stop()
+		}
+		if txParser != nil {
+			txParser.Close()
+		}
+		log.Info("exist server success!")
+		exit <- true
+	})
+}
+
 func runServer(ctx *cli.Context) error {
 	configFilePath := readConfigFilePath(ctx)
 	cfg.InitCfgFromFile(configFilePath, &config.Cfg)
@@ -77,41 +108,67 @@ func runServer(ctx *cli.Context) error {
 	}); err != nil {
 		return fmt.Errorf("AddConfigFileWatcher err: %s", err.Error())
 	}
-	sys.ListenSysInterrupt(func(sig os.Signal) {
-		log.Warn(fmt.Sprintf("signal [%s] to exit server...., time: %s", sig.String(), time.Now().String()))
-		if rpcImpl != nil {
-			log.Warn("stop rpc client...")
-			rpcImpl.Stop()
-		}
-		log.Info("exist server success!")
-		exit <- true
-	})
+	log.Info("run at config:\n", config.Cfg.ToStr())
+
+	listenAndHandleInterrupt()
+
 	celltype.UseVersion3SystemScriptCodeHash()
 	rpcClient, err := rpc.DialWithIndexer(config.Cfg.Chain.CKB.NodeUrl, config.Cfg.Chain.CKB.IndexerUrl)
 	if err != nil {
 		panic(fmt.Errorf("init rpcClient failed: %s", err.Error()))
 	}
 
-	// The current service does not need to send system transactions, so it is unnecessary to synchronize cellDeps.
-	// systemScripts, err := utils.NewSystemScripts(rpcClient)
-	// if err != nil {
-	// 	panic(fmt.Errorf("init NewSystemScripts err: %s", err.Error()))
-	// }
-	// celltype.TimingAsyncSystemCodeScriptOutPoint(rpcClient, &types.Script{
-	// 	CodeHash: systemScripts.SecpSingleSigCell.CellHash,
-	// 	HashType: types.HashTypeType,
-	// }, nil, nil)
-	if err = runRpcServer(rpcClient); err != nil {
-		return err
+	dataPath := config.Cfg.Chain.CKB.LocalStorage.BlockParser.RocksDB.DataPath
+	infoPath := config.Cfg.Chain.CKB.LocalStorage.InfoDbDataPath
+	if dataPath != "" && infoPath != "" {
+		infoDb, err := db.NewDefaultRocksNormalDb(infoPath)
+		if err != nil {
+			return fmt.Errorf("NewDefaultRocksNormalDb err: %s", err.Error())
+		} else {
+			txParser = parser.NewParserRpcTx(&parser.InitTxParserParam{
+				RpcClient:         rpcClient,
+				Rocksdb:           infoDb,
+				TargetBlockHeight: uint64(config.Cfg.Chain.CKB.LocalStorage.BlockParser.StartHeight),
+				FontBlockNumber:   uint64(config.Cfg.Chain.CKB.LocalStorage.BlockParser.FrontNumber),
+			})
+			if err = runChainBlockParser(dataPath, rpcClient, txParser, context.TODO()); err != nil {
+				return fmt.Errorf("runChainBlockParser err: %s", err.Error())
+			}
+		}
+		log.Info("rpc server need to wait for block info finish sync, stopping ...")
+		go func() {
+			for {
+				select {
+				case <-rpcWait:
+					return
+				default:
+					if txParser.BlockSyncFinish() {
+						if err = runRpcServer(rpcClient, infoDb); err != nil {
+							log.Error("runRpcServer err: %s", err.Error())
+						}
+					}
+				}
+				time.Sleep(time.Second * 2)
+			}
+		}()
+	} else {
+		if err = runRpcServer(rpcClient, nil); err != nil {
+			return fmt.Errorf("runRpcServer err: %s", err.Error())
+		}
 	}
 	<-exit
 	return nil
 }
 
-func runRpcServer(client rpc.Client) error {
+func runRpcServer(client rpc.Client, accountDb *gorocksdb.DB) error {
 	methodPrefix := "das"
 	publicPort := config.Cfg.Rpc.Port
-	rpcHandler := api.NewRpcHandler(client)
+	var rpcHandler api.IApi
+	if accountDb == nil {
+		rpcHandler = api.NewRpcHandler(client)
+	} else {
+		rpcHandler = api.NewRpcLocalHandler(client, accountDb)
+	}
 	rpcImpl = dasrpc.NewJsonrpcService(publicPort, &dasrpc.RpcServiceDelegate{
 		Name:    methodPrefix,
 		Element: rpcHandler,
@@ -135,3 +192,66 @@ func readConfigFilePath(ctx *cli.Context) string {
 		return defaultCfgFilePath
 	}
 }
+
+func runChainBlockParser(dataPath string, rpcClient rpc.Client, txParser *parser.TxParser, ctx context.Context) error {
+	var (
+		reqRetry     *blockparserTypes.RetryConfig = nil
+		retryTimes                                 = config.Cfg.Chain.CKB.LocalStorage.BlockParser.ApiReqRetry.Times
+		retryDelayMs                               = config.Cfg.Chain.CKB.LocalStorage.BlockParser.ApiReqRetry.DelayMs
+		catchDelayMs                               = config.Cfg.Chain.CKB.LocalStorage.BlockParser.ScanControl.CatchDelayMs
+		roundDelayMs                               = config.Cfg.Chain.CKB.LocalStorage.BlockParser.ScanControl.RoundDelayMs
+	)
+	if retryTimes > 0 && retryDelayMs > 0 {
+		reqRetry = &blockparserTypes.RetryConfig{
+			RetryTime: retryTimes,
+			DelayTime: time.Millisecond * time.Duration(retryDelayMs),
+		}
+	}
+	ckbChain := blockparser.NewCKBBlockChainWithRpcClient(ctx, rpcClient, reqRetry)
+	_rocksDb := blockparser.NewCKBRocksDb(dataPath, blockparser.MsgHandler{
+		Receive: func(info *blockparser.TxMsgData) error {
+			if err := txParser.Handle1(*info, &config.Cfg.Chain.CKB.LocalStorage.ParseDelayMs); err != nil {
+				log.Error("handle tx err:", err.Error())
+				return err
+			}
+			return nil
+		},
+		Close: nil,
+	})
+	if catchDelayMs <= 0 {
+		catchDelayMs = int64(time.Millisecond)
+	}
+	if roundDelayMs <= 0 {
+		roundDelayMs = int64(time.Millisecond)
+	}
+	_scanner = scanner.NewBlockScanner(scanner.InitBlockScanner{
+		Chain: ckbChain,
+		Db:    _rocksDb,
+		Log:   new(myBlockParserLogger),
+		Control: blockparserTypes.DelayControl{
+			RoundDelay: time.Millisecond * time.Duration(roundDelayMs),
+			CatchDelay: time.Millisecond * time.Duration(catchDelayMs),
+		},
+		FrontNumber: config.Cfg.Chain.CKB.LocalStorage.BlockParser.FrontNumber,
+	})
+	go func() {
+		if startHeight := config.Cfg.Chain.CKB.LocalStorage.BlockParser.StartHeight; startHeight != 0 {
+			_ = _scanner.SetStartScannerHeight(startHeight)
+		}
+		log.Info("start block parser, wait for message coming...")
+		if err := _scanner.Start(); err != nil {
+			log.Error("block scanner start err: %s", err.Error())
+		}
+	}()
+	return nil
+}
+
+type myBlockParserLogger struct{}
+
+func (l *myBlockParserLogger) Info(args ...interface{}) {
+	if config.Cfg.Log.Detailed {
+		log.Info(args...)
+	}
+}
+func (l *myBlockParserLogger) Error(args ...interface{}) { log.Error(args...) }
+func (l *myBlockParserLogger) Warn(args ...interface{})  { log.Warn(args...) }
