@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"encoding/hex"
 	"github.com/DeAccountSystems/das_commonlib/ckb/celltype"
 )
 
@@ -18,7 +19,8 @@ var (
 	}
 
 	AccountKey_OwnerArgHex = func(ownerArgHex string) []byte {
-		return append([]byte("account_owner_address_"), []byte(ownerArgHex)...)
+		ownerArgBys, _ := hex.DecodeString(ownerArgHex)
+		return append([]byte("account_owner_address_"), ownerArgBys...)
 	}
 
 	AccountKey_OwnerArgHex_Bys = func(ownerArgBys []byte) []byte {
