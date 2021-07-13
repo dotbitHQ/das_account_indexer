@@ -67,7 +67,7 @@ func (r *RpcHandler) SearchAccount(ctx context.Context, account string) common.R
 		return common.ReqResp{ErrNo: dascode.Err_BaseParamInvalid, ErrMsg: fmt.Sprintf("loadOneAccountCellById err: %s", err.Error())}
 	}
 	log.Info("time spend:", time.Since(timeStart).String())
-	return common.ReqResp{ErrNo: dascode.DAS_SUCCESS, Data: accountInfo}
+	return common.ReqResp{ErrNo: dascode.DAS_SUCCESS, Data: accountInfo.ToAccountReturnObj1()}
 }
 
 func (r *RpcHandler) GetAddressAccount(address string) common.ReqResp {
@@ -79,14 +79,14 @@ func (r *RpcHandler) GetAddressAccount(address string) common.ReqResp {
 		}
 		return common.ReqResp{ErrNo: dascode.Err_BaseParamInvalid, ErrMsg: fmt.Sprintf("loadOneAccountCellByLockScript err: %s", err.Error())}
 	}
-	return common.ReqResp{ErrNo: dascode.DAS_SUCCESS, Data: accountInfo}
+	return common.ReqResp{ErrNo: dascode.DAS_SUCCESS, Data: accountInfo.ToAccountReturnObjList1List()}
 }
 
 func (r *RpcHandler) Close() {
 
 }
 
-func (r *RpcHandler) loadOneAccountCellByLockScript(address gotype.Address) ([]*types.AccountReturnObj, error) {
+func (r *RpcHandler) loadOneAccountCellByLockScript(address gotype.Address) (types.AccountReturnObjList, error) {
 	addrLockScriptOwnerArgs, err := address.HexBys(r.systemScripts.SecpSingleSigCell.CellHash)
 	if err != nil {
 		return nil, fmt.Errorf("LockScript err: %s", err.Error())
@@ -102,7 +102,7 @@ func (r *RpcHandler) loadOneAccountCellByLockScript(address gotype.Address) ([]*
 	if len(liveCells) == 0 {
 		return nil, emptyErr
 	}
-	accountList := []*types.AccountReturnObj{}
+	accountList := []types.AccountReturnObj{}
 	liveCellLen := len(liveCells)
 	log.Info("total accounts:", liveCellLen)
 	for i := 0; i < liveCellLen; i++ {
@@ -114,7 +114,7 @@ func (r *RpcHandler) loadOneAccountCellByLockScript(address gotype.Address) ([]*
 			continue
 		}
 		if account != nil {
-			accountList = append(accountList, account)
+			accountList = append(accountList, *account)
 		}
 	}
 	return accountList, err
