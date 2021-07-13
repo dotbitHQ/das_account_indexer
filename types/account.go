@@ -35,15 +35,15 @@ type AccountData struct {
 	Records           celltype.EditRecordItemList `json:"-"`
 }
 type AccountData1 struct {
-	Account           string                     `json:"account"`
-	AccountIdHex      string                     `json:"account_id_hex"`
-	NextAccountIdHex  string                     `json:"next_account_id_hex"`
-	CreateAtUnix      uint64                     `json:"create_at_unix"`
-	ExpiredAtUnix     uint64                     `json:"expired_at_unix"`
-	Status            celltype.AccountCellStatus `json:"status"`
-	OwnerLockArgsHex  string                     `json:"owner_lock_args_hex"`
-	ManagerLockArgHex string                     `json:"manager_lock_arg_hex"`
-	Records           []SimpleRecordItem         `json:"records"`
+	Account            string                     `json:"account"`
+	AccountIdHex       string                     `json:"account_id_hex"`
+	NextAccountIdHex   string                     `json:"next_account_id_hex"`
+	CreateAtUnix       uint64                     `json:"create_at_unix"`
+	ExpiredAtUnix      uint64                     `json:"expired_at_unix"`
+	Status             celltype.AccountCellStatus `json:"status"`
+	OwnerLockArgsHex   string                     `json:"owner_lock_args_hex"`
+	ManagerLockArgsHex string                     `json:"manager_lock_args_hex"`
+	Records            []SimpleRecordItem         `json:"records"`
 }
 
 func (a AccountData) AccountId() celltype.DasAccountId {
@@ -80,15 +80,15 @@ func (a AccountReturnObj) ToAccountReturnObj1() AccountReturnObj1 {
 		OutPoint:   a.OutPoint,
 		WitnessHex: a.WitnessHex,
 		AccountData: AccountData1{
-			Account:           a.AccountData.Account,
-			AccountIdHex:      a.AccountData.AccountIdHex,
-			NextAccountIdHex:  a.AccountData.NextAccountIdHex,
-			CreateAtUnix:      a.AccountData.CreateAtUnix,
-			ExpiredAtUnix:     a.AccountData.ExpiredAtUnix,
-			Status:            a.AccountData.Status,
-			OwnerLockArgsHex:  appendOx(a.AccountData.OwnerLockArgsHex),
-			ManagerLockArgHex: appendOx(a.AccountData.ManagerLockArgHex),
-			Records:           originRecordsToNewRecords(a.AccountData.Records),
+			Account:            a.AccountData.Account,
+			AccountIdHex:       a.AccountData.AccountIdHex,
+			NextAccountIdHex:   a.AccountData.NextAccountIdHex,
+			CreateAtUnix:       a.AccountData.CreateAtUnix,
+			ExpiredAtUnix:      a.AccountData.ExpiredAtUnix,
+			Status:             a.AccountData.Status,
+			OwnerLockArgsHex:   appendOx(a.AccountData.OwnerLockArgsHex),
+			ManagerLockArgsHex: appendOx(a.AccountData.ManagerLockArgHex),
+			Records:            originRecordsToNewRecords(a.AccountData.Records),
 		},
 	}
 }
