@@ -70,7 +70,7 @@ func (c *PreAccountCell) TypeScript() *types.Script {
 }
 
 func (c *PreAccountCell) TableType() TableType {
-	return TableType_PRE_ACCOUNT_CELL
+	return TableType_PreAccountCell
 }
 
 func (c *PreAccountCell) Data() ([]byte, error) {

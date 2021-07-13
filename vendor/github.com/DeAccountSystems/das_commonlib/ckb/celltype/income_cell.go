@@ -79,7 +79,7 @@ func (c *IncomeCell) Data() ([]byte, error) {
 }
 
 func (c *IncomeCell) TableType() TableType {
-	return TableType_INCOME_CELL
+	return TableType_IncomeCell
 }
 
 

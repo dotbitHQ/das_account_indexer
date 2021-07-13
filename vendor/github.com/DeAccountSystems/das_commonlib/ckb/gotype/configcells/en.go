@@ -34,7 +34,7 @@ func (c *CfgChatSetEn) MocluObj() interface{} {
 }
 
 func (c *CfgChatSetEn) Tag() celltype.TableType {
-	return celltype.TableType_CONFIG_CELL_CharSetEn
+	return celltype.TableType_ConfigCell_CharSetEn
 }
 
 func (c *CfgChatSetEn) Witness() *celltype.CellDepWithWitness {

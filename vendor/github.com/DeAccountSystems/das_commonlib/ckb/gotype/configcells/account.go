@@ -46,7 +46,7 @@ func (c *CfgAccount) MocluObj() interface{} {
 }
 
 func (c *CfgAccount) Tag() celltype.TableType {
-	return celltype.TableType_CONFIG_CELL_ACCOUNT
+	return celltype.TableType_ConfigCell_Account
 }
 
 func (c *CfgAccount) Witness() *celltype.CellDepWithWitness {

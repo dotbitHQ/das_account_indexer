@@ -101,7 +101,7 @@ type AccountCellStatus uint8
 type DataEntityChangeType uint
 
 func (t TableType) IsConfigType() bool {
-	return t >= TableType_CONFIG_CELL_ACCOUNT
+	return t >= TableType_ConfigCell_Account
 }
 
 /**
@@ -124,59 +124,59 @@ const ConfigCellRecordKeyNamespace,
 const ConfigCellPreservedAccount00 = 150,
 */
 func (t TableType) ValidateType() bool {
-	return t <= TableType_INCOME_CELL ||
-		(t >= TableType_CONFIG_CELL_ACCOUNT && t <= TableType_CONFIG_CELL_RECORD_NAMESPACE) ||
-		(t >= TableType_CONFIG_CELL_PreservedAccount00 && t <= TableType_CONFIG_CELL_PreservedAccount19) ||
-		(t >=TableType_CONFIG_CELL_CharSetEmoji && t <= TableType_CONFIG_CELL_CharSetHanT)
+	return t <= TableType_IncomeCell ||
+		(t >= TableType_ConfigCell_Account && t <= TableType_ConfigCell_RecordNamespace) ||
+		(t >= TableType_ConfigCell_PreservedAccount00 && t <= TableType_ConfigCell_PreservedAccount19) ||
+		(t >=TableType_ConfigCell_CharSetEmoji && t <= TableType_ConfigCell_CharSetHanT)
 }
 const (
-	TableType_ACTION       TableType = 0
-	TableType_ACCOUNT_CELL TableType = 1
-	TableType_ON_SALE_CELL     TableType = 2
-	TableType_BIDDING_CELL     TableType = 3
-	TableType_PROPOSE_CELL     TableType = 4
-	TableType_PRE_ACCOUNT_CELL TableType = 5
-	TableType_INCOME_CELL 	   TableType = 6
+	TableType_Action       TableType = 0
+	TableType_AccountCell  TableType = 1
+	TableType_OnSaleCell     TableType = 2
+	TableType_BidingCell     TableType = 3
+	TableType_ProposeCell    TableType = 4
+	TableType_PreAccountCell TableType = 5
+	TableType_IncomeCell 	 TableType = 6
 
-	TableType_CONFIG_CELL_ACCOUNT       TableType = 100
-	TableType_CONFIG_CELL_APPLY         TableType = 101
-	TableType_CONFIG_CELL_CHARSET         TableType = 102
-	TableType_CONFIG_CELL_INCOME         TableType = 103
+	TableType_ConfigCell_Account       TableType = 100
+	TableType_ConfigCell_Apply         TableType = 101
+	TableType_ConfigCell_CharSet        TableType = 102
+	TableType_ConfigCell_Income         TableType = 103
 
-	TableType_CONFIG_CELL_MAIN         TableType = 104
-	TableType_CONFIG_CELL_PRICE         TableType = 105
-	TableType_CONFIG_CELL_PROPOSAL         TableType = 106
-	TableType_CONFIG_CELL_PROFITRATE         TableType = 107
+	TableType_ConfigCell_Main         TableType = 104
+	TableType_ConfigCell_Price         TableType = 105
+	TableType_ConfigCell_Proposal         TableType = 106
+	TableType_ConfigCell_ProfitRate         TableType = 107
 
-	TableType_CONFIG_CELL_RECORD_NAMESPACE       TableType = 108
+	TableType_ConfigCell_RecordNamespace       TableType = 108
 
-	TableType_CONFIG_CELL_PreservedAccount00     TableType = 10000
-	TableType_CONFIG_CELL_PreservedAccount01     TableType = 10001
-	TableType_CONFIG_CELL_PreservedAccount02     TableType = 10002
-	TableType_CONFIG_CELL_PreservedAccount03     TableType = 10003
-	TableType_CONFIG_CELL_PreservedAccount04     TableType = 10004
-	TableType_CONFIG_CELL_PreservedAccount05     TableType = 10005
-	TableType_CONFIG_CELL_PreservedAccount06     TableType = 10006
-	TableType_CONFIG_CELL_PreservedAccount07     TableType = 10007
-	TableType_CONFIG_CELL_PreservedAccount08     TableType = 10008
-	TableType_CONFIG_CELL_PreservedAccount09     TableType = 10009
-	TableType_CONFIG_CELL_PreservedAccount10     TableType = 10010
-	TableType_CONFIG_CELL_PreservedAccount11     TableType = 10011
-	TableType_CONFIG_CELL_PreservedAccount12     TableType = 10012
-	TableType_CONFIG_CELL_PreservedAccount13     TableType = 10013
-	TableType_CONFIG_CELL_PreservedAccount14     TableType = 10014
-	TableType_CONFIG_CELL_PreservedAccount15     TableType = 10015
-	TableType_CONFIG_CELL_PreservedAccount16     TableType = 10016
-	TableType_CONFIG_CELL_PreservedAccount17     TableType = 10017
-	TableType_CONFIG_CELL_PreservedAccount18     TableType = 10018
-	TableType_CONFIG_CELL_PreservedAccount19     TableType = 10019
+	TableType_ConfigCell_PreservedAccount00     TableType = 10000
+	TableType_ConfigCell_PreservedAccount01     TableType = 10001
+	TableType_ConfigCell_PreservedAccount02     TableType = 10002
+	TableType_ConfigCell_PreservedAccount03     TableType = 10003
+	TableType_ConfigCell_PreservedAccount04     TableType = 10004
+	TableType_ConfigCell_PreservedAccount05     TableType = 10005
+	TableType_ConfigCell_PreservedAccount06     TableType = 10006
+	TableType_ConfigCell_PreservedAccount07     TableType = 10007
+	TableType_ConfigCell_PreservedAccount08     TableType = 10008
+	TableType_ConfigCell_PreservedAccount09     TableType = 10009
+	TableType_ConfigCell_PreservedAccount10     TableType = 10010
+	TableType_ConfigCell_PreservedAccount11     TableType = 10011
+	TableType_ConfigCell_PreservedAccount12     TableType = 10012
+	TableType_ConfigCell_PreservedAccount13     TableType = 10013
+	TableType_ConfigCell_PreservedAccount14     TableType = 10014
+	TableType_ConfigCell_PreservedAccount15     TableType = 10015
+	TableType_ConfigCell_PreservedAccount16     TableType = 10016
+	TableType_ConfigCell_PreservedAccount17     TableType = 10017
+	TableType_ConfigCell_PreservedAccount18     TableType = 10018
+	TableType_ConfigCell_PreservedAccount19     TableType = 10019
 
-	TableType_CONFIG_CELL_CharSetEmoji TableType = 100000
-	TableType_CONFIG_CELL_CharSetDigit TableType = 100001
-	TableType_CONFIG_CELL_CharSetEn    TableType = 100002
-	TableType_CONFIG_CELL_CharSetHanS  TableType = 100003
-	TableType_CONFIG_CELL_CharSetHanT  TableType = 100004
-	// TableType_CONFIG_CELL_BLOOM_FILTER TableType = 11
+	TableType_ConfigCell_CharSetEmoji TableType = 100000
+	TableType_ConfigCell_CharSetDigit TableType = 100001
+	TableType_ConfigCell_CharSetEn    TableType = 100002
+	TableType_ConfigCell_CharSetHanS  TableType = 100003
+	TableType_ConfigCell_CharSetHanT  TableType = 100004
+	// TableType_ConfigCell_BLOOM_FILTER TableType = 11
 )
 
 func (a AccountCellStatus) Str() string {

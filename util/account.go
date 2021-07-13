@@ -33,7 +33,7 @@ func ParseChainAccountToJsonFormat(tx *ckbTypes.Transaction, filter types.Accoun
 	err := celltype.GetTargetCellFromWitness(tx, func(rawWitnessData []byte, witnessParseObj *celltype.ParseDasWitnessBysDataObj) (bool, error) {
 		witnessDataObj := witnessParseObj.WitnessObj
 		switch witnessDataObj.TableType {
-		case celltype.TableType_ACCOUNT_CELL:
+		case celltype.TableType_AccountCell:
 			entity, index, err := witnessParseObj.NewEntity()
 			if err != nil {
 				return false, fmt.Errorf("witnessParseObj.NewEntity err: %s", err.Error())

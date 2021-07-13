@@ -1,8 +1,8 @@
 package ckb_rocksdb_parser
 
 import (
-	"github.com/nervosnetwork/ckb-sdk-go/types"
 	blockparserTypes "github.com/af913337456/blockparser/types"
+	"github.com/nervosnetwork/ckb-sdk-go/types"
 )
 
 /**

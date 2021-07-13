@@ -79,5 +79,5 @@ func (c *OnSaleCell) Data() ([]byte, error) {
 }
 
 func (c *OnSaleCell) TableType() TableType {
-	return TableType_ON_SALE_CELL
+	return TableType_OnSaleCell
 }

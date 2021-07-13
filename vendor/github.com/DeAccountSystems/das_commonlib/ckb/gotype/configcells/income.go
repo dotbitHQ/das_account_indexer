@@ -46,7 +46,7 @@ func (c *CfgIncome) MocluObj() interface{} {
 }
 
 func (c *CfgIncome) Tag() celltype.TableType {
-	return celltype.TableType_CONFIG_CELL_INCOME
+	return celltype.TableType_ConfigCell_Income
 }
 
 func (c *CfgIncome) Witness() *celltype.CellDepWithWitness {

@@ -226,7 +226,7 @@ func ParseTxWitnessToDasWitnessObj(rawData []byte) (*ParseDasWitnessBysDataObj, 
 	if tableType := dasWitnessObj.TableType; !tableType.ValidateType() {
 		return nil, fmt.Errorf("invalid tableType, your: %d", tableType)
 	}
-	if dasWitnessObj.TableType == TableType_ACTION {
+	if dasWitnessObj.TableType == TableType_Action {
 		ret.WitnessObj = DasActionWitness
 		return ret, nil
 	}

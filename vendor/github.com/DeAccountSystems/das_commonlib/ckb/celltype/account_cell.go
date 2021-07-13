@@ -221,5 +221,5 @@ func (c *AccountCell) Data() ([]byte, error) {
 }
 
 func (c *AccountCell) TableType() TableType {
-	return TableType_ACCOUNT_CELL
+	return TableType_AccountCell
 }

@@ -1,15 +1,15 @@
 # github.com/Andrew-M-C/go.emoji v0.0.0-20210303022417-b8fefdaedb50
 github.com/Andrew-M-C/go.emoji/official
-# github.com/DeAccountSystems/das_commonlib v0.0.0-20210710084209-235076035ef6
+# github.com/DeAccountSystems/das_commonlib v0.0.0-20210713014153-6505210c45fd
 github.com/DeAccountSystems/das_commonlib/ckb/celltype
 github.com/DeAccountSystems/das_commonlib/ckb/gotype
 github.com/DeAccountSystems/das_commonlib/common
 github.com/DeAccountSystems/das_commonlib/common/dascode
 github.com/DeAccountSystems/das_commonlib/common/rocksdb
-github.com/DeAccountSystems/das_commonlib/db
 github.com/DeAccountSystems/das_commonlib/cfg
 github.com/DeAccountSystems/das_commonlib/chain/ckb_rocksdb_parser
 github.com/DeAccountSystems/das_commonlib/dasrpc
+github.com/DeAccountSystems/das_commonlib/db
 github.com/DeAccountSystems/das_commonlib/sys
 github.com/DeAccountSystems/das_commonlib/ckb/collector
 github.com/DeAccountSystems/das_commonlib/chain/tron_chain

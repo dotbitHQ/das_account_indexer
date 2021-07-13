@@ -46,7 +46,7 @@ func (c *CfgProfitRate) MocluObj() interface{} {
 }
 
 func (c *CfgProfitRate) Tag() celltype.TableType {
-	return celltype.TableType_CONFIG_CELL_PROFITRATE
+	return celltype.TableType_ConfigCell_ProfitRate
 }
 
 func (c *CfgProfitRate) Witness() *celltype.CellDepWithWitness {
