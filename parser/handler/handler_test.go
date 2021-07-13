@@ -29,7 +29,7 @@ import (
 
 func Test_HandleConfirmProposalTx(t *testing.T) {
 
-	host := "47.242.53.82"
+	host := ""
 
 	celltype.UseVersion3SystemScriptCodeHash()
 
