@@ -46,7 +46,7 @@ func (c *CfgPrice) MocluObj() interface{} {
 }
 
 func (c *CfgPrice) Tag() celltype.TableType {
-	return celltype.TableType_CONFIG_CELL_PRICE
+	return celltype.TableType_ConfigCell_Price
 }
 
 func (c *CfgPrice) Witness() *celltype.CellDepWithWitness {

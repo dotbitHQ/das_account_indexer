@@ -17,7 +17,7 @@ import (
  * Description:
  */
 
-var DasActionWitness = NewDasWitnessData(TableType_ACTION, []byte{})
+var DasActionWitness = NewDasWitnessData(TableType_Action, []byte{})
 
 type TypeInputCell struct {
 	InputIndex uint32          `json:"input_index"`

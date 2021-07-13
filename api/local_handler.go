@@ -57,7 +57,7 @@ func (r *RpcLocalHandler) SearchAccount(ctx context.Context, account string) com
 		return common.ReqResp{ErrNo: dascode.Err_Internal, ErrMsg: fmt.Errorf("unmarshal err: %s", err.Error()).Error()}
 	}
 	log.Info("time spend:", time.Since(timeStart).String())
-	return common.ReqResp{ErrNo: dascode.DAS_SUCCESS, Data: returnRet}
+	return common.ReqResp{ErrNo: dascode.DAS_SUCCESS, Data: returnRet.ToAccountReturnObj1()}
 }
 
 func (r *RpcLocalHandler) GetAddressAccount(address string) common.ReqResp {
@@ -76,7 +76,7 @@ func (r *RpcLocalHandler) GetAddressAccount(address string) common.ReqResp {
 	if err != nil {
 		return common.ReqResp{ErrNo: dascode.Err_Internal, ErrMsg: fmt.Errorf("AccountReturnObjListFromBys err: %s", err.Error()).Error()}
 	}
-	return common.ReqResp{ErrNo: dascode.DAS_SUCCESS, Data: accountList}
+	return common.ReqResp{ErrNo: dascode.DAS_SUCCESS, Data: accountList.ToAccountReturnObjList1List()}
 }
 
 func (r *RpcLocalHandler) Close() {

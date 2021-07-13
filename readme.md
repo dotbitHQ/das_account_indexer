@@ -72,21 +72,18 @@ curl --location --request POST 'http://localhost:8222' \
                 "records": [
                     {
                         "key": "",
-                        "type": "this_is_type",
                         "label": "eth",
                         "value": "0x12233",
                         "ttl": "5"
                     },
                     {
                         "key": "",
-                        "type": "this_is_type",
                         "label": "btc",
                         "value": "mmmxxx",
                         "ttl": "5"
                     },
                     {
                         "key": "",
-                        "type": "this_is_type",
                         "label": "etc",
                         "value": "12222",
                         "ttl": "5"

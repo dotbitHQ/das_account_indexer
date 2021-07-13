@@ -72,5 +72,5 @@ func (c *ProposeCell) Data() ([]byte, error) {
 }
 
 func (c *ProposeCell) TableType() TableType {
-	return TableType_PROPOSE_CELL
+	return TableType_ProposeCell
 }

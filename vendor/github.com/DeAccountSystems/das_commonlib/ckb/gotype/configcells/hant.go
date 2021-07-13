@@ -34,7 +34,7 @@ func (c *CfgChatSetHant) MocluObj() interface{} {
 }
 
 func (c *CfgChatSetHant) Tag() celltype.TableType {
-	return celltype.TableType_CONFIG_CELL_CharSetHanT
+	return celltype.TableType_ConfigCell_CharSetHanT
 }
 
 func (c *CfgChatSetHant) Witness() *celltype.CellDepWithWitness {

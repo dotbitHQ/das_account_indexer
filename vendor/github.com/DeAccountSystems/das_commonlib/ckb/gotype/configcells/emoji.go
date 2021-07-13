@@ -34,7 +34,7 @@ func (c *CfgChatSetEmoji) MocluObj() interface{} {
 }
 
 func (c *CfgChatSetEmoji) Tag() celltype.TableType {
-	return celltype.TableType_CONFIG_CELL_CharSetEmoji
+	return celltype.TableType_ConfigCell_CharSetEmoji
 }
 
 func (c *CfgChatSetEmoji) Witness() *celltype.CellDepWithWitness {

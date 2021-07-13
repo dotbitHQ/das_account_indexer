@@ -42,7 +42,7 @@ func (c *CfgMain) NotifyData(Data *ConfigCellChildDataObj) error {
 }
 
 func (c *CfgMain) Tag() celltype.TableType {
-	return celltype.TableType_CONFIG_CELL_MAIN
+	return celltype.TableType_ConfigCell_Main
 }
 
 func (c *CfgMain) MocluObj() interface{} {

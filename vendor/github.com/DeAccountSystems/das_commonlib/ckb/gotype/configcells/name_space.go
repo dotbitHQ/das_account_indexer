@@ -34,7 +34,7 @@ func (c *CfgNameSpace) MocluObj() interface{} {
 }
 
 func (c *CfgNameSpace) Tag() celltype.TableType {
-	return celltype.TableType_CONFIG_CELL_RECORD_NAMESPACE
+	return celltype.TableType_ConfigCell_RecordNamespace
 }
 
 func (c *CfgNameSpace) Witness() *celltype.CellDepWithWitness {

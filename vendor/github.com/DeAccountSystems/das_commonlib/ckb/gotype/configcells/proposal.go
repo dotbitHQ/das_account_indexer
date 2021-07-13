@@ -46,7 +46,7 @@ func (c *CfgProposal) MocluObj() interface{} {
 }
 
 func (c *CfgProposal) Tag() celltype.TableType {
-	return celltype.TableType_CONFIG_CELL_PROPOSAL
+	return celltype.TableType_ConfigCell_Proposal
 }
 
 func (c *CfgProposal) Witness() *celltype.CellDepWithWitness {

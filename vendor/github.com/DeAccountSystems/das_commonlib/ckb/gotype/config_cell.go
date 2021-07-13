@@ -41,40 +41,40 @@ func NewDefaultConfigCell() *ConfigCell {
 		ConfigCellChildMap: syncmap.Map{}, // map[celltype.CfgCellType]configcells.IConfigChild{},
 	}
 
-	c.ConfigCellChildMap.Store(celltype.TableType_CONFIG_CELL_MAIN, &configcells.CfgMain{})
-	c.ConfigCellChildMap.Store(celltype.TableType_CONFIG_CELL_PRICE, &configcells.CfgPrice{})
-	c.ConfigCellChildMap.Store(celltype.TableType_CONFIG_CELL_CharSetEmoji, &configcells.CfgChatSetEmoji{})
-	c.ConfigCellChildMap.Store(celltype.TableType_CONFIG_CELL_CharSetDigit, &configcells.CfgChatSetDigit{})
-	c.ConfigCellChildMap.Store(celltype.TableType_CONFIG_CELL_CharSetEn, &configcells.CfgChatSetEn{})
-	c.ConfigCellChildMap.Store(celltype.TableType_CONFIG_CELL_CharSetHanS, &configcells.CfgChatSetHans{})
-	c.ConfigCellChildMap.Store(celltype.TableType_CONFIG_CELL_CharSetHanT, &configcells.CfgChatSetHant{})
-	c.ConfigCellChildMap.Store(celltype.TableType_CONFIG_CELL_APPLY, &configcells.CfgApply{})
-	c.ConfigCellChildMap.Store(celltype.TableType_CONFIG_CELL_PROFITRATE, &configcells.CfgProfitRate{})
-	c.ConfigCellChildMap.Store(celltype.TableType_CONFIG_CELL_ACCOUNT, &configcells.CfgAccount{})
-	c.ConfigCellChildMap.Store(celltype.TableType_CONFIG_CELL_PROPOSAL, &configcells.CfgProposal{})
-	c.ConfigCellChildMap.Store(celltype.TableType_CONFIG_CELL_INCOME, &configcells.CfgIncome{})
-	c.ConfigCellChildMap.Store(celltype.TableType_CONFIG_CELL_RECORD_NAMESPACE, &configcells.CfgNameSpace{})
+	c.ConfigCellChildMap.Store(celltype.TableType_ConfigCell_Main, &configcells.CfgMain{})
+	c.ConfigCellChildMap.Store(celltype.TableType_ConfigCell_Price, &configcells.CfgPrice{})
+	c.ConfigCellChildMap.Store(celltype.TableType_ConfigCell_CharSetEmoji, &configcells.CfgChatSetEmoji{})
+	c.ConfigCellChildMap.Store(celltype.TableType_ConfigCell_CharSetDigit, &configcells.CfgChatSetDigit{})
+	c.ConfigCellChildMap.Store(celltype.TableType_ConfigCell_CharSetEn, &configcells.CfgChatSetEn{})
+	c.ConfigCellChildMap.Store(celltype.TableType_ConfigCell_CharSetHanS, &configcells.CfgChatSetHans{})
+	c.ConfigCellChildMap.Store(celltype.TableType_ConfigCell_CharSetHanT, &configcells.CfgChatSetHant{})
+	c.ConfigCellChildMap.Store(celltype.TableType_ConfigCell_Apply, &configcells.CfgApply{})
+	c.ConfigCellChildMap.Store(celltype.TableType_ConfigCell_ProfitRate, &configcells.CfgProfitRate{})
+	c.ConfigCellChildMap.Store(celltype.TableType_ConfigCell_Account, &configcells.CfgAccount{})
+	c.ConfigCellChildMap.Store(celltype.TableType_ConfigCell_Proposal, &configcells.CfgProposal{})
+	c.ConfigCellChildMap.Store(celltype.TableType_IncomeCell, &configcells.CfgIncome{})
+	c.ConfigCellChildMap.Store(celltype.TableType_ConfigCell_RecordNamespace, &configcells.CfgNameSpace{})
 
-	c.StorePreservedAccountMap(configcells.NewCfgPreservedAccount(celltype.TableType_CONFIG_CELL_PreservedAccount00,"PreservedAccount00"))
-	c.StorePreservedAccountMap(configcells.NewCfgPreservedAccount(celltype.TableType_CONFIG_CELL_PreservedAccount01,"PreservedAccount01"))
-	c.StorePreservedAccountMap(configcells.NewCfgPreservedAccount(celltype.TableType_CONFIG_CELL_PreservedAccount02,"PreservedAccount02"))
-	c.StorePreservedAccountMap(configcells.NewCfgPreservedAccount(celltype.TableType_CONFIG_CELL_PreservedAccount03,"PreservedAccount03"))
-	c.StorePreservedAccountMap(configcells.NewCfgPreservedAccount(celltype.TableType_CONFIG_CELL_PreservedAccount04,"PreservedAccount04"))
-	c.StorePreservedAccountMap(configcells.NewCfgPreservedAccount(celltype.TableType_CONFIG_CELL_PreservedAccount05,"PreservedAccount05"))
-	c.StorePreservedAccountMap(configcells.NewCfgPreservedAccount(celltype.TableType_CONFIG_CELL_PreservedAccount06,"PreservedAccount06"))
-	c.StorePreservedAccountMap(configcells.NewCfgPreservedAccount(celltype.TableType_CONFIG_CELL_PreservedAccount07,"PreservedAccount07"))
-	c.StorePreservedAccountMap(configcells.NewCfgPreservedAccount(celltype.TableType_CONFIG_CELL_PreservedAccount08,"PreservedAccount08"))
-	c.StorePreservedAccountMap(configcells.NewCfgPreservedAccount(celltype.TableType_CONFIG_CELL_PreservedAccount09,"PreservedAccount09"))
-	c.StorePreservedAccountMap(configcells.NewCfgPreservedAccount(celltype.TableType_CONFIG_CELL_PreservedAccount10,"PreservedAccount10"))
-	c.StorePreservedAccountMap(configcells.NewCfgPreservedAccount(celltype.TableType_CONFIG_CELL_PreservedAccount11,"PreservedAccount11"))
-	c.StorePreservedAccountMap(configcells.NewCfgPreservedAccount(celltype.TableType_CONFIG_CELL_PreservedAccount12,"PreservedAccount12"))
-	c.StorePreservedAccountMap(configcells.NewCfgPreservedAccount(celltype.TableType_CONFIG_CELL_PreservedAccount13,"PreservedAccount13"))
-	c.StorePreservedAccountMap(configcells.NewCfgPreservedAccount(celltype.TableType_CONFIG_CELL_PreservedAccount14,"PreservedAccount14"))
-	c.StorePreservedAccountMap(configcells.NewCfgPreservedAccount(celltype.TableType_CONFIG_CELL_PreservedAccount15,"PreservedAccount15"))
-	c.StorePreservedAccountMap(configcells.NewCfgPreservedAccount(celltype.TableType_CONFIG_CELL_PreservedAccount16,"PreservedAccount16"))
-	c.StorePreservedAccountMap(configcells.NewCfgPreservedAccount(celltype.TableType_CONFIG_CELL_PreservedAccount17,"PreservedAccount17"))
-	c.StorePreservedAccountMap(configcells.NewCfgPreservedAccount(celltype.TableType_CONFIG_CELL_PreservedAccount18,"PreservedAccount18"))
-	c.StorePreservedAccountMap(configcells.NewCfgPreservedAccount(celltype.TableType_CONFIG_CELL_PreservedAccount19,"PreservedAccount19"))
+	c.StorePreservedAccountMap(configcells.NewCfgPreservedAccount(celltype.TableType_ConfigCell_PreservedAccount00,"PreservedAccount00"))
+	c.StorePreservedAccountMap(configcells.NewCfgPreservedAccount(celltype.TableType_ConfigCell_PreservedAccount01,"PreservedAccount01"))
+	c.StorePreservedAccountMap(configcells.NewCfgPreservedAccount(celltype.TableType_ConfigCell_PreservedAccount02,"PreservedAccount02"))
+	c.StorePreservedAccountMap(configcells.NewCfgPreservedAccount(celltype.TableType_ConfigCell_PreservedAccount03,"PreservedAccount03"))
+	c.StorePreservedAccountMap(configcells.NewCfgPreservedAccount(celltype.TableType_ConfigCell_PreservedAccount04,"PreservedAccount04"))
+	c.StorePreservedAccountMap(configcells.NewCfgPreservedAccount(celltype.TableType_ConfigCell_PreservedAccount05,"PreservedAccount05"))
+	c.StorePreservedAccountMap(configcells.NewCfgPreservedAccount(celltype.TableType_ConfigCell_PreservedAccount06,"PreservedAccount06"))
+	c.StorePreservedAccountMap(configcells.NewCfgPreservedAccount(celltype.TableType_ConfigCell_PreservedAccount07,"PreservedAccount07"))
+	c.StorePreservedAccountMap(configcells.NewCfgPreservedAccount(celltype.TableType_ConfigCell_PreservedAccount08,"PreservedAccount08"))
+	c.StorePreservedAccountMap(configcells.NewCfgPreservedAccount(celltype.TableType_ConfigCell_PreservedAccount09,"PreservedAccount09"))
+	c.StorePreservedAccountMap(configcells.NewCfgPreservedAccount(celltype.TableType_ConfigCell_PreservedAccount10,"PreservedAccount10"))
+	c.StorePreservedAccountMap(configcells.NewCfgPreservedAccount(celltype.TableType_ConfigCell_PreservedAccount11,"PreservedAccount11"))
+	c.StorePreservedAccountMap(configcells.NewCfgPreservedAccount(celltype.TableType_ConfigCell_PreservedAccount12,"PreservedAccount12"))
+	c.StorePreservedAccountMap(configcells.NewCfgPreservedAccount(celltype.TableType_ConfigCell_PreservedAccount13,"PreservedAccount13"))
+	c.StorePreservedAccountMap(configcells.NewCfgPreservedAccount(celltype.TableType_ConfigCell_PreservedAccount14,"PreservedAccount14"))
+	c.StorePreservedAccountMap(configcells.NewCfgPreservedAccount(celltype.TableType_ConfigCell_PreservedAccount15,"PreservedAccount15"))
+	c.StorePreservedAccountMap(configcells.NewCfgPreservedAccount(celltype.TableType_ConfigCell_PreservedAccount16,"PreservedAccount16"))
+	c.StorePreservedAccountMap(configcells.NewCfgPreservedAccount(celltype.TableType_ConfigCell_PreservedAccount17,"PreservedAccount17"))
+	c.StorePreservedAccountMap(configcells.NewCfgPreservedAccount(celltype.TableType_ConfigCell_PreservedAccount18,"PreservedAccount18"))
+	c.StorePreservedAccountMap(configcells.NewCfgPreservedAccount(celltype.TableType_ConfigCell_PreservedAccount19,"PreservedAccount19"))
 
 	return c
 }
@@ -84,37 +84,37 @@ func (c *ConfigCell) StorePreservedAccountMap(xx *configcells.CfgPreservedAccoun
 }
 
 func (c *ConfigCell) main() *celltype.ConfigCellMain {
-	v, _ := c.ConfigCellChildMap.Load(celltype.TableType_CONFIG_CELL_MAIN)
+	v, _ := c.ConfigCellChildMap.Load(celltype.TableType_ConfigCell_Main)
 	return (v.(configcells.IConfigChild)).MocluObj().(*celltype.ConfigCellMain)
 }
 
 func (c *ConfigCell) apply() *celltype.ConfigCellApply {
-	v, _ := c.ConfigCellChildMap.Load(celltype.TableType_CONFIG_CELL_APPLY)
+	v, _ := c.ConfigCellChildMap.Load(celltype.TableType_ConfigCell_Apply)
 	return (v.(configcells.IConfigChild)).MocluObj().(*celltype.ConfigCellApply)
 }
 
 func (c *ConfigCell) price() *celltype.ConfigCellPrice {
-	v, _ := c.ConfigCellChildMap.Load(celltype.TableType_CONFIG_CELL_PRICE)
+	v, _ := c.ConfigCellChildMap.Load(celltype.TableType_ConfigCell_Price)
 	return (v.(configcells.IConfigChild)).MocluObj().(*celltype.ConfigCellPrice)
 }
 
 func (c *ConfigCell) proposal() *celltype.ConfigCellProposal {
-	v, _ := c.ConfigCellChildMap.Load(celltype.TableType_CONFIG_CELL_PROPOSAL)
+	v, _ := c.ConfigCellChildMap.Load(celltype.TableType_ConfigCell_Proposal)
 	return (v.(configcells.IConfigChild)).MocluObj().(*celltype.ConfigCellProposal)
 }
 
 func (c *ConfigCell) account() *celltype.ConfigCellAccount {
-	v, _ := c.ConfigCellChildMap.Load(celltype.TableType_CONFIG_CELL_ACCOUNT)
+	v, _ := c.ConfigCellChildMap.Load(celltype.TableType_ConfigCell_Account)
 	return (v.(configcells.IConfigChild)).MocluObj().(*celltype.ConfigCellAccount)
 }
 
 func (c *ConfigCell) income() *celltype.ConfigCellIncome {
-	v, _ := c.ConfigCellChildMap.Load(celltype.TableType_CONFIG_CELL_INCOME)
+	v, _ := c.ConfigCellChildMap.Load(celltype.TableType_ConfigCell_Income)
 	return (v.(configcells.IConfigChild)).MocluObj().(*celltype.ConfigCellIncome)
 }
 
 func (c *ConfigCell) profitRate() *celltype.ConfigCellProfitRate {
-	v, _ := c.ConfigCellChildMap.Load(celltype.TableType_CONFIG_CELL_PROFITRATE)
+	v, _ := c.ConfigCellChildMap.Load(celltype.TableType_ConfigCell_ProfitRate)
 	return (v.(configcells.IConfigChild)).MocluObj().(*celltype.ConfigCellProfitRate)
 }
 
@@ -498,7 +498,7 @@ func BindConfigCellDataFromTx(tx *types.Transaction, configCell *ConfigCell) err
 			WitnessData:  rawWitnessData,
 			MoleculeData: cellData,
 		})
-		if configTableType == celltype.TableType_CONFIG_CELL_MAIN {
+		if configTableType == celltype.TableType_ConfigCell_Main {
 			celltype.CKBSoScriptDep.TxHash  = configCell.CKBSingleSoCellDepHash()
 			celltype.ETHSoScriptDep.TxHash  = configCell.ETHSoCellDepHash()
 			celltype.TRONSoScriptDep.TxHash = configCell.TRONSoCellDepHash()
