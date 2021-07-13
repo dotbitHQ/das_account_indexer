@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/DeAccountSystems/das_commonlib/ckb/celltype"
 	"github.com/nervosnetwork/ckb-sdk-go/types"
+	"strings"
 )
 
 /**
@@ -85,8 +86,8 @@ func (a AccountReturnObj) ToAccountReturnObj1() AccountReturnObj1 {
 			CreateAtUnix:      a.AccountData.CreateAtUnix,
 			ExpiredAtUnix:     a.AccountData.ExpiredAtUnix,
 			Status:            a.AccountData.Status,
-			OwnerLockArgsHex:  a.AccountData.OwnerLockArgsHex,
-			ManagerLockArgHex: a.AccountData.ManagerLockArgHex,
+			OwnerLockArgsHex:  appendOx(a.AccountData.OwnerLockArgsHex),
+			ManagerLockArgHex: appendOx(a.AccountData.ManagerLockArgHex),
 			Records:           originRecordsToNewRecords(a.AccountData.Records),
 		},
 	}
@@ -97,6 +98,13 @@ type AccountReturnObjList []AccountReturnObj
 func (a AccountReturnObjList) JsonBys() []byte {
 	bys, _ := json.Marshal(a)
 	return bys
+}
+
+func appendOx(hex string) string {
+	if !strings.HasPrefix(hex, "0x") {
+		return "0x" + hex
+	}
+	return hex
 }
 
 func originRecordsToNewRecords(records celltype.EditRecordItemList) []SimpleRecordItem {
