@@ -23,6 +23,8 @@ type SimpleRecordItem struct {
 	Value string `json:"value"`
 	TTL   string `json:"ttl"`
 }
+
+// origin
 type AccountData struct {
 	Account           string                      `json:"account"`
 	AccountIdHex      string                      `json:"account_id_hex"`
@@ -32,8 +34,10 @@ type AccountData struct {
 	Status            celltype.AccountCellStatus  `json:"status"`
 	OwnerLockArgsHex  string                      `json:"owner_lock_args_hex"`
 	ManagerLockArgHex string                      `json:"manager_lock_arg_hex"`
-	Records           celltype.EditRecordItemList `json:"-"`
+	Records           celltype.EditRecordItemList `json:"records"`
 }
+
+// repair
 type AccountData1 struct {
 	Account            string                     `json:"account"`
 	AccountIdHex       string                     `json:"account_id_hex"`
@@ -121,21 +125,10 @@ func originRecordsToNewRecords(records celltype.EditRecordItemList) []SimpleReco
 	return recordList
 }
 
-func (a AccountReturnObjList) ToAccountReturnObjList1List() []AccountData1 {
-	retList := make([]AccountData1, 0, len(a))
+func (a AccountReturnObjList) ToAccountReturnObjList1List() []AccountReturnObj1 {
+	retList := make([]AccountReturnObj1, 0, len(a))
 	for i := 0; i < len(a); i++ {
-		records := a[i].AccountData.Records
-		recordSize := len(records)
-		recordList := make([]SimpleRecordItem, 0, recordSize)
-		for j := 0; j < recordSize; j++ {
-			recordList = append(recordList, SimpleRecordItem{
-				Key:   records[j].Type + "." + records[j].Key,
-				Label: records[j].Label,
-				Value: records[j].Value,
-				TTL:   records[j].TTL,
-			})
-		}
-		retList = append(retList, a[i].ToAccountReturnObj1().AccountData)
+		retList = append(retList, a[i].ToAccountReturnObj1())
 	}
 	return retList
 }
