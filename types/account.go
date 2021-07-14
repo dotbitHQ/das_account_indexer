@@ -2,7 +2,6 @@ package types
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/DeAccountSystems/das_commonlib/ckb/celltype"
 	"github.com/nervosnetwork/ckb-sdk-go/types"
 	"strings"
@@ -54,11 +53,7 @@ func (a AccountData) AccountId() celltype.DasAccountId {
 	return celltype.DasAccountFromStr(a.Account).AccountId()
 }
 func (a AccountData) JsonBys() []byte {
-	fmt.Println("===>", a)
-	bys, err := json.Marshal(a)
-	if err != nil {
-		fmt.Println(err.Error())
-	}
+	bys, _ := json.Marshal(a)
 	return bys
 }
 
