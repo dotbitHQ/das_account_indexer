@@ -41,7 +41,7 @@ type DasNetType int
 const (
 	DasNetType_Testnet2 DasNetType = 2
 	DasNetType_Testnet3 DasNetType = 3
-	DasNetType_Mainnet  DasNetType = 0
+	DasNetType_Mainnet  DasNetType = 1
 )
 
 func LatestVersion() uint32 {
@@ -125,7 +125,7 @@ const ConfigCellPreservedAccount00 = 150,
 */
 func (t TableType) ValidateType() bool {
 	return t <= TableType_IncomeCell ||
-		(t >= TableType_ConfigCell_Account && t <= TableType_ConfigCell_RecordNamespace) ||
+		(t >= TableType_ConfigCell_Account && t <= TableType_ConfigCell_Release) ||
 		(t >= TableType_ConfigCell_PreservedAccount00 && t <= TableType_ConfigCell_PreservedAccount19) ||
 		(t >=TableType_ConfigCell_CharSetEmoji && t <= TableType_ConfigCell_CharSetHanT)
 }
@@ -149,6 +149,7 @@ const (
 	TableType_ConfigCell_ProfitRate         TableType = 107
 
 	TableType_ConfigCell_RecordNamespace       TableType = 108
+	TableType_ConfigCell_Release               TableType = 109
 
 	TableType_ConfigCell_PreservedAccount00     TableType = 10000
 	TableType_ConfigCell_PreservedAccount01     TableType = 10001

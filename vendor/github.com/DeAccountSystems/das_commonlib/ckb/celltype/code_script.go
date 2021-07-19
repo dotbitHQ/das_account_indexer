@@ -276,18 +276,6 @@ var (
 			Args:     types.HexToHash(IncomeCellCodeArgs).Bytes(),
 		},
 	}
-	// DasQuoteCellScript = DASCellBaseInfo{
-	// 	Dep: DASCellBaseInfoDep{
-	// 		TxHash:  types.HexToHash(""),
-	// 		TxIndex: 0,
-	// 		DepType: "",
-	// 	},
-	// 	Out: DASCellBaseInfoOut{
-	// 		CodeHash:     types.HexToHash(""),
-	// 		CodeHashType: "",
-	// 		Args:         nil,
-	// 	},
-	// }
 	DasConfigCellScript = DASCellBaseInfo{
 		Name: "config_cell",
 		Dep: DASCellBaseInfoDep{
@@ -307,27 +295,24 @@ var (
 		},
 	}
 	DasHeightCellScript = DASCellBaseInfo{
-		Dep: DASCellBaseInfoDep{
-			TxHash:  types.HexToHash("0x1bc39fc942746cf961f338c33626bfea999c96eb06334541859426580643fd51"),
-			TxIndex: 0,
-			DepType: types.DepTypeCode,
-		},
 		Out: DASCellBaseInfoOut{
-			CodeHash:     types.HexToHash("0x7a6db6793ecf341f8f5289bc164d4a417c5adb99ab86a750230d7d14e73768e7"),
+			CodeHash:     types.HexToHash("0x96248cdefb09eed910018a847cfb51ad044c2d7db650112931760e3ef34a7e9a"),
 			CodeHashType: types.HashTypeType,
-			Args:         hexToArgsBytes("0x5123c074feef10b58c061b6d16a70a397b30957024f2a262102206213a808d3700000000"),
+			Args:         hexToArgsBytes("0x02"),
 		},
 	}
 	DasTimeCellScript = DASCellBaseInfo{
-		Dep: DASCellBaseInfoDep{
-			TxHash:  types.HexToHash("0xc0f2b262c8dbd5c8da3376cf81f3d3c69582fefcc3eba36e88f708c1a4d505fe"),
-			TxIndex: 0,
-			DepType: types.DepTypeCode,
-		},
 		Out: DASCellBaseInfoOut{
-			CodeHash:     types.HexToHash("0xd78423449320291c41adcce741276c47df1dbb0bca212d0017db66297be88f19"),
+			CodeHash:     types.HexToHash("0x96248cdefb09eed910018a847cfb51ad044c2d7db650112931760e3ef34a7e9a"),
 			CodeHashType: types.HashTypeType,
-			Args:         hexToArgsBytes("0x248f00f2a594ae982501113267d487acd27b343e081e04d1fd0490b3288b38d900000000"),
+			Args:         hexToArgsBytes("0x01"),
+		},
+	}
+	DasQuoteCellScript = DASCellBaseInfo{
+		Out: DASCellBaseInfoOut{
+			CodeHash:     types.HexToHash("0x96248cdefb09eed910018a847cfb51ad044c2d7db650112931760e3ef34a7e9a"),
+			CodeHashType: types.HashTypeType,
+			Args:         hexToArgsBytes("0x00"),
 		},
 	}
 	SystemCodeScriptMap = syncmap.Map{} // map[types.Hash]*DASCellBaseInfo{}

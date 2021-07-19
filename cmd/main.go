@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"das_account_indexer/parser"
+	"errors"
 	"fmt"
 	blockparser "github.com/DeAccountSystems/das_commonlib/chain/ckb_rocksdb_parser"
 	"github.com/DeAccountSystems/das_commonlib/db"
@@ -38,12 +39,14 @@ import (
  */
 
 var (
-	rpcImpl  *dasrpc.JsonrpcServiceImpl
-	txParser *parser.TxParser
-	_scanner *scanner.BlockScanner
-	log      = elog.NewLogger("server", elog.NoticeLevel)
-	rpcWait  = make(chan bool)
-	exit     = make(chan bool)
+	rpcImpl                *dasrpc.JsonrpcServiceImpl
+	txParser               *parser.TxParser
+	_scanner               *scanner.BlockScanner
+	log                    = elog.NewLogger("server", elog.NoticeLevel)
+	rpcWait                = make(chan bool)
+	exit                   = make(chan bool)
+	netType                = "net_type"
+	chainCtx, chainCtxFunc = context.WithCancel(context.TODO())
 )
 
 func main() {
@@ -56,6 +59,10 @@ func main() {
 		cli.StringFlag{
 			Name:  "config",
 			Usage: "config file abs path",
+		},
+		cli.IntFlag{
+			Name:  netType,
+			Usage: "spec indexer's net type. 0 means release,2 means das-test2, 3 means das-test3",
 		},
 	}
 	app.Flags = append(app.Flags, globalFlags...)
@@ -89,9 +96,12 @@ func listenAndHandleInterrupt() {
 			log.Warn("stop rpc client...")
 			rpcImpl.Stop()
 		}
+		log.Info("success stop rpcImpl")
+		chainCtxFunc()
 		if _scanner != nil {
 			_scanner.Stop()
 		}
+		log.Info("success stop scanner")
 		if txParser != nil {
 			txParser.Close()
 		}
@@ -112,7 +122,9 @@ func runServer(ctx *cli.Context) error {
 
 	listenAndHandleInterrupt()
 
-	celltype.UseVersion3SystemScriptCodeHash()
+	if err := setSystemCodeHash(celltype.DasNetType(ctx.GlobalInt(netType))); err != nil {
+		panic(fmt.Errorf("setSystemCodeHash err: %s", err.Error()))
+	}
 	rpcClient, err := rpc.DialWithIndexer(config.Cfg.Chain.CKB.NodeUrl, config.Cfg.Chain.CKB.IndexerUrl)
 	if err != nil {
 		panic(fmt.Errorf("init rpcClient failed: %s", err.Error()))
@@ -128,10 +140,11 @@ func runServer(ctx *cli.Context) error {
 			txParser = parser.NewParserRpcTx(&parser.InitTxParserParam{
 				RpcClient:         rpcClient,
 				Rocksdb:           infoDb,
+				Context:           chainCtx,
 				TargetBlockHeight: uint64(config.Cfg.Chain.CKB.LocalStorage.BlockParser.StartHeight),
 				FontBlockNumber:   uint64(config.Cfg.Chain.CKB.LocalStorage.BlockParser.FrontNumber),
 			})
-			if err = runChainBlockParser(dataPath, rpcClient, txParser, context.TODO()); err != nil {
+			if err = runChainBlockParser(dataPath, rpcClient, txParser, chainCtx); err != nil {
 				return fmt.Errorf("runChainBlockParser err: %s", err.Error())
 			}
 		}
@@ -247,6 +260,23 @@ func runChainBlockParser(dataPath string, rpcClient rpc.Client, txParser *parser
 			log.Error("block scanner start err: %s", err.Error())
 		}
 	}()
+	return nil
+}
+
+func setSystemCodeHash(neyType celltype.DasNetType) error {
+	switch neyType {
+	case celltype.DasNetType_Mainnet:
+		celltype.UseVersion3SystemScriptCodeHash()
+		break
+	case celltype.DasNetType_Testnet2:
+		celltype.UseVersion2SystemScriptCodeHash()
+		break
+	case celltype.DasNetType_Testnet3:
+		celltype.UseVersion3SystemScriptCodeHash()
+		break
+	default:
+		return errors.New("unSupport DasNetType")
+	}
 	return nil
 }
 

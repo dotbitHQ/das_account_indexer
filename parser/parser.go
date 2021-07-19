@@ -32,6 +32,7 @@ var (
 type TxParser struct {
 	rpcClient          rpc.Client
 	rocksdb            *gorocksdb.DB
+	context            context.Context
 	actionRegister     *handler.ActionRegister
 	currentBlockNumber uint64
 	latestBlockNumber  uint64
@@ -41,6 +42,7 @@ type TxParser struct {
 type InitTxParserParam struct {
 	RpcClient         rpc.Client
 	Rocksdb           *gorocksdb.DB
+	Context           context.Context
 	TargetBlockHeight uint64
 	FontBlockNumber   uint64
 }
@@ -49,6 +51,7 @@ func NewParserRpcTx(p *InitTxParserParam) *TxParser {
 	txParser := &TxParser{
 		rpcClient:         p.RpcClient,
 		rocksdb:           p.Rocksdb,
+		context:           p.Context,
 		targetBlockHeight: p.TargetBlockHeight,
 		actionRegister:    handler.NewActionRegister(),
 	}
@@ -68,6 +71,9 @@ func (p *TxParser) BlockSyncFinish() bool {
 
 func (p *TxParser) getChainLatestBlockNumber(blockFontNumber uint64) {
 	for {
+		if p.context != nil && p.context.Err() != nil {
+			return
+		}
 		if blockNumber, err := p.rpcClient.GetTipBlockNumber(context.TODO()); err != nil {
 			log.Error(fmt.Sprintf("getChainLatestBlockNumber err: %s", err.Error()))
 		} else {

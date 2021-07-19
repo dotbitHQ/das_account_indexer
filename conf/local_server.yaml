@@ -8,8 +8,8 @@ rpc:
   port: "8222"
 chain:
   ckb:
-    node_url: "http://:8114"
-    indexer_url: "http://:8116"
+    node_url: "http://127.0.0.1:8114"
+    indexer_url: "http://127.0.0.1:8116"
     local_storage: # once 'info_db_data_path' or 'data_path' is empty, server will run as search-from-chain model
       parse_delay_ms: 10 # tx parser each tx delay ms
       info_db_data_path: "rocksdb-data/account" # local account info data,rocksdb storage path

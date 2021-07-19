@@ -13,43 +13,43 @@ import (
  * Description:
  */
 
-type CfgPrice struct {
+type CfgRelease struct {
 	Data *ConfigCellChildDataObj
-	MocluData *celltype.ConfigCellPrice
+	MocluData *celltype.ConfigCellRelease
 }
 
-func (c *CfgPrice) Ready() bool{
+func (c *CfgRelease) Ready() bool{
 	return c.Data != nil && c.MocluData != nil && c.MocluData.FieldCount() > 0
 }
 
-func (c *CfgPrice) Name() string {
-	return "configCellPrice:"
+func (c *CfgRelease) Name() string {
+	return "configCellRelease:"
 }
 
-func (c *CfgPrice) NotifyData(Data *ConfigCellChildDataObj) error {
+func (c *CfgRelease) NotifyData(Data *ConfigCellChildDataObj) error {
 	c.Data = Data
 	if len(c.Data.MoleculeData) == 0 {
-		temp := celltype.ConfigCellPriceDefault()
+		temp := celltype.ConfigCellReleaseDefault()
 		c.MocluData = &temp
 		return nil
 	}
-	obj, err := celltype.ConfigCellPriceFromSlice(c.Data.MoleculeData, false)
+	obj, err := celltype.ConfigCellReleaseFromSlice(c.Data.MoleculeData, false)
 	if err != nil {
-		return fmt.Errorf("ConfigCellPriceFromSlice %s",err.Error())
+		return fmt.Errorf("ConfigCellReleaseFromSlice %s",err.Error())
 	}
 	c.MocluData = obj
 	return nil
 }
 
-func (c *CfgPrice) MocluObj() interface{} {
+func (c *CfgRelease) MocluObj() interface{} {
 	return c.MocluData
 }
 
-func (c *CfgPrice) Tag() celltype.TableType {
-	return celltype.TableType_ConfigCell_Price
+func (c *CfgRelease) Tag() celltype.TableType {
+	return celltype.TableType_ConfigCell_Release
 }
 
-func (c *CfgPrice) Witness() *celltype.CellDepWithWitness {
+func (c *CfgRelease) Witness() *celltype.CellDepWithWitness {
 	return &celltype.CellDepWithWitness{
 		CellDep: &c.Data.CellDep,
 		GetWitnessData: func(index uint32) ([]byte, error) {
