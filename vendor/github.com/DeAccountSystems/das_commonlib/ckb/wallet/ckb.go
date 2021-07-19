@@ -60,8 +60,8 @@ func GetShortAddressFromLockScriptArgs(args string,isTestNet bool) (string,error
 		return "", err
 	}
 	payload := append([]byte{
-		byte(uint8(1)), 	// type
-		byte(uint8(0))}, 	// code_hash_index
+		uint8(1), // type
+		uint8(0)}, // code_hash_index
 		hexStr.Bytes()...)
 	return encodeAddress(prefix,payload)
 }

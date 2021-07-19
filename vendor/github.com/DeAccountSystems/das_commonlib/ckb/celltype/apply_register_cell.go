@@ -14,12 +14,13 @@ import (
  * Description:
  */
 
-var DefaultApplyRegisterCellParam = func(args []byte, account DasAccount, height uint64, senderLockScript *types.Script) *ApplyRegisterCellParam {
+var DefaultApplyRegisterCellParam = func(args []byte, account DasAccount, height,timeUnix uint64, senderLockScript *types.Script) *ApplyRegisterCellParam {
 	return &ApplyRegisterCellParam{
 		Version:         1,
 		PubkeyHashBytes: args,
 		Account:         account,
 		Height:          height,
+		TimeUnix:        timeUnix,
 		CellCodeInfo:    DasApplyRegisterCellScript,
 		SenderLockScriptInfo: DASCellBaseInfo{
 			Dep: TestNetLockScriptDep,
@@ -80,7 +81,8 @@ func (c *ApplyRegisterCell) Data() ([]byte, error) {
 	if err != nil {
 		return nil, fmt.Errorf("ApplyRegisterDataId err: %s", err.Error())
 	}
-	return append(idHash, GoUint64ToBytes(c.p.Height)...), nil
+	temp := append(idHash, GoUint64ToBytes(c.p.Height)...)
+	return append(temp, GoUint64ToBytes(c.p.TimeUnix)...), nil
 }
 
 func ApplyRegisterDataId(pubKeyHexBytes []byte, account DasAccount) ([]byte, error) {

@@ -9,7 +9,7 @@ import (
  * Copyright (C), 2019-2021
  * FileName: config_child_cells
  * Author:   LinGuanHong
- * Date:     2021/5/17 2:21 下午
+ * Date:     2021/5/17 2:21
  * Description:
  */
 

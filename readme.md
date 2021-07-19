@@ -23,11 +23,16 @@ More about DAS information, please visit DAS official website: <a target="_blank
     * `make rpc-linux`
 
 #### run
-
-```
-cd bin/mac
-./rpc_server --config="local_server.yaml"
-```
+* start cmd:
+    1. cd bin/mac;
+    2. `/rpc_server --config="local_server.yaml" --net_type=3`
+* parameter:
+    * `config`,configuration file's path;
+    * `net_type`,server's net type. 1 means release,2 means das-test2, 3 means das-test3
+* support execute model(see the configuration file for details):
+    1. consuming block data from message queue;
+    2. local parsing block data to rocksdb and consume.
+       
 
 #### searchAccount
 
