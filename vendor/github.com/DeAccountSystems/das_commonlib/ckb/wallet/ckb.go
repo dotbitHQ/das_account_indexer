@@ -5,8 +5,8 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"github.com/minio/blake2b-simd"
 	"github.com/nervosnetwork/ckb-sdk-go/crypto/bech32"
+	"github.com/nervosnetwork/ckb-sdk-go/crypto/blake2b"
 	"github.com/nervosnetwork/ckb-sdk-go/crypto/secp256k1"
 	"github.com/nervosnetwork/ckb-sdk-go/types"
 	"github.com/nervosnetwork/ckb-sdk-go/utils"
@@ -143,8 +143,8 @@ func byteString(b []byte) (s string) {
 }
 
 func genBlake160(pubKeyBin []byte) []byte {
-	sum := blake2b.Sum256(pubKeyBin)
-	return sum[:20]
+	data,_ := blake2b.Blake160(pubKeyBin)
+	return data
 }
 
 func genCkbAddr(prefix string, blake160Addr []byte) (string,error) {

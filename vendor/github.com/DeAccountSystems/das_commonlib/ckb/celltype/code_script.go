@@ -378,6 +378,36 @@ func UseVersion3SystemScriptCodeHash() {
 	initMap()
 }
 
+func UseVersionReleaseSystemScriptCodeHash() {
+
+	CKBSoScriptDep.TxHash = types.HexToHash("0x1373db89fd2c7ff1617d4fd6740e916169631c5ab6c9995786645071ab19b822")
+	ETHSoScriptDep.TxHash = types.HexToHash("0x43ffc1b114a3a2bb3c94f2c4c55a6e666d1c69d8394af4a035858157aebfc7c4")
+	TRONSoScriptDep.TxHash = types.HexToHash("0x17d992cd2c7aaa298c5d3f7c365709f4ac7b25c44aa5d618b6245cfc4a0f0352")
+
+	DasApplyRegisterCellScript.ContractTypeScript.Args = types.HexToHash("0xf18c3eab9fd28adbb793c38be9a59864989c1f739c22d2b6dc3f4284f047a69d").Bytes()
+	DasPreAccountCellScript.ContractTypeScript.Args = types.HexToHash("0xf6574955079797010689a22cd172ce55b52d2c34d1e9bc6596e97babc2906f7e").Bytes()
+	DasAccountCellScript.ContractTypeScript.Args = types.HexToHash("0x16305f9a1464d4f8784056764035709981d385f5688263c3622932fdd57e0583").Bytes()
+	DasProposeCellScript.ContractTypeScript.Args = types.HexToHash("0xdd1097a8bb02c094bbfbbe522b8f48dfe1b0a53fd8261286185c6e4f416a3f59").Bytes()
+	DasLockCellScript.ContractTypeScript.Args = types.HexToHash("0xda22fd296682488687a6035b5fc97c269b72d7de128034389bd03041b40309c0").Bytes()
+	DasConfigCellScript.ContractTypeScript.Args = types.HexToHash("0x3775c65aabe8b79980c4933dd2f4347fa5ef03611cef64328685618aa7535794").Bytes()
+	DasIncomeCellScript.ContractTypeScript.Args = types.HexToHash("0x108fba6a9b9f2898b4cdf11383ba2a6ed3da951b458c48e5f5de0353bbca2d46").Bytes()
+
+	DasApplyRegisterCellScript.Out.CodeHash = types.HexToHash("0xc024b6efde8d49af665b3245223a8aa889e35ede15bc510392a7fea2dec0a758")
+	DasPreAccountCellScript.Out.CodeHash = types.HexToHash("0x18ab87147e8e81000ab1b9f319a5784d4c7b6c98a9cec97d738a5c11f69e7254")
+	DasAccountCellScript.Out.CodeHash = types.HexToHash("0xe305abb02155db4393497ac45377808b7210bee5a0fe9b28f3e793d35714fec2")
+	DasProposeCellScript.Out.CodeHash = types.HexToHash("0x45be62073fb604981b73b31a9164a6dc45069bd427113b98de01caafd0aa9de1")
+	DasLockCellScript.Out.CodeHash = types.HexToHash("0x9376c3b5811942960a846691e16e477cf43d7c7fa654067c9948dfcd09a32137")
+	DasConfigCellScript.Out.CodeHash = types.HexToHash("0x903bff0221b72b2f5d549236b631234b294f10f53e6cc7328af07776e32a6640")
+	DasIncomeCellScript.Out.CodeHash = types.HexToHash("0x6c1d69a358954fc471a2ffa82a98aed5a4912e6002a5e761524f2304ab53bf39")
+	DasAnyOneCanSendCellInfo.Out.CodeHash = types.HexToHash("0x303ead37be5eebfcf3504847155538cb623a26f237609df24bd296750c123078")
+
+	DasHeightCellScript.Out.CodeHash = types.HexToHash("0x2e0e5b790cfb346bddc0e82a70f785e90d1537bbfdbdd25f6a3617cc760f887b")
+	DasTimeCellScript.Out.CodeHash = types.HexToHash("0x2e0e5b790cfb346bddc0e82a70f785e90d1537bbfdbdd25f6a3617cc760f887b")
+	DasQuoteCellScript.Out.CodeHash = types.HexToHash("0x2e0e5b790cfb346bddc0e82a70f785e90d1537bbfdbdd25f6a3617cc760f887b")
+
+	initMap()
+}
+
 type TimingAsyncSystemCodeScriptParam struct {
 	RpcClient            rpc.Client
 	SuperLock            *types.Script
