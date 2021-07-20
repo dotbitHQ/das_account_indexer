@@ -31,13 +31,13 @@ func Test_HandleConfirmProposalTx(t *testing.T) {
 
 	host := ""
 
-	celltype.UseVersion3SystemScriptCodeHash()
+	celltype.UseVersionReleaseSystemScriptCodeHash()
 
 	rpcClient, err := rpc.DialWithIndexer(fmt.Sprintf("http://%s:8114", host), fmt.Sprintf("http://%s:8116", host))
 	if err != nil {
 		panic(fmt.Errorf("init rpcClient err: %s", err.Error()))
 	}
-	txStatus, err := rpcClient.GetTransaction(context.TODO(), ckbTypes.HexToHash("0x2df31e65a97685107323d9efe3186365c0fce5c1734b06871257d910902a4b9a"))
+	txStatus, err := rpcClient.GetTransaction(context.TODO(), ckbTypes.HexToHash("0xdd443d66418ed50e06f26fe795cf988e457502c869fabef9baba9fe941a314e2"))
 	if err != nil {
 		panic(fmt.Errorf("GetTransaction err: %s", err.Error()))
 	}
@@ -54,7 +54,8 @@ func Test_HandleConfirmProposalTx(t *testing.T) {
 		RpcClient: rpcClient,
 		Rocksdb:   infoDb,
 	}
-	_ = HandleConfirmProposalTx("", p)
+	resp := HandleConfirmProposalTx("", p)
+	log.Warn(resp.err)
 	ret1 := searchAccount(infoDb, "d55213.bit")
 	fmt.Println(ret1.ErrNo)
 	fmt.Println(ret1.Data)
