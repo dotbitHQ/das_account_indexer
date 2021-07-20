@@ -36,7 +36,7 @@ func (c *ConfigCell) Ready() bool {
 	return ready
 }
 
-func NewDefaultConfigCell() *ConfigCell {
+func NewDefaultConfigCell(neyType celltype.DasNetType) *ConfigCell {
 	c := &ConfigCell{
 		ConfigCellChildMap: syncmap.Map{}, // map[celltype.CfgCellType]configcells.IConfigChild{},
 	}
@@ -46,8 +46,10 @@ func NewDefaultConfigCell() *ConfigCell {
 	c.ConfigCellChildMap.Store(celltype.TableType_ConfigCell_CharSetEmoji, &configcells.CfgChatSetEmoji{})
 	c.ConfigCellChildMap.Store(celltype.TableType_ConfigCell_CharSetDigit, &configcells.CfgChatSetDigit{})
 	c.ConfigCellChildMap.Store(celltype.TableType_ConfigCell_CharSetEn, &configcells.CfgChatSetEn{})
-	c.ConfigCellChildMap.Store(celltype.TableType_ConfigCell_CharSetHanS, &configcells.CfgChatSetHans{})
-	c.ConfigCellChildMap.Store(celltype.TableType_ConfigCell_CharSetHanT, &configcells.CfgChatSetHant{})
+	if neyType != celltype.DasNetType_Mainnet {
+		c.ConfigCellChildMap.Store(celltype.TableType_ConfigCell_CharSetHanS, &configcells.CfgChatSetHans{})
+		c.ConfigCellChildMap.Store(celltype.TableType_ConfigCell_CharSetHanT, &configcells.CfgChatSetHant{})
+	}
 	c.ConfigCellChildMap.Store(celltype.TableType_ConfigCell_Apply, &configcells.CfgApply{})
 	c.ConfigCellChildMap.Store(celltype.TableType_ConfigCell_ProfitRate, &configcells.CfgProfitRate{})
 	c.ConfigCellChildMap.Store(celltype.TableType_ConfigCell_Account, &configcells.CfgAccount{})

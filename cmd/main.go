@@ -266,7 +266,7 @@ func runChainBlockParser(dataPath string, rpcClient rpc.Client, txParser *parser
 func setSystemCodeHash(neyType celltype.DasNetType) error {
 	switch neyType {
 	case celltype.DasNetType_Mainnet:
-		celltype.UseVersion3SystemScriptCodeHash()
+		celltype.UseVersionReleaseSystemScriptCodeHash()
 		break
 	case celltype.DasNetType_Testnet2:
 		celltype.UseVersion2SystemScriptCodeHash()
