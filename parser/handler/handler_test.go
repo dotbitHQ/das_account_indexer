@@ -27,7 +27,7 @@ import (
  * Description:
  */
 
-func Test_HandleConfirmProposalTx(t *testing.T) {
+func Test_HandleActionTx(t *testing.T) {
 
 	host := ""
 
@@ -37,7 +37,7 @@ func Test_HandleConfirmProposalTx(t *testing.T) {
 	if err != nil {
 		panic(fmt.Errorf("init rpcClient err: %s", err.Error()))
 	}
-	txStatus, err := rpcClient.GetTransaction(context.TODO(), ckbTypes.HexToHash("0xdd443d66418ed50e06f26fe795cf988e457502c869fabef9baba9fe941a314e2"))
+	txStatus, err := rpcClient.GetTransaction(context.TODO(), ckbTypes.HexToHash(""))
 	if err != nil {
 		panic(fmt.Errorf("GetTransaction err: %s", err.Error()))
 	}
@@ -54,8 +54,8 @@ func Test_HandleConfirmProposalTx(t *testing.T) {
 		RpcClient: rpcClient,
 		Rocksdb:   infoDb,
 	}
-	resp := HandleConfirmProposalTx("", p)
-	log.Warn(resp.err)
+	resp := HandleEditRecordsTx("", p)
+	log.Warn("resp.err:-->", resp.err)
 	ret1 := searchAccount(infoDb, "d55213.bit")
 	fmt.Println(ret1.ErrNo)
 	fmt.Println(ret1.Data)

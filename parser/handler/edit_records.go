@@ -26,8 +26,8 @@ func HandleEditRecordsTx(actionName string, p *DASActionHandleFuncParam) DASActi
 		writeOpt.Destroy()
 		writeBatch.Destroy()
 	}()
-	if gotype.IsEditRecordsTx(tx) {
-		return resp.SetErr(fmt.Errorf("IsEditRecordsTx err: invalid editManagerTx"))
+	if !gotype.IsEditRecordsTx(tx) {
+		return resp.SetErr(fmt.Errorf("IsEditRecordsTx err: invalid editRecordsTx"))
 	}
 	accountList, err := util.ParseChainAccountToJsonFormat(&tx, nil)
 	if err != nil {
