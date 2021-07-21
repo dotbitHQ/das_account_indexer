@@ -26,7 +26,7 @@ func HandleTransferAccountTx(actionName string, p *DASActionHandleFuncParam) DAS
 		writeOpt.Destroy()
 		writeBatch.Destroy()
 	}()
-	if gotype.IsTransferAccountTx(tx) {
+	if !gotype.IsTransferAccountTx(tx) {
 		return resp.SetErr(fmt.Errorf("IsTransferAccountTx err: invalid editManagerTx"))
 	}
 	accountList, err := util.ParseChainAccountToJsonFormat(&tx, nil)
