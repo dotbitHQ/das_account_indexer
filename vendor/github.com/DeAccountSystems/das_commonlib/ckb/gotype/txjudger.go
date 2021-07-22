@@ -90,7 +90,7 @@ func IsConfirmProposeTx(ctx context.Context,rpcClient rpc.Client,inputs []*types
 	if _, err := FindTargetTypeScriptByInputList(param); err != nil {
 		return fmt.Errorf(
 			"FindSenderLockScriptByInputList proposeCell err: %s, "+
-				"invalid confirmPropose Tx, first input not a proposeCell", err.Error())
+				"invalid confirmPropose Tx, first input not a proposeCell. proposeTx: %s", err.Error(),celltype.DasProposeCellScript.Out.CodeHash.String())
 	}
 	return nil
 }
