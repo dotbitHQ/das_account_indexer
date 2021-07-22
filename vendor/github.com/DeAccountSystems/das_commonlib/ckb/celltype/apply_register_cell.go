@@ -23,7 +23,7 @@ var DefaultApplyRegisterCellParam = func(args []byte, account DasAccount, height
 		TimeUnix:        timeUnix,
 		CellCodeInfo:    DasApplyRegisterCellScript,
 		SenderLockScriptInfo: DASCellBaseInfo{
-			Dep: TestNetLockScriptDep,
+			Dep: DasApplyRegisterCellScript.Dep,
 			Out: DASCellBaseInfoOutFromScript(senderLockScript),
 		},
 	}
