@@ -219,7 +219,7 @@ func (c ChainType) String() string {
 	case ChainType_BTC:
 		return "BTC"
 	case ChainType_TRON:
-		return "TRON"
+		return "TRX"
 	}
 	return "ETH"
 }
