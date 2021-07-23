@@ -1,8 +1,11 @@
 package types
 
 import (
+	"bytes"
+	"encoding/hex"
 	"encoding/json"
 	"github.com/DeAccountSystems/das_commonlib/ckb/celltype"
+	"github.com/DeAccountSystems/das_commonlib/ckb/gotype"
 	"github.com/nervosnetwork/ckb-sdk-go/types"
 	"strings"
 )
@@ -31,6 +34,7 @@ type AccountData struct {
 	CreateAtUnix      uint64                      `json:"create_at_unix"`
 	ExpiredAtUnix     uint64                      `json:"expired_at_unix"`
 	Status            celltype.AccountCellStatus  `json:"status"`
+	RawDasLockArgsHex string                      `json:"raw_das_lock_args_hex"`
 	OwnerLockArgsHex  string                      `json:"owner_lock_args_hex"`
 	ManagerLockArgHex string                      `json:"manager_lock_arg_hex"`
 	Records           celltype.EditRecordItemList `json:"records"`
@@ -38,15 +42,19 @@ type AccountData struct {
 
 // repair
 type AccountData1 struct {
-	Account            string                     `json:"account"`
-	AccountIdHex       string                     `json:"account_id_hex"`
-	NextAccountIdHex   string                     `json:"next_account_id_hex"`
-	CreateAtUnix       uint64                     `json:"create_at_unix"`
-	ExpiredAtUnix      uint64                     `json:"expired_at_unix"`
-	Status             celltype.AccountCellStatus `json:"status"`
-	OwnerLockArgsHex   string                     `json:"owner_lock_args_hex"`
-	ManagerLockArgsHex string                     `json:"manager_lock_args_hex"`
-	Records            []SimpleRecordItem         `json:"records"`
+	Account             string                     `json:"account"`
+	AccountIdHex        string                     `json:"account_id_hex"`
+	NextAccountIdHex    string                     `json:"next_account_id_hex"`
+	CreateAtUnix        uint64                     `json:"create_at_unix"`
+	ExpiredAtUnix       uint64                     `json:"expired_at_unix"`
+	Status              celltype.AccountCellStatus `json:"status"`
+	OwnerLockChainType  string                     `json:"owner_lock_chain_type"`
+	OwnerLockArgsHex    string                     `json:"owner_lock_args_hex"`
+	OwnerAddress        string                     `json:"owner_address"`
+	ManageLockChainType string                     `json:"manage_lock_chain_type"`
+	ManagerAddress      string                     `json:"manager_address"`
+	ManagerLockArgsHex  string                     `json:"manager_lock_args_hex"`
+	Records             []SimpleRecordItem         `json:"records"`
 }
 
 func (a AccountData) AccountId() celltype.DasAccountId {
@@ -75,19 +83,36 @@ func (a AccountReturnObj) JsonBys() []byte {
 }
 
 func (a AccountReturnObj) ToAccountReturnObj1() AccountReturnObj1 {
+	var (
+		rawDasLockArgsHex   = a.AccountData.RawDasLockArgsHex
+		rawDasLockArgsBytes []byte
+	)
+	if strings.HasPrefix(rawDasLockArgsHex, "0x") {
+		rawDasLockArgsHex = rawDasLockArgsHex[2:]
+	}
+	rawDasLockArgsBytes, _ = hex.DecodeString(rawDasLockArgsHex)
+	if len(rawDasLockArgsBytes) < celltype.DasLockArgsMinBytesLen {
+		rawDasLockArgsBytes = bytes.Repeat([]byte{0}, celltype.DasLockArgsMinBytesLen)
+	}
+	ownerChainType := celltype.ChainType(rawDasLockArgsBytes[0])
+	managerChainType := celltype.ChainType(rawDasLockArgsBytes[celltype.DasLockArgsMinBytesLen/2])
 	return AccountReturnObj1{
 		OutPoint:   a.OutPoint,
 		WitnessHex: a.WitnessHex,
 		AccountData: AccountData1{
-			Account:            a.AccountData.Account,
-			AccountIdHex:       a.AccountData.AccountIdHex,
-			NextAccountIdHex:   a.AccountData.NextAccountIdHex,
-			CreateAtUnix:       a.AccountData.CreateAtUnix,
-			ExpiredAtUnix:      a.AccountData.ExpiredAtUnix,
-			Status:             a.AccountData.Status,
-			OwnerLockArgsHex:   appendOx(a.AccountData.OwnerLockArgsHex),
-			ManagerLockArgsHex: appendOx(a.AccountData.ManagerLockArgHex),
-			Records:            originRecordsToNewRecords(a.AccountData.Records),
+			Account:             a.AccountData.Account,
+			AccountIdHex:        a.AccountData.AccountIdHex,
+			NextAccountIdHex:    a.AccountData.NextAccountIdHex,
+			CreateAtUnix:        a.AccountData.CreateAtUnix,
+			ExpiredAtUnix:       a.AccountData.ExpiredAtUnix,
+			Status:              a.AccountData.Status,
+			OwnerAddress:        gotype.PubkeyHashToAddress(ownerChainType, removeOx(a.AccountData.OwnerLockArgsHex)).OriginStr(),
+			OwnerLockArgsHex:    appendOx(a.AccountData.OwnerLockArgsHex),
+			OwnerLockChainType:  ownerChainType.String(),
+			ManagerAddress:      gotype.PubkeyHashToAddress(managerChainType, removeOx(a.AccountData.ManagerLockArgHex)).OriginStr(),
+			ManageLockChainType: managerChainType.String(),
+			ManagerLockArgsHex:  appendOx(a.AccountData.ManagerLockArgHex),
+			Records:             originRecordsToNewRecords(a.AccountData.Records),
 		},
 	}
 }
@@ -97,6 +122,13 @@ type AccountReturnObjList []AccountReturnObj
 func (a AccountReturnObjList) JsonBys() []byte {
 	bys, _ := json.Marshal(a)
 	return bys
+}
+
+func removeOx(hex string) string {
+	if strings.HasPrefix(hex, "0x") {
+		return hex[2:]
+	}
+	return hex
 }
 
 func appendOx(hex string) string {

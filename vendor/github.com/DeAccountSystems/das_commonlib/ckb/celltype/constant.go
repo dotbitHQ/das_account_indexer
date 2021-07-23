@@ -210,6 +210,20 @@ const (
 	ChainType_WX   ChainType = 4
 )
 
+func (c ChainType) String() string {
+	switch c {
+	case ChainType_CKB:
+		return "CKB"
+	case ChainType_ETH:
+		return "ETH"
+	case ChainType_BTC:
+		return "BTC"
+	case ChainType_TRON:
+		return "TRON"
+	}
+	return "ETH"
+}
+
 type LockScriptType int
 
 const (
