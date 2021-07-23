@@ -48,6 +48,7 @@ type AccountData1 struct {
 	CreateAtUnix        uint64                     `json:"create_at_unix"`
 	ExpiredAtUnix       uint64                     `json:"expired_at_unix"`
 	Status              celltype.AccountCellStatus `json:"status"`
+	DasLockArgHex       string                     `json:"das_lock_arg_hex"`
 	OwnerLockChainType  string                     `json:"owner_lock_chain_type"`
 	OwnerLockArgsHex    string                     `json:"owner_lock_args_hex"`
 	OwnerAddress        string                     `json:"owner_address"`
@@ -106,11 +107,12 @@ func (a AccountReturnObj) ToAccountReturnObj1() AccountReturnObj1 {
 			CreateAtUnix:        a.AccountData.CreateAtUnix,
 			ExpiredAtUnix:       a.AccountData.ExpiredAtUnix,
 			Status:              a.AccountData.Status,
-			OwnerAddress:        gotype.PubkeyHashToAddress(ownerChainType, removeOx(a.AccountData.OwnerLockArgsHex)).OriginStr(),
-			OwnerLockArgsHex:    appendOx(a.AccountData.OwnerLockArgsHex),
+			DasLockArgHex:       rawDasLockArgsHex,
 			OwnerLockChainType:  ownerChainType.String(),
-			ManagerAddress:      gotype.PubkeyHashToAddress(managerChainType, removeOx(a.AccountData.ManagerLockArgHex)).OriginStr(),
+			OwnerLockArgsHex:    appendOx(a.AccountData.OwnerLockArgsHex),
+			OwnerAddress:        gotype.PubkeyHashToAddress(ownerChainType, removeOx(a.AccountData.OwnerLockArgsHex)).OriginStr(),
 			ManageLockChainType: managerChainType.String(),
+			ManagerAddress:      gotype.PubkeyHashToAddress(managerChainType, removeOx(a.AccountData.ManagerLockArgHex)).OriginStr(),
 			ManagerLockArgsHex:  appendOx(a.AccountData.ManagerLockArgHex),
 			Records:             originRecordsToNewRecords(a.AccountData.Records),
 		},
