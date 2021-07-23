@@ -138,10 +138,11 @@ func PubkeyHashToAddress(chainType celltype.ChainType, pubKeyHex string) Address
 		}
 		return Address(pubKeyHex)
 	case celltype.ChainType_TRON:
-		if strings.HasPrefix(pubKeyHex, tron_chain.TronAddrHexPrefix) {
-			addr, _ := tron_chain.PubkeyHexToBase58(pubKeyHex)
-			return Address(addr)
+		if !strings.HasPrefix(pubKeyHex, tron_chain.TronAddrHexPrefix) {
+			pubKeyHex = tron_chain.TronAddrHexPrefix + pubKeyHex
 		}
+		addr, _ := tron_chain.PubkeyHexToBase58(pubKeyHex)
+		return Address(addr)
 	}
 	return Address(pubKeyHex)
 }
