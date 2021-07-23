@@ -55,6 +55,12 @@ curl --location --request POST 'http://localhost:8222' \
 
 ##### resp
 
+* `owner_lock_chain_type`：
+    * ETH
+    * CKB
+    * TRON
+    * BTC
+
 ```json
 {
     "jsonrpc": "2.0",
@@ -73,7 +79,11 @@ curl --location --request POST 'http://localhost:8222' \
                 "next_account_id_hex": "0xbc4338222b62f10cec94",
                 "create_at_unix": 1616489428,
                 "expired_at_unix": 1679637114,
+                "owner_lock_chain_type": "ETH",
+                "owner_address": "0x84ee75fd91a48c9d045840dc369fe22e045ff50a",
                 "owner_lock_args_hex": "0x84ee75fd91a48c9d045840dc369fe22e045ff50a",
+                "manage_lock_chain_type": "ETH",
+                "manager_address": "0x84ee75fd91a48c9d045840dc369fe22e045ff50a",
                 "manager_lock_args_hex": "0x84ee75fd91a48c9d045840dc369fe22e045ff50a",
                 "status": 0,
                 "records": [

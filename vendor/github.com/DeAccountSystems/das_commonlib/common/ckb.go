@@ -33,6 +33,13 @@ func LoadLiveCellsWithSize(client rpc.Client, key *indexer.SearchKey, capLimit, 
 	if latest {
 		order = indexer.SearchOrderDesc
 	}
+	if normal {
+		key.ScriptType = indexer.ScriptTypeLock
+		key.Filter = &indexer.CellsFilter{
+			Script:              nil,
+			OutputDataLenRange:  &[2]uint64{0,2},
+		}
+	}
 	c := collector.NewLiveCellCollector(client, key, order, size, "", normal)
 	iterator, err := c.Iterator()
 	if err != nil {

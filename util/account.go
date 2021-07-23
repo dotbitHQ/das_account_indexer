@@ -93,6 +93,7 @@ func ParseChainAccountToJsonFormat(tx *ckbTypes.Transaction, filter types.Accoun
 				Account:           celltype.AccountCharsToAccount(*item.AccountCellData.Account()).Str(),
 				AccountIdHex:      celltype.DasAccountIdFromBytes(item.AccountCellData.Id().RawData()).HexStr(),
 				NextAccountIdHex:  nextAccountId.HexStr(),
+				RawDasLockArgsHex: hex.EncodeToString(tx.Outputs[item.OutputIndex].Lock.Args),
 				OwnerLockArgsHex:  hex.EncodeToString(ownerBys[1:]),
 				ManagerLockArgHex: hex.EncodeToString(managerBys[1:]),
 				CreateAtUnix:      registerAt,

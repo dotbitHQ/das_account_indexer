@@ -128,3 +128,20 @@ func (r Address) BTCLockScript() (*types.Script, error) {
 		Args:     nil,
 	}, nil
 }
+
+
+func PubkeyHashToAddress(chainType celltype.ChainType, pubKeyHex string) Address {
+	switch chainType {
+	case celltype.ChainType_ETH:
+		if !strings.HasPrefix(pubKeyHex,"0x") {
+			pubKeyHex = "0x" + pubKeyHex
+		}
+		return Address(pubKeyHex)
+	case celltype.ChainType_TRON:
+		if strings.HasPrefix(pubKeyHex, tron_chain.TronAddrHexPrefix) {
+			addr, _ := tron_chain.PubkeyHexToBase58(pubKeyHex)
+			return Address(addr)
+		}
+	}
+	return Address(pubKeyHex)
+}

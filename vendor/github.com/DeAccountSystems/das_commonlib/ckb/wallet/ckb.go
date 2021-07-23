@@ -83,6 +83,7 @@ func CreateCKBWallet(isTestNet bool) (*NewWalletObj,error) {
 		return nil, fmt.Errorf("GenerateKey err:%s",err.Error())
 	}
 	rawPubKey := keyPair.PublicKey
+
 	privBytes := keyPair.ToBytes()
 	privKey := byteString(privBytes)
 	compressionPubKey := rawPubKey.ToBytes()
