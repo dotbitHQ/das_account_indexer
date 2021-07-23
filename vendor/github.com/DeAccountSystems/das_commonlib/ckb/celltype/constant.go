@@ -293,6 +293,21 @@ func (t DasLockCodeHashIndexType) Bytes() []byte {
 	return common.Uint8ToBytes(uint8(t))
 }
 
+func (t DasLockCodeHashIndexType) ChainType() ChainType {
+	switch t {
+	case DasLockCodeHashIndexType_CKB_Normal:
+		return ChainType_CKB
+	case DasLockCodeHashIndexType_CKB_AnyOne:
+		return ChainType_CKB
+	case DasLockCodeHashIndexType_ETH_Normal:
+		return ChainType_ETH
+	case DasLockCodeHashIndexType_TRON_Normal:
+		return ChainType_TRON
+	default:
+		return ChainType_ETH
+	}
+}
+
 func (t DasLockCodeHashIndexType) ToScriptType(fromOwner bool) LockScriptType {
 	switch t {
 	case DasLockCodeHashIndexType_CKB_Normal:

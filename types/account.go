@@ -94,8 +94,8 @@ func (a AccountReturnObj) ToAccountReturnObj1() AccountReturnObj1 {
 	if len(rawDasLockArgsBytes) < celltype.DasLockArgsMinBytesLen {
 		rawDasLockArgsBytes = bytes.Repeat([]byte{0}, celltype.DasLockArgsMinBytesLen)
 	}
-	ownerChainType := celltype.ChainType(rawDasLockArgsBytes[0])
-	managerChainType := celltype.ChainType(rawDasLockArgsBytes[celltype.DasLockArgsMinBytesLen/2])
+	ownerChainType := celltype.DasLockCodeHashIndexType(rawDasLockArgsBytes[0]).ChainType()
+	managerChainType := celltype.DasLockCodeHashIndexType(rawDasLockArgsBytes[celltype.DasLockArgsMinBytesLen/2]).ChainType()
 	return AccountReturnObj1{
 		OutPoint:   a.OutPoint,
 		WitnessHex: a.WitnessHex,
