@@ -58,7 +58,7 @@ curl --location --request POST 'http://localhost:8222' \
 * `owner_lock_chain_type`：
     * ETH
     * CKB
-    * TRON
+    * TRX
     * BTC
 
 ```json
