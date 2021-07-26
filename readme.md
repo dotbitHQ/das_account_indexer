@@ -30,7 +30,7 @@ More about DAS information, please visit DAS official website: <a target="_blank
 * parameter:
     * `config`,configuration file's path;
         * demo: `conf/local_server.yaml`
-    * `net_type`,server's net type. 1 means release,2 means das-test2, 3 means das-test3
+    * `net_type`,server's net type. 1 means mainnet,2 means das-test2, 3 means das-test3
 * support execute model(see the configuration file for details):
     1. search from chain data by GetLiveCell;
     2. local parsing block data to rocksdb and consume.
