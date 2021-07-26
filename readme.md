@@ -15,18 +15,18 @@ More about DAS information, please visit DAS official website: <a target="_blank
 
 1. according your system to install the RocksDB, here is the document: https://github.com/facebook/rocksdb/blob/master/INSTALL.md;
 
-2. git clone `https://github.com/DeAccountSystems/das_account_indexer.git`
+2. clone the project to your `$GOPATH/src/`; 
 
-3. `cd $dir`
+3. `cd $GOPATH/src/das_account_indexer` then make:
     * `make rpc-win`
     * `make rpc-mac`
     * `make rpc-linux`
-4. `*.h` files missing, if this error happen, see `eth-1.9.14` dir for solution.
+4. `*.h` files missing, if this error happen, see `eth-1.9.14` dir for solution;
+5. other errors which your can't handle, contract me.
 
 #### run
 * start cmd:
-    1. cd bin/mac;
-    2. `/rpc_server --config="local_server.yaml" --net_type=3`
+    * `./rpc_server --config="local_server.yaml" --net_type=3`
 * parameter:
     * `config`,configuration file's path;
         * demo: `conf/local_server.yaml`
