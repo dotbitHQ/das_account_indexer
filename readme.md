@@ -22,7 +22,7 @@ More about DAS information, please visit DAS official website: <a target="_blank
     * `make rpc-mac`
     * `make rpc-linux`
 4. `*.h` files missing, if this error happen, see `eth-1.9.14` dir for solution;
-5. other errors which your can't handle, contract me.
+5. other errors which your can't handle, contact me.
 
 #### run
 * start cmd:
