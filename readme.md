@@ -157,9 +157,6 @@ const (
 	Err_AccountNotExist        DAS_CODE = 20007
 	Err_PubkeyHexFormatInvalid DAS_CODE = 20008
 	Err_BaseParamInvalid       DAS_CODE = 20009
-	Err_CostPriceNotEqual      DAS_CODE = 20010
-	Err_PreRegisterTooEarly    DAS_CODE = 20011
-	Err_PreRegisterTooLate     DAS_CODE = 20012
 )
 ```
 
