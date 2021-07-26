@@ -6,6 +6,8 @@ More about DAS information, please visit DAS official website: <a target="_blank
 
 ### Quick start
 
+> suggest use ubuntu.
+
 * OS Support: Linux, Mac OS and Windows
 * Go 1.12.x or later
 * Git
