@@ -49,10 +49,10 @@ type AccountData1 struct {
 	ExpiredAtUnix       uint64                     `json:"expired_at_unix"`
 	Status              celltype.AccountCellStatus `json:"status"`
 	DasLockArgHex       string                     `json:"das_lock_arg_hex"`
-	OwnerLockChainType  string                     `json:"owner_lock_chain_type"`
+	OwnerAddressChain   string                     `json:"owner_address_chain"`
 	OwnerLockArgsHex    string                     `json:"owner_lock_args_hex"`
 	OwnerAddress        string                     `json:"owner_address"`
-	ManageLockChainType string                     `json:"manage_lock_chain_type"`
+	ManagerAddressChain string                     `json:"manager_address_chain"`
 	ManagerAddress      string                     `json:"manager_address"`
 	ManagerLockArgsHex  string                     `json:"manager_lock_args_hex"`
 	Records             []SimpleRecordItem         `json:"records"`
@@ -108,10 +108,10 @@ func (a AccountReturnObj) ToAccountReturnObj1() AccountReturnObj1 {
 			ExpiredAtUnix:       a.AccountData.ExpiredAtUnix,
 			Status:              a.AccountData.Status,
 			DasLockArgHex:       rawDasLockArgsHex,
-			OwnerLockChainType:  ownerChainType.String(),
+			OwnerAddressChain:   ownerChainType.String(),
 			OwnerLockArgsHex:    appendOx(a.AccountData.OwnerLockArgsHex),
 			OwnerAddress:        gotype.PubkeyHashToAddress(ownerChainType, removeOx(a.AccountData.OwnerLockArgsHex)).OriginStr(),
-			ManageLockChainType: managerChainType.String(),
+			ManagerAddressChain: managerChainType.String(),
 			ManagerAddress:      gotype.PubkeyHashToAddress(managerChainType, removeOx(a.AccountData.ManagerLockArgHex)).OriginStr(),
 			ManagerLockArgsHex:  appendOx(a.AccountData.ManagerLockArgHex),
 			Records:             originRecordsToNewRecords(a.AccountData.Records),
