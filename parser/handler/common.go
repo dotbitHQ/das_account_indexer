@@ -35,14 +35,19 @@ func storeAccountInfoToRocksDb(db *gorocksdb.DB, writeBatch *gorocksdb.WriteBatc
 				return 0, fmt.Errorf("AccountReturnObjListFromBys err: %s", err.Error())
 			}
 			oldListSize := len(oldList)
+			found := false
 			newList := types.AccountReturnObjList{}
 			for i := 0; i < oldListSize; i++ {
 				if oldList[i].AccountData.AccountIdHex == item.AccountData.AccountIdHex {
-					log.Info("add new item:", item.AccountData.Account)
+					log.Info("storeAccountInfoToRocksDb, add new item:", item.AccountData.Account)
+					found = true
 					newList = append(newList, item) // use the new one
 				} else {
 					newList = append(newList, oldList[i])
 				}
+			}
+			if !found {
+				newList = append(newList, item)
 			}
 			writeBatch.Put(ownerLockArgsHexKey, newList.JsonBys())
 		}
