@@ -11,11 +11,11 @@ More about DAS information, please visit DAS official website: <a target="_blank
 * OS Support: Linux, Mac OS and Windows
 * Go 1.12.x or later
 * Git
-* RocksDB
+* RocksDB, version 6.x.x
 
 #### build
 
-1. according your system to install the RocksDB(version 6.x.x), here is the document: https://github.com/facebook/rocksdb/blob/master/INSTALL.md;
+1. according your system to install the RocksDB, here is the document: https://github.com/facebook/rocksdb/blob/master/INSTALL.md;
 
 2. clone the project to your `$GOPATH/src/`; 
 
