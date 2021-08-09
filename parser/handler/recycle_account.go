@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/DeAccountSystems/das_commonlib/ckb/celltype"
 	"github.com/DeAccountSystems/das_commonlib/ckb/gotype"
-	"github.com/nervosnetwork/ckb-sdk-go/types"
 	"github.com/tecbot/gorocksdb"
 )
 
@@ -58,21 +57,4 @@ func HandleExpiredRecycleAccountTx(actionName string, p *DASActionHandleFuncPara
 		log.Info("HandleRecycleAccountTx storage success, total number:", accountSize)
 	}
 	return resp
-}
-
-func isRecycleAccountTx(tx types.Transaction) bool {
-	foundAccountCell := false
-	for i := 0; i < len(tx.Outputs); i++ {
-		output := tx.Outputs[i]
-		if output.Type == nil {
-			continue
-		}
-		if celltype.DasAccountCellScript.Out.SameScript(output.Type) {
-			foundAccountCell = true
-			break
-		} else if dataBytes := tx.OutputsData[i]; len(dataBytes) == 0 {
-			continue
-		}
-	}
-	return foundAccountCell
 }
