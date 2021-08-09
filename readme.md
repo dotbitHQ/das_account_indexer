@@ -11,7 +11,7 @@ More about DAS information, please visit DAS official website: <a target="_blank
 * OS Support: Linux, Mac OS and Windows
 * Go 1.12.x or later
 * Git
-* RocksDB, version 6.x.x
+* RocksDB, suggest use version 6.6.4, other version maybe cause some compile error
 
 #### build
 
