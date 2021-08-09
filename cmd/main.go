@@ -62,7 +62,7 @@ func main() {
 		},
 		cli.IntFlag{
 			Name:  netType,
-			Usage: "spec indexer's net type. 1 means release,2 means das-test2, 3 means das-test3",
+			Usage: "spec indexer's net type. 1 means mainnet,2 means das-test2, 3 means das-test3",
 		},
 	}
 	app.Flags = append(app.Flags, globalFlags...)
