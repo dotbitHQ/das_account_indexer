@@ -37,6 +37,14 @@ More about DAS information, please visit DAS official website: <a target="_blank
     1. search from chain data by GetLiveCell;
     2. local parsing block data to rocksdb and consume.
        
+#### How to resynchronize block information on the chain?
+
+delete the old block data info, which has been stored in：
+1. `info_db_data_path`;
+2. `data_path`;
+3. two value name above defined at configuration file.
+
+then restart the server.
 
 #### searchAccount
 
