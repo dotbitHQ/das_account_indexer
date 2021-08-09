@@ -64,6 +64,7 @@ func (a *ActionRegister) RegisterTxActionHandler() {
 		a.handlerMap[celltype.Action_EditManager] = HandleEditManagerTx
 		a.handlerMap[celltype.Action_EditRecords] = HandleEditRecordsTx
 		a.handlerMap[celltype.Action_TransferAccount] = HandleTransferAccountTx
+		a.handlerMap[celltype.Action_RecycleExpiredAccount] = HandleExpiredRecycleAccountTx
 	})
 }
 

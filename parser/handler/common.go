@@ -15,6 +15,17 @@ import (
  * Description:
  */
 
+func deleteAccountInfoToRocksDb(writeBatch *gorocksdb.WriteBatch, accountList types.AccountReturnObjList) (int, error) {
+	accountSize := len(accountList)
+	for i := 0; i < accountSize; i++ {
+		item := accountList[i]
+		writeBatch.Delete(AccountKey_AccountId(item.AccountData.AccountId()))
+		ownerLockArgsHexKey := AccountKey_OwnerArgHex(item.AccountData.OwnerLockArgsHex)
+		writeBatch.Delete(ownerLockArgsHexKey)
+	}
+	return accountSize, nil
+}
+
 func storeAccountInfoToRocksDb(db *gorocksdb.DB, writeBatch *gorocksdb.WriteBatch, accountList types.AccountReturnObjList) (int, error) {
 	accountSize := len(accountList)
 	for i := 0; i < accountSize; i++ {
@@ -35,20 +46,14 @@ func storeAccountInfoToRocksDb(db *gorocksdb.DB, writeBatch *gorocksdb.WriteBatc
 				return 0, fmt.Errorf("AccountReturnObjListFromBys err: %s", err.Error())
 			}
 			oldListSize := len(oldList)
-			found := false
 			newList := types.AccountReturnObjList{}
 			for i := 0; i < oldListSize; i++ {
-				if oldList[i].AccountData.AccountIdHex == item.AccountData.AccountIdHex {
-					log.Info("storeAccountInfoToRocksDb, add new item:", item.AccountData.Account)
-					found = true
-					newList = append(newList, item) // use the new one
-				} else {
+				if oldList[i].AccountData.AccountIdHex != item.AccountData.AccountIdHex {
 					newList = append(newList, oldList[i])
 				}
 			}
-			if !found {
-				newList = append(newList, item)
-			}
+			log.Info("storeAccountInfoToRocksDb, add new item:", item.AccountData.Account)
+			newList = append(newList, item)
 			writeBatch.Put(ownerLockArgsHexKey, newList.JsonBys())
 		}
 	}
