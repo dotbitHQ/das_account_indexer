@@ -23,7 +23,7 @@ chain:
         scan_control:
           round_delay_ms: 30
           catch_delay_ms: 300
-        start_height: 1870000 # block parser start scan block height
+        start_height: 1870000 # block parser start scan block height. mainnet suggest value 4875000, testnet 1850000
 
 
 
