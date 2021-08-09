@@ -105,7 +105,7 @@ func listenAndHandleInterrupt() {
 		if txParser != nil {
 			txParser.Close()
 		}
-		log.Info("exist server success!")
+		log.Info("exist server successfully!")
 		exit <- true
 	})
 }
