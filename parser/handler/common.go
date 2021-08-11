@@ -15,15 +15,40 @@ import (
  * Description:
  */
 
-func deleteAccountInfoToRocksDb(writeBatch *gorocksdb.WriteBatch, accountList types.AccountReturnObjList) (int, error) {
+func deleteAccountInfoToRocksDb(db *gorocksdb.DB, writeBatch *gorocksdb.WriteBatch, accountList types.AccountReturnObjList) (int, error) {
 	accountSize := len(accountList)
 	for i := 0; i < accountSize; i++ {
 		item := accountList[i]
 		writeBatch.Delete(AccountKey_AccountId(item.AccountData.AccountId()))
-		ownerLockArgsHexKey := AccountKey_OwnerArgHex(item.AccountData.OwnerLockArgsHex)
-		writeBatch.Delete(ownerLockArgsHexKey)
+		if err := removeItemFromOwnerList(db, writeBatch, item); err != nil {
+			return 0, fmt.Errorf("removeItemFromOwnerList err: %s", err.Error())
+		}
 	}
 	return accountSize, nil
+}
+
+func removeItemFromOwnerList(db *gorocksdb.DB, writeBatch *gorocksdb.WriteBatch, item types.AccountReturnObj) error {
+	ownerLockArgsHexKey := AccountKey_OwnerArgHex(item.AccountData.OwnerLockArgsHex)
+	jsonArrBys, err := rocksdb.RocksDbSafeGet(db, ownerLockArgsHexKey)
+	if err != nil {
+		return fmt.Errorf("RocksDbSafeGet err: %s", err.Error())
+	} else if jsonArrBys != nil {
+		oldList, err := types.AccountReturnObjListFromBys(jsonArrBys)
+		if err != nil {
+			return fmt.Errorf("AccountReturnObjListFromBys err: %s", err.Error())
+		}
+		oldListSize := len(oldList)
+		newList := types.AccountReturnObjList{}
+		for i := 0; i < oldListSize; i++ {
+			oldItem := oldList[i]
+			if oldItem.AccountData.AccountIdHex == item.AccountData.AccountIdHex {
+				continue
+			}
+			newList = append(newList, oldItem)
+		}
+		writeBatch.Put(ownerLockArgsHexKey, newList.JsonBys())
+	}
+	return nil
 }
 
 func storeAccountInfoToRocksDb(db *gorocksdb.DB, writeBatch *gorocksdb.WriteBatch, accountList types.AccountReturnObjList) (int, error) {

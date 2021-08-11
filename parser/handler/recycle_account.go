@@ -46,7 +46,7 @@ func HandleExpiredRecycleAccountTx(actionName string, p *DASActionHandleFuncPara
 	if err != nil {
 		return resp.SetErr(fmt.Errorf("ParseChainAccountToJsonFormat err: %s", err.Error()))
 	}
-	accountSize, err := deleteAccountInfoToRocksDb(writeBatch, accountList)
+	accountSize, err := deleteAccountInfoToRocksDb(p.Rocksdb, writeBatch, accountList)
 	if err != nil {
 		return resp.SetErr(fmt.Errorf("deleteAccountInfoToRocksDb err: %s", err.Error()))
 	}
