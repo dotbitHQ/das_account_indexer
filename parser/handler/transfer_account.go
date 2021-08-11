@@ -70,7 +70,9 @@ func HandleTransferAccountTx(actionName string, p *DASActionHandleFuncParam) DAS
 	if deleteSize != accountSizeNew {
 		return resp.SetErr(fmt.Errorf("transferAccount err: account number not equal"))
 	}
-	log.Info(fmt.Sprintf("transfer, from: %s to: %s", accountListOld[0].AccountData.Account, accountListNew[0].AccountData.Account))
+	log.Info(fmt.Sprintf(
+		"transfer, account: %s, from: %s to: %s",
+		accountListOld[0].AccountData.Account, accountListOld[0].AccountData.OwnerLockArgsHex, accountListNew[0].AccountData.OwnerLockArgsHex))
 	if err = p.Rocksdb.Write(writeOpt, writeBatch); err != nil {
 		resp.Rollback = true
 		return resp.SetErr(fmt.Errorf("rocksdb write data err: %s", err.Error()))
