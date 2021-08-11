@@ -42,7 +42,7 @@ func ParseChainAccountToJsonFormat(tx *ckbTypes.Transaction, filter types.Accoun
 			if err != nil {
 				return false, fmt.Errorf("VersionCompatibleAccountCellDataFromSlice err: %s", err.Error())
 			}
-			if filter != nil && !filter(versionAccount.CellData) {
+			if filter != nil && !filter(versionAccount.CellData, index) {
 				return false, nil // next one
 			}
 			list = append(list, parseAccountPackDataObj{

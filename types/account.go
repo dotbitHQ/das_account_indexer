@@ -18,7 +18,7 @@ import (
  * Description:
  */
 
-type AccountFilterFunc func(cellData *celltype.AccountCellData) bool
+type AccountFilterFunc func(cellData *celltype.AccountCellData, outputIndex uint32) bool
 type SimpleRecordItem struct {
 	Key   string `json:"key"`
 	Label string `json:"label"`

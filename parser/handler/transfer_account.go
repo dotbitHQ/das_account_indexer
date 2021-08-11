@@ -47,7 +47,9 @@ func HandleTransferAccountTx(actionName string, p *DASActionHandleFuncParam) DAS
 	if len(ret.Tx.Witnesses) == 0 {
 		return resp.SetErr(fmt.Errorf("invalid transferAccount, witness data is empty"))
 	}
-	accountListOld, err := util.ParseChainAccountToJsonFormat(ret.Tx, nil)
+	accountListOld, err := util.ParseChainAccountToJsonFormat(ret.Tx, func(cellData *celltype.AccountCellData, outputIndex uint32) bool {
+		return outputIndex == uint32(tx.Inputs[0].PreviousOutput.Index)
+	})
 	if err != nil {
 		return resp.SetErr(fmt.Errorf("ParseChainAccountToJsonFormat err: %s", err.Error()))
 	}
@@ -68,7 +70,7 @@ func HandleTransferAccountTx(actionName string, p *DASActionHandleFuncParam) DAS
 	}
 
 	if deleteSize != accountSizeNew {
-		return resp.SetErr(fmt.Errorf("transferAccount err: account number not equal"))
+		return resp.SetErr(fmt.Errorf("transferAccount err: account number not equal, old: %d, new: %d", deleteSize, accountSizeNew))
 	}
 	log.Info(fmt.Sprintf(
 		"transfer, account: %s, from: %s to: %s",

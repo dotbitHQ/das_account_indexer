@@ -42,7 +42,9 @@ func HandleExpiredRecycleAccountTx(actionName string, p *DASActionHandleFuncPara
 	if len(ret.Tx.Witnesses) == 0 {
 		return resp.SetErr(fmt.Errorf("invalid recycleAccount, witness data is empty"))
 	}
-	accountList, err := util.ParseChainAccountToJsonFormat(ret.Tx, nil)
+	accountList, err := util.ParseChainAccountToJsonFormat(ret.Tx, func(cellData *celltype.AccountCellData, outputIndex uint32) bool {
+		return outputIndex == uint32(tx.Inputs[0].PreviousOutput.Index)
+	})
 	if err != nil {
 		return resp.SetErr(fmt.Errorf("ParseChainAccountToJsonFormat err: %s", err.Error()))
 	}

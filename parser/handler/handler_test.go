@@ -54,7 +54,7 @@ func Test_HandleActionTx(t *testing.T) {
 		RpcClient: rpcClient,
 		Rocksdb:   infoDb,
 	}
-	resp := HandleEditRecordsTx("", p)
+	resp := HandleTransferAccountTx("", p)
 	log.Warn("resp.err:-->", resp.err)
 	ret1 := searchAccount(infoDb, "d55213.bit")
 	fmt.Println(ret1.ErrNo)
