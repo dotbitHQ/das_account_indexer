@@ -28,7 +28,8 @@ More about DAS information, please visit DAS official website: <a target="_blank
 
 #### run
 * start cmd:
-    * `./rpc_server --config="local_server.yaml" --net_type=3`
+    * server: `./rpc_server --config="local_server.yaml" --net_type=3`
+    * cli: `./data_cli --help`, a tool to help local data
 * parameter:
     * `config`,configuration file's path;
         * demo: `conf/local_server.yaml`

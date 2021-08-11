@@ -2,8 +2,8 @@ package main
 
 import (
 	"context"
+	"das_account_indexer/cmd/base"
 	"das_account_indexer/parser"
-	"errors"
 	"fmt"
 	blockparser "github.com/DeAccountSystems/das_commonlib/chain/ckb_rocksdb_parser"
 	"github.com/DeAccountSystems/das_commonlib/db"
@@ -21,7 +21,6 @@ import (
 	"das_account_indexer/config"
 
 	"github.com/DeAccountSystems/das_commonlib/cfg"
-	"github.com/DeAccountSystems/das_commonlib/ckb/celltype"
 	"github.com/DeAccountSystems/das_commonlib/dasrpc"
 	"github.com/DeAccountSystems/das_commonlib/sys"
 	"github.com/eager7/elog"
@@ -45,7 +44,6 @@ var (
 	log                    = elog.NewLogger("server", elog.NoticeLevel)
 	rpcWait                = make(chan bool)
 	exit                   = make(chan bool)
-	netType                = "net_type"
 	chainCtx, chainCtxFunc = context.WithCancel(context.TODO())
 )
 
@@ -55,16 +53,8 @@ func main() {
 	}()
 	app.Action = runServer
 	app.HideVersion = true
-	globalFlags := []cli.Flag{
-		cli.StringFlag{
-			Name:  "config",
-			Usage: "config file abs path",
-		},
-		cli.IntFlag{
-			Name:  netType,
-			Usage: "spec indexer's net type. 1 means mainnet,2 means das-test2, 3 means das-test3",
-		},
-	}
+	globalFlags := []cli.Flag{}
+	globalFlags = append(globalFlags, base.CmdBaseFlag...)
 	app.Flags = append(app.Flags, globalFlags...)
 	app.Commands = []cli.Command{}
 	sort.Sort(cli.CommandsByName(app.Commands))
@@ -111,7 +101,7 @@ func listenAndHandleInterrupt() {
 }
 
 func runServer(ctx *cli.Context) error {
-	configFilePath := readConfigFilePath(ctx)
+	configFilePath := base.ReadConfigFilePath(ctx)
 	cfg.InitCfgFromFile(configFilePath, &config.Cfg)
 	if err := sys.AddConfigFileWatcher(configFilePath, func(optName fsnotify.Op) {
 		cfg.InitCfgFromFile(configFilePath, &config.Cfg)
@@ -122,7 +112,7 @@ func runServer(ctx *cli.Context) error {
 
 	listenAndHandleInterrupt()
 
-	if err := setSystemCodeHash(celltype.DasNetType(ctx.GlobalInt(netType))); err != nil {
+	if err := base.SetSystemCodeHash(base.ReadNetType(ctx)); err != nil {
 		panic(fmt.Errorf("setSystemCodeHash err: %s", err.Error()))
 	}
 	rpcClient, err := rpc.DialWithIndexer(config.Cfg.Chain.CKB.NodeUrl, config.Cfg.Chain.CKB.IndexerUrl)
@@ -201,15 +191,6 @@ func runRpcServer(client rpc.Client, accountDb *gorocksdb.DB) error {
 	return nil
 }
 
-func readConfigFilePath(ctx *cli.Context) string {
-	if configFileAbsPath := ctx.GlobalString("config"); configFileAbsPath != "" {
-		return configFileAbsPath
-	} else {
-		defaultCfgFilePath := "conf/local_server.yaml"
-		return defaultCfgFilePath
-	}
-}
-
 func runChainBlockParser(dataPath string, rpcClient rpc.Client, txParser *parser.TxParser, ctx context.Context) error {
 	var (
 		reqRetry     *blockparserTypes.RetryConfig = nil
@@ -260,23 +241,6 @@ func runChainBlockParser(dataPath string, rpcClient rpc.Client, txParser *parser
 			log.Error("block scanner start err: %s", err.Error())
 		}
 	}()
-	return nil
-}
-
-func setSystemCodeHash(neyType celltype.DasNetType) error {
-	switch neyType {
-	case celltype.DasNetType_Mainnet:
-		celltype.UseVersionReleaseSystemScriptCodeHash()
-		break
-	case celltype.DasNetType_Testnet2:
-		celltype.UseVersion2SystemScriptCodeHash()
-		break
-	case celltype.DasNetType_Testnet3:
-		celltype.UseVersion3SystemScriptCodeHash()
-		break
-	default:
-		return errors.New("unSupport DasNetType")
-	}
 	return nil
 }
 

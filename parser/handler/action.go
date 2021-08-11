@@ -50,12 +50,17 @@ type ActionRegister struct {
 	handlerMap map[string]DASActionHandleFunc
 }
 
-func NewActionRegister() *ActionRegister {
+func NewActionRegisterWithoutListenCmd() *ActionRegister {
 	register := ActionRegister{
 		handlerMap: make(map[string]DASActionHandleFunc),
 	}
-	register.RegisterTxActionHandler()
 	return &register
+}
+
+func NewActionRegister() *ActionRegister {
+	register := NewActionRegisterWithoutListenCmd()
+	register.RegisterTxActionHandler()
+	return register
 }
 
 func (a *ActionRegister) RegisterTxActionHandler() {
@@ -66,6 +71,11 @@ func (a *ActionRegister) RegisterTxActionHandler() {
 		a.handlerMap[celltype.Action_TransferAccount] = HandleTransferAccountTx
 		a.handlerMap[celltype.Action_RecycleExpiredAccount] = HandleExpiredRecycleAccountTx
 	})
+}
+
+func (a *ActionRegister) Register(actionName string, handler DASActionHandleFunc) {
+	// lock ?
+	a.handlerMap[actionName] = handler
 }
 
 func (a *ActionRegister) GetTxActionHandleFunc(actionName string) DASActionHandleFunc {

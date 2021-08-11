@@ -48,12 +48,16 @@ type InitTxParserParam struct {
 }
 
 func NewParserRpcTx(p *InitTxParserParam) *TxParser {
+	return NewParserRpcTxWithCmdRegister(p, handler.NewActionRegister())
+}
+
+func NewParserRpcTxWithCmdRegister(p *InitTxParserParam, cmdRegister *handler.ActionRegister) *TxParser {
 	txParser := &TxParser{
 		rpcClient:         p.RpcClient,
 		rocksdb:           p.Rocksdb,
 		context:           p.Context,
 		targetBlockHeight: p.TargetBlockHeight,
-		actionRegister:    handler.NewActionRegister(),
+		actionRegister:    cmdRegister,
 	}
 	go txParser.getChainLatestBlockNumber(p.FontBlockNumber)
 	return txParser
@@ -115,7 +119,7 @@ func (p *TxParser) Handle1(msgData blockparser.TxMsgData, delayMs *int64) error 
 		// get action
 		log.Info(fmt.Sprintf("parse txHash: %s", tx.Hash.String()))
 		if actionName, err := celltype.GetActionNameFromWitnessData(tx); err != nil {
-			log.Warn("skip this tx:", err.Error())
+			// skip
 		} else {
 			log.Info("tx action name:", actionName)
 			if handleFunc := p.actionRegister.GetTxActionHandleFunc(actionName); handleFunc != nil {
