@@ -106,7 +106,7 @@ func (r *RpcHandler) loadOneAccountCellByLockScript(address gotype.Address) (typ
 	liveCellLen := len(liveCells)
 	log.Info("total accounts:", liveCellLen)
 	for i := 0; i < liveCellLen; i++ {
-		account, err := r.parseLiveCellToAccount(&liveCells[i], func(cellData *celltype.AccountCellData) bool {
+		account, err := r.parseLiveCellToAccount(&liveCells[i], func(cellData *celltype.AccountCellData, outputIndex uint32) bool {
 			return true
 		})
 		if err != nil {
@@ -147,7 +147,7 @@ func (r *RpcHandler) loadOneAccountCellById(targetAccountId celltype.DasAccountI
 	}
 	log.Warn("load account time spend:", time.Since(timeStart).String())
 	timeStart1 := time.Now()
-	obj, err := r.parseLiveCellToAccount(&liveCells[0], func(cellData *celltype.AccountCellData) bool {
+	obj, err := r.parseLiveCellToAccount(&liveCells[0], func(cellData *celltype.AccountCellData, outputIndex uint32) bool {
 		if targetAccountId != celltype.AccountCharsToAccount(*cellData.Account()).AccountId() {
 			return false
 		}
