@@ -11,8 +11,8 @@ import "github.com/DeAccountSystems/das_commonlib/common"
  */
 
 const (
-	witnessDas = "das"
-	witnessDasCharLen = 3
+	witnessDas                  = "das"
+	witnessDasCharLen           = 3
 	witnessDasTableTypeEndIndex = 7
 )
 const OneDaySec = uint64(24 * 3600)
@@ -24,7 +24,7 @@ const DasAccountSuffix = ".bit"
 const CkbTxMinOutputCKBValue = 61 * OneCkb
 const AccountCellDataAccountIdStartIndex = 72
 const AccountCellBaseCap = 200 * OneCkb
-const IncomeCellBaseCap  = 106 * OneCkb
+const IncomeCellBaseCap = 106 * OneCkb
 const OneYearSec = int64(3600 * 24 * 365)
 const HashBytesLen = 32
 const ETHScriptLockWitnessBytesLen = 65
@@ -38,6 +38,7 @@ const (
 )
 
 type DasNetType int
+
 const (
 	DasNetType_Testnet2 DasNetType = 2
 	DasNetType_Testnet3 DasNetType = 3
@@ -49,10 +50,10 @@ func LatestVersion() uint32 {
 }
 
 var (
-	NullDasLockManagerArg = make([]byte,DasLockArgsMinBytesLen / 2 -1)
-	RootAccountDataAccountByte = make([]byte,29)
-	EmptyDataHash  = make([]byte,HashBytesLen)
-	EmptyAccountId = DasAccountId{}
+	NullDasLockManagerArg      = make([]byte, DasLockArgsMinBytesLen/2-1)
+	RootAccountDataAccountByte = make([]byte, 29)
+	EmptyDataHash              = make([]byte, HashBytesLen)
+	EmptyAccountId             = DasAccountId{}
 )
 
 const (
@@ -127,50 +128,51 @@ func (t TableType) ValidateType() bool {
 	return t <= TableType_IncomeCell ||
 		(t >= TableType_ConfigCell_Account && t <= TableType_ConfigCell_Release) ||
 		(t >= TableType_ConfigCell_PreservedAccount00 && t <= TableType_ConfigCell_PreservedAccount19) ||
-		(t >=TableType_ConfigCell_CharSetEmoji && t <= TableType_ConfigCell_CharSetHanT)
+		(t >= TableType_ConfigCell_CharSetEmoji && t <= TableType_ConfigCell_CharSetHanT)
 }
+
 const (
-	TableType_Action       TableType = 0
-	TableType_AccountCell  TableType = 1
+	TableType_Action         TableType = 0
+	TableType_AccountCell    TableType = 1
 	TableType_OnSaleCell     TableType = 2
 	TableType_BidingCell     TableType = 3
 	TableType_ProposeCell    TableType = 4
 	TableType_PreAccountCell TableType = 5
-	TableType_IncomeCell 	 TableType = 6
+	TableType_IncomeCell     TableType = 6
 
-	TableType_ConfigCell_Account       TableType = 100
-	TableType_ConfigCell_Apply         TableType = 101
-	TableType_ConfigCell_CharSet        TableType = 102
-	TableType_ConfigCell_Income         TableType = 103
+	TableType_ConfigCell_Account TableType = 100
+	TableType_ConfigCell_Apply   TableType = 101
+	TableType_ConfigCell_CharSet TableType = 102
+	TableType_ConfigCell_Income  TableType = 103
 
-	TableType_ConfigCell_Main         TableType = 104
-	TableType_ConfigCell_Price         TableType = 105
-	TableType_ConfigCell_Proposal         TableType = 106
-	TableType_ConfigCell_ProfitRate         TableType = 107
+	TableType_ConfigCell_Main       TableType = 104
+	TableType_ConfigCell_Price      TableType = 105
+	TableType_ConfigCell_Proposal   TableType = 106
+	TableType_ConfigCell_ProfitRate TableType = 107
 
-	TableType_ConfigCell_RecordNamespace       TableType = 108
-	TableType_ConfigCell_Release               TableType = 109
+	TableType_ConfigCell_RecordNamespace TableType = 108
+	TableType_ConfigCell_Release         TableType = 109
 
-	TableType_ConfigCell_PreservedAccount00     TableType = 10000
-	TableType_ConfigCell_PreservedAccount01     TableType = 10001
-	TableType_ConfigCell_PreservedAccount02     TableType = 10002
-	TableType_ConfigCell_PreservedAccount03     TableType = 10003
-	TableType_ConfigCell_PreservedAccount04     TableType = 10004
-	TableType_ConfigCell_PreservedAccount05     TableType = 10005
-	TableType_ConfigCell_PreservedAccount06     TableType = 10006
-	TableType_ConfigCell_PreservedAccount07     TableType = 10007
-	TableType_ConfigCell_PreservedAccount08     TableType = 10008
-	TableType_ConfigCell_PreservedAccount09     TableType = 10009
-	TableType_ConfigCell_PreservedAccount10     TableType = 10010
-	TableType_ConfigCell_PreservedAccount11     TableType = 10011
-	TableType_ConfigCell_PreservedAccount12     TableType = 10012
-	TableType_ConfigCell_PreservedAccount13     TableType = 10013
-	TableType_ConfigCell_PreservedAccount14     TableType = 10014
-	TableType_ConfigCell_PreservedAccount15     TableType = 10015
-	TableType_ConfigCell_PreservedAccount16     TableType = 10016
-	TableType_ConfigCell_PreservedAccount17     TableType = 10017
-	TableType_ConfigCell_PreservedAccount18     TableType = 10018
-	TableType_ConfigCell_PreservedAccount19     TableType = 10019
+	TableType_ConfigCell_PreservedAccount00 TableType = 10000
+	TableType_ConfigCell_PreservedAccount01 TableType = 10001
+	TableType_ConfigCell_PreservedAccount02 TableType = 10002
+	TableType_ConfigCell_PreservedAccount03 TableType = 10003
+	TableType_ConfigCell_PreservedAccount04 TableType = 10004
+	TableType_ConfigCell_PreservedAccount05 TableType = 10005
+	TableType_ConfigCell_PreservedAccount06 TableType = 10006
+	TableType_ConfigCell_PreservedAccount07 TableType = 10007
+	TableType_ConfigCell_PreservedAccount08 TableType = 10008
+	TableType_ConfigCell_PreservedAccount09 TableType = 10009
+	TableType_ConfigCell_PreservedAccount10 TableType = 10010
+	TableType_ConfigCell_PreservedAccount11 TableType = 10011
+	TableType_ConfigCell_PreservedAccount12 TableType = 10012
+	TableType_ConfigCell_PreservedAccount13 TableType = 10013
+	TableType_ConfigCell_PreservedAccount14 TableType = 10014
+	TableType_ConfigCell_PreservedAccount15 TableType = 10015
+	TableType_ConfigCell_PreservedAccount16 TableType = 10016
+	TableType_ConfigCell_PreservedAccount17 TableType = 10017
+	TableType_ConfigCell_PreservedAccount18 TableType = 10018
+	TableType_ConfigCell_PreservedAccount19 TableType = 10019
 
 	TableType_ConfigCell_CharSetEmoji TableType = 100000
 	TableType_ConfigCell_CharSetDigit TableType = 100001
@@ -228,13 +230,13 @@ type LockScriptType int
 
 const (
 	// use to group inputs when combine tx
-	ScriptType_User LockScriptType = 0
-	ScriptType_Any  LockScriptType = 1
-	ScriptType_ETH  LockScriptType = 2
-	ScriptType_BTC  LockScriptType = 3
-	ScriptType_DasManager_User  LockScriptType = 4
-	ScriptType_DasOwner_User    LockScriptType = 5
-	ScriptType_TRON  LockScriptType = 6
+	ScriptType_User            LockScriptType = 0
+	ScriptType_Any             LockScriptType = 1
+	ScriptType_ETH             LockScriptType = 2
+	ScriptType_BTC             LockScriptType = 3
+	ScriptType_DasManager_User LockScriptType = 4
+	ScriptType_DasOwner_User   LockScriptType = 5
+	ScriptType_TRON            LockScriptType = 6
 )
 
 func (l LockScriptType) ToDasLockCodeHashIndexType() DasLockCodeHashIndexType {
@@ -257,7 +259,7 @@ type DasAccountSearchStatus int
 const (
 	SearchStatus_NotOpenRegister  DasAccountSearchStatus = -1
 	SearchStatus_Registerable     DasAccountSearchStatus = 0
-	SearchStatus_ReservedAccount  DasAccountSearchStatus = 1 
+	SearchStatus_ReservedAccount  DasAccountSearchStatus = 1
 	SearchStatus_OnePriceSell     DasAccountSearchStatus = 2
 	SearchStatus_AuctionSell      DasAccountSearchStatus = 3
 	SearchStatus_CandidateAccount DasAccountSearchStatus = 4
@@ -282,10 +284,10 @@ const (
 type DasLockCodeHashIndexType uint8
 
 const (
-	DasLockCodeHashIndexType_CKB_Normal DasLockCodeHashIndexType = 0
-	DasLockCodeHashIndexType_CKB_MultiS DasLockCodeHashIndexType = 1
-	DasLockCodeHashIndexType_CKB_AnyOne DasLockCodeHashIndexType = 2
-	DasLockCodeHashIndexType_ETH_Normal DasLockCodeHashIndexType = 3
+	DasLockCodeHashIndexType_CKB_Normal  DasLockCodeHashIndexType = 0
+	DasLockCodeHashIndexType_CKB_MultiS  DasLockCodeHashIndexType = 1
+	DasLockCodeHashIndexType_CKB_AnyOne  DasLockCodeHashIndexType = 2
+	DasLockCodeHashIndexType_ETH_Normal  DasLockCodeHashIndexType = 3
 	DasLockCodeHashIndexType_TRON_Normal DasLockCodeHashIndexType = 4
 )
 
@@ -366,7 +368,7 @@ const (
 	Action_Config                = "config"
 	Action_AccountChain          = "init_account_chain"
 	Action_ApplyRegister         = "apply_register"
-	Action_RefundApply           = "apply_apply"
+	Action_RefundApply           = "refund_apply"
 	Action_PreRegister           = "pre_register"
 	Action_CreateWallet          = "create_wallet"
 	Action_DeleteWallet          = "delete_wallet"

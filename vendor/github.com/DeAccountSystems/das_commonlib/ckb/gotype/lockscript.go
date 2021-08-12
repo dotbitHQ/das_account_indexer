@@ -135,6 +135,7 @@ type FindTargetTypeScriptRet struct {
 	Output *ckbTypes.CellOutput
 	Data   []byte
 	Tx     *ckbTypes.Transaction
+	PreviousIndex uint
 }
 
 func FindTargetTypeScriptByInputList(p *ReqFindTargetTypeScriptParam) (*FindTargetTypeScriptRet, error) {
@@ -154,6 +155,7 @@ func FindTargetTypeScriptByInputList(p *ReqFindTargetTypeScriptParam) (*FindTarg
 						Output: output,
 						Data:   tx.Transaction.OutputsData[i],
 						Tx:     tx.Transaction,
+						PreviousIndex: item.PreviousOutput.Index,
 					}, nil
 				}
 			} else {
@@ -165,6 +167,7 @@ func FindTargetTypeScriptByInputList(p *ReqFindTargetTypeScriptParam) (*FindTarg
 						Output: output,
 						Data:   tx.Transaction.OutputsData[i],
 						Tx:     tx.Transaction,
+						PreviousIndex: item.PreviousOutput.Index,
 					}, nil
 				}
 			}

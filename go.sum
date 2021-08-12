@@ -18,8 +18,8 @@ github.com/Azure/go-autorest/logger v0.1.0/go.mod h1:oExouG+K6PryycPJfVSxi/koC6L
 github.com/Azure/go-autorest/tracing v0.5.0/go.mod h1:r/s2XiOKccPW3HrqB+W0TQzfbtp2fGCgRFtBroKn4Dk=
 github.com/BurntSushi/toml v0.3.1 h1:WXkYYl6Yr3qBf1K79EBnL4mak0OimBfB0XUf9Vl28OQ=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
-github.com/DeAccountSystems/das_commonlib v0.0.0-20210723093214-e0627238c544 h1:HQ5gPBHDr3ELtty0nYN2QuALXkJXAPJZamIVrOSTurs=
-github.com/DeAccountSystems/das_commonlib v0.0.0-20210723093214-e0627238c544/go.mod h1:Vd0x7bWMlRhIrZzpp3lc8tkispYtmiM++fTCCPEOuUM=
+github.com/DeAccountSystems/das_commonlib v0.0.0-20210812035724-4b6c7f2ad80d h1:QWdCujN2+Wc/knAvOWZBrd50FvjfX0RJcw97axIsz4I=
+github.com/DeAccountSystems/das_commonlib v0.0.0-20210812035724-4b6c7f2ad80d/go.mod h1:Vd0x7bWMlRhIrZzpp3lc8tkispYtmiM++fTCCPEOuUM=
 github.com/OneOfOne/xxhash v1.2.2/go.mod h1:HSdplMjZKSmBqAxg5vPj2TmRDmfkzw+cTzAElWljhcU=
 github.com/PuerkitoBio/goquery v1.5.1/go.mod h1:GsLWisAFVj4WgDibEWF4pvYnkVQBpKBKeU+7zCJoLcc=
 github.com/Shopify/sarama v1.19.0/go.mod h1:FVkBWblsNy7DGZRfXLU0O9RCGt5g3g3yEuWXgklEdEo=

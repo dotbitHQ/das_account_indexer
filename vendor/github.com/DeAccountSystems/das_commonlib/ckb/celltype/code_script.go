@@ -281,7 +281,7 @@ var (
 		Dep: DASCellBaseInfoDep{
 			TxHash:  types.HexToHash("0x97cf78ef50809505bba4ac78d8ee7908eccd1119aa08775814202e7801f4895b"),
 			TxIndex: 0,
-			DepType: "",
+			DepType: types.DepTypeCode,
 		},
 		Out: DASCellBaseInfoOut{
 			CodeHash:     types.HexToHash("0x489ff2195ed41aac9a9265c653d8ca57c825b22db765b9e08d537572ff2cbc1b"),

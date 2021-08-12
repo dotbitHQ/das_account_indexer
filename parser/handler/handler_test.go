@@ -37,7 +37,9 @@ func Test_HandleActionTx(t *testing.T) {
 	if err != nil {
 		panic(fmt.Errorf("init rpcClient err: %s", err.Error()))
 	}
-	txStatus, err := rpcClient.GetTransaction(context.TODO(), ckbTypes.HexToHash(""))
+	txStatus, err := rpcClient.GetTransaction(
+		context.TODO(),
+		ckbTypes.HexToHash(""))
 	if err != nil {
 		panic(fmt.Errorf("GetTransaction err: %s", err.Error()))
 	}
