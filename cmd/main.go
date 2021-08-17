@@ -89,7 +89,8 @@ func listenAndHandleInterrupt() {
 		log.Info("success stop rpcImpl")
 		chainCtxFunc()
 		if _scanner != nil {
-			_scanner.Stop()
+			go _scanner.Stop()
+			time.Sleep(time.Second * 2)
 		}
 		log.Info("success stop scanner")
 		if txParser != nil {
