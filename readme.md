@@ -13,6 +13,10 @@ More about DAS information, please visit DAS official website: <a target="_blank
 * Git
 * RocksDB, suggest use version 6.6.4, other version maybe cause some compile error
 
+#### official API host
+
+* https://indexer.da.systems
+
 #### build
 
 1. according your system to install the RocksDB, here is the document: https://github.com/facebook/rocksdb/blob/master/INSTALL.md;
