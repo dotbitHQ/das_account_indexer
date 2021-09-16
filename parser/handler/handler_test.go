@@ -27,11 +27,8 @@ import (
  * Description:
  */
 
-func Test_HandleActionTx(t *testing.T) {
-
+func buildP(txHash string) (*DASActionHandleFuncParam, *gorocksdb.DB) {
 	host := ""
-
-	celltype.UseVersionReleaseSystemScriptCodeHash()
 
 	rpcClient, err := rpc.DialWithIndexer(fmt.Sprintf("http://%s:8114", host), fmt.Sprintf("http://%s:8116", host))
 	if err != nil {
@@ -39,7 +36,7 @@ func Test_HandleActionTx(t *testing.T) {
 	}
 	txStatus, err := rpcClient.GetTransaction(
 		context.TODO(),
-		ckbTypes.HexToHash(""))
+		ckbTypes.HexToHash(txHash))
 	if err != nil {
 		panic(fmt.Errorf("GetTransaction err: %s", err.Error()))
 	}
@@ -56,6 +53,20 @@ func Test_HandleActionTx(t *testing.T) {
 		RpcClient: rpcClient,
 		Rocksdb:   infoDb,
 	}
+	return p, infoDb
+}
+
+func Test_HandleAccountCellType(t *testing.T) {
+	celltype.UseVersion3SystemScriptCodeHash()
+	celltype.DasAccountCellScript.Out.CodeHash = ckbTypes.HexToHash("0x334540e23ec513f691cdd9490818237cbc9675861e4f19c480e0c520c715fd34")
+	p, _ := buildP("0x04fb0e4260139adfe411ea1f4a783a4ba63e09a0502b57479bcd0772c07c0228")
+	resp := HandleAccountCellType("", p)
+	log.Warn("resp.err:-->", resp.err)
+}
+
+func Test_HandleActionTx(t *testing.T) {
+	celltype.UseVersion3SystemScriptCodeHash()
+	p, infoDb := buildP("")
 	resp := HandleTransferAccountTx("", p)
 	log.Warn("resp.err:-->", resp.err)
 	ret1 := searchAccount(infoDb, "d55213.bit")

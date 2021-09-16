@@ -122,28 +122,32 @@ func (p *TxParser) Handle1(msgData blockparser.TxMsgData, delayMs *int64) error 
 			// skip
 		} else {
 			log.Info("tx action name:", actionName)
-			if handleFunc := p.actionRegister.GetTxActionHandleFunc(actionName); handleFunc != nil {
-				handleRet := handleFunc(actionName, &handler.DASActionHandleFuncParam{
-					Base: &accountIndexerTypes.ParserHandleBaseTxInfo{
-						Tx:       *tx,
-						TxIndex:  uint8(txIndex),
-						ScanInfo: msgData.BlockBaseInfo,
-					},
-					RpcClient: p.rpcClient,
-					Rocksdb:   p.rocksdb,
-				})
-				if err := handleRet.Error(); err != nil {
-					log.Error("handle tx err:", err.Error())
-				}
-				if handleRet.Data != nil {
-					bys, _ := json.Marshal(handleRet)
-					log.Info("action handle ret:", string(bys))
-				}
-				if handleRet.Rollback {
-					return errors.New("err happen, dont commit this block")
-				}
-			} else {
-				log.Error(fmt.Sprintf("action handleFunc not found!"))
+			var handleRet handler.DASActionHandleFuncResp
+			handlerParam := &handler.DASActionHandleFuncParam{
+				Base: &accountIndexerTypes.ParserHandleBaseTxInfo{
+					Tx:       *tx,
+					TxIndex:  uint8(txIndex),
+					ScanInfo: msgData.BlockBaseInfo,
+				},
+				RpcClient: p.rpcClient,
+				Rocksdb:   p.rocksdb,
+			}
+			handleRet = handler.HandleAccountCellType(actionName, handlerParam)
+			// if handleFunc := p.actionRegister.GetTxActionHandleFunc(actionName); handleFunc != nil {
+			// 	handleRet = handleFunc(actionName, handlerParam)
+			// } else {
+			// 	log.Error(fmt.Sprintf("action handleFunc not found!"))
+			// 	continue
+			// }
+			if err := handleRet.Error(); err != nil {
+				log.Error("handle tx err:", err.Error())
+			}
+			if handleRet.Data != nil {
+				bys, _ := json.Marshal(handleRet)
+				log.Info("action handle ret:", string(bys))
+			}
+			if handleRet.Rollback {
+				return errors.New("err happen, dont commit this block")
 			}
 		}
 	}

@@ -20,14 +20,14 @@ func deleteAccountInfoToRocksDb(db *gorocksdb.DB, writeBatch *gorocksdb.WriteBat
 	for i := 0; i < accountSize; i++ {
 		item := accountList[i]
 		writeBatch.Delete(AccountKey_AccountId(item.AccountData.AccountId()))
-		if err := removeItemFromOwnerList(db, writeBatch, item); err != nil {
+		if err := removeItemFromOwnerList(db, writeBatch, &item); err != nil {
 			return 0, fmt.Errorf("removeItemFromOwnerList err: %s", err.Error())
 		}
 	}
 	return accountSize, nil
 }
 
-func removeItemFromOwnerList(db *gorocksdb.DB, writeBatch *gorocksdb.WriteBatch, item types.AccountReturnObj) error {
+func removeItemFromOwnerList(db *gorocksdb.DB, writeBatch *gorocksdb.WriteBatch, item *types.AccountReturnObj) error {
 	ownerLockArgsHexKey := AccountKey_OwnerArgHex(item.AccountData.OwnerLockArgsHex)
 	jsonArrBys, err := rocksdb.RocksDbSafeGet(db, ownerLockArgsHexKey)
 	if err != nil {
@@ -77,7 +77,9 @@ func storeAccountInfoToRocksDb(db *gorocksdb.DB, writeBatch *gorocksdb.WriteBatc
 					newList = append(newList, oldList[i])
 				}
 			}
-			log.Info("storeAccountInfoToRocksDb, add new item:", item.AccountData.Account)
+			log.Info(fmt.Sprintf(
+				"storeAccountInfoToRocksDb, add new item, account: %s, id: %s",
+				item.AccountData.Account, item.AccountData.AccountIdHex))
 			newList = append(newList, item)
 			writeBatch.Put(ownerLockArgsHexKey, newList.JsonBys())
 		}
