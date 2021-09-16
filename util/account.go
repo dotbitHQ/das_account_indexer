@@ -38,6 +38,9 @@ func ParseChainAccountToJsonFormat(tx *ckbTypes.Transaction, filter types.Accoun
 			if err != nil {
 				return false, fmt.Errorf("witnessParseObj.NewEntity err: %s", err.Error())
 			}
+			if entity == nil {
+				return false, fmt.Errorf("accountCell'new entity is nil, skip this tx")
+			}
 			versionAccount, err := gotype.VersionCompatibleAccountCellDataFromSlice(entity)
 			if err != nil {
 				return false, fmt.Errorf("VersionCompatibleAccountCellDataFromSlice err: %s", err.Error())
