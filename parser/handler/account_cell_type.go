@@ -105,9 +105,9 @@ func HandleAccountCellType(actionName string, p *DASActionHandleFuncParam) DASAc
 					accountListOld[0].AccountData.Account, accountListOld[0].AccountData.OwnerLockArgsHex,
 					accountListNew[0].AccountData.OwnerLockArgsHex))
 
-			} else {
-				log.Info("no need to delete accountCell info, this maybe some kind of editRecords or renewAccount tx")
 			}
+		} else {
+			log.Info("no need to delete accountCell info, this maybe some kind of editRecords or renewAccount tx")
 		}
 	}
 	if accountListOldNumber > 0 || accountSizeNew > 0 {
