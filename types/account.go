@@ -121,6 +121,14 @@ func (a AccountReturnObj) ToAccountReturnObj1() AccountReturnObj1 {
 
 type AccountReturnObjList []AccountReturnObj
 
+func (a AccountReturnObjList) ToAccountIdMap() map[string]AccountReturnObj {
+	retMap := map[string]AccountReturnObj{}
+	for i := 0; i < len(a); i++ {
+		retMap[a[i].AccountData.AccountIdHex] = a[i]
+	}
+	return retMap
+}
+
 func (a AccountReturnObjList) JsonBys() []byte {
 	bys, _ := json.Marshal(a)
 	return bys
