@@ -299,6 +299,13 @@ type DasLockArgsPairParam struct {
 	Script types.Script
 }
 
+func (d *DasLockArgsPairParam) TryUpgradeEthVersion() DasLockArgsPairParam {
+	if (*d).HashIndexType == DasLockCodeHashIndexType_ETH_Normal {
+		(*d).HashIndexType = DasLockCodeHashIndexType_712_Normal
+	}
+	return *d
+}
+
 func (d DasLockArgsPairParam) Bytes() []byte {
 	if len(d.Script.Args) == DasLockArgsMinBytesLen {
 		return d.Script.Args

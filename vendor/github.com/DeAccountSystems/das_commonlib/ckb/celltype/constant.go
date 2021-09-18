@@ -74,6 +74,7 @@ var (
 	ProposeCellCodeArgs       = "0xe789cf86f36fe1c67c04b2aad300867d1fc2778511365ce0b169d0518e860175"
 	AccountCellCodeArgs       = "0x37844013d5230454359d93dea9074d653f94dadc1a36fbe88fc01ac8456cddc7"
 	IncomeCellCodeArgs        = "0x54d53b0db02b7ca2ecaf1cf6bbe5a9011c8ae6e1dba6d45444e1f3f79eb13896"
+	BalanceCellCodeArgs       = "0x27560fe2daa6150b771621300d1d4ea127832b7b326f2d70eed63f5333b4a8a9"
 )
 
 var (
@@ -126,7 +127,7 @@ const ConfigCellPreservedAccount00 = 150,
 */
 func (t TableType) ValidateType() bool {
 	return t <= TableType_IncomeCell ||
-		(t >= TableType_ConfigCell_Account && t <= TableType_ConfigCell_Release) ||
+		(t >= TableType_ConfigCell_Account && t <= TableType_ConfigCell_Unavailable) ||
 		(t >= TableType_ConfigCell_PreservedAccount00 && t <= TableType_ConfigCell_PreservedAccount19) ||
 		(t >= TableType_ConfigCell_CharSetEmoji && t <= TableType_ConfigCell_CharSetHanT)
 }
@@ -152,6 +153,7 @@ const (
 
 	TableType_ConfigCell_RecordNamespace TableType = 108
 	TableType_ConfigCell_Release         TableType = 109
+	TableType_ConfigCell_Unavailable     TableType = 110
 
 	TableType_ConfigCell_PreservedAccount00 TableType = 10000
 	TableType_ConfigCell_PreservedAccount01 TableType = 10001
@@ -237,6 +239,7 @@ const (
 	ScriptType_DasManager_User LockScriptType = 4
 	ScriptType_DasOwner_User   LockScriptType = 5
 	ScriptType_TRON            LockScriptType = 6
+	ScriptType_712             LockScriptType = 7
 )
 
 func (l LockScriptType) ToDasLockCodeHashIndexType() DasLockCodeHashIndexType {
@@ -247,6 +250,21 @@ func (l LockScriptType) ToDasLockCodeHashIndexType() DasLockCodeHashIndexType {
 		return DasLockCodeHashIndexType_CKB_AnyOne
 	case ScriptType_ETH:
 		return DasLockCodeHashIndexType_ETH_Normal
+	case ScriptType_TRON:
+		return DasLockCodeHashIndexType_TRON_Normal
+	default:
+		return DasLockCodeHashIndexType_CKB_Normal
+	}
+}
+
+func (l LockScriptType) ToDasLockCodeHashIndexType712() DasLockCodeHashIndexType {
+	switch l {
+	case ScriptType_User:
+		return DasLockCodeHashIndexType_CKB_Normal
+	case ScriptType_Any:
+		return DasLockCodeHashIndexType_CKB_AnyOne
+	case ScriptType_ETH:
+		return DasLockCodeHashIndexType_712_Normal
 	case ScriptType_TRON:
 		return DasLockCodeHashIndexType_TRON_Normal
 	default:
@@ -289,6 +307,7 @@ const (
 	DasLockCodeHashIndexType_CKB_AnyOne  DasLockCodeHashIndexType = 2
 	DasLockCodeHashIndexType_ETH_Normal  DasLockCodeHashIndexType = 3
 	DasLockCodeHashIndexType_TRON_Normal DasLockCodeHashIndexType = 4
+	DasLockCodeHashIndexType_712_Normal  DasLockCodeHashIndexType = 5
 )
 
 func (t DasLockCodeHashIndexType) Bytes() []byte {
@@ -301,7 +320,7 @@ func (t DasLockCodeHashIndexType) ChainType() ChainType {
 		return ChainType_CKB
 	case DasLockCodeHashIndexType_CKB_AnyOne:
 		return ChainType_CKB
-	case DasLockCodeHashIndexType_ETH_Normal:
+	case DasLockCodeHashIndexType_ETH_Normal, DasLockCodeHashIndexType_712_Normal:
 		return ChainType_ETH
 	case DasLockCodeHashIndexType_TRON_Normal:
 		return ChainType_TRON
@@ -324,6 +343,8 @@ func (t DasLockCodeHashIndexType) ToScriptType(fromOwner bool) LockScriptType {
 		return ScriptType_ETH
 	case DasLockCodeHashIndexType_TRON_Normal:
 		return ScriptType_TRON
+	case DasLockCodeHashIndexType_712_Normal:
+		return ScriptType_712
 	default:
 		return ScriptType_User
 	}

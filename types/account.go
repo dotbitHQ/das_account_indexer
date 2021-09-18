@@ -83,7 +83,7 @@ func (a AccountReturnObj) JsonBys() []byte {
 	return bys
 }
 
-func (a AccountReturnObj) ToAccountReturnObj1() AccountReturnObj1 {
+func (a AccountReturnObj) ToAccountReturnObj1(testNet bool) AccountReturnObj1 {
 	var (
 		rawDasLockArgsHex   = a.AccountData.RawDasLockArgsHex
 		rawDasLockArgsBytes []byte
@@ -110,9 +110,9 @@ func (a AccountReturnObj) ToAccountReturnObj1() AccountReturnObj1 {
 			DasLockArgHex:       rawDasLockArgsHex,
 			OwnerAddressChain:   ownerChainType.String(),
 			OwnerLockArgsHex:    appendOx(a.AccountData.OwnerLockArgsHex),
-			OwnerAddress:        gotype.PubkeyHashToAddress(ownerChainType, removeOx(a.AccountData.OwnerLockArgsHex)).OriginStr(),
+			OwnerAddress:        gotype.PubkeyHashToAddress(testNet, ownerChainType, removeOx(a.AccountData.OwnerLockArgsHex)).OriginStr(),
 			ManagerAddressChain: managerChainType.String(),
-			ManagerAddress:      gotype.PubkeyHashToAddress(managerChainType, removeOx(a.AccountData.ManagerLockArgHex)).OriginStr(),
+			ManagerAddress:      gotype.PubkeyHashToAddress(testNet, managerChainType, removeOx(a.AccountData.ManagerLockArgHex)).OriginStr(),
 			ManagerLockArgsHex:  appendOx(a.AccountData.ManagerLockArgHex),
 			Records:             originRecordsToNewRecords(a.AccountData.Records),
 		},
@@ -120,6 +120,14 @@ func (a AccountReturnObj) ToAccountReturnObj1() AccountReturnObj1 {
 }
 
 type AccountReturnObjList []AccountReturnObj
+
+func (a AccountReturnObjList) ToAccountIdMap() map[string]AccountReturnObj {
+	retMap := map[string]AccountReturnObj{}
+	for i := 0; i < len(a); i++ {
+		retMap[a[i].AccountData.AccountIdHex] = a[i]
+	}
+	return retMap
+}
 
 func (a AccountReturnObjList) JsonBys() []byte {
 	bys, _ := json.Marshal(a)
@@ -154,10 +162,10 @@ func originRecordsToNewRecords(records celltype.EditRecordItemList) []SimpleReco
 	return recordList
 }
 
-func (a AccountReturnObjList) ToAccountReturnObjList1List() []AccountReturnObj1 {
+func (a AccountReturnObjList) ToAccountReturnObjList1List(testNet bool) []AccountReturnObj1 {
 	retList := make([]AccountReturnObj1, 0, len(a))
 	for i := 0; i < len(a); i++ {
-		retList = append(retList, a[i].ToAccountReturnObj1())
+		retList = append(retList, a[i].ToAccountReturnObj1(testNet))
 	}
 	return retList
 }

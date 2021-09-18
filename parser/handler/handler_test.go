@@ -64,6 +64,21 @@ func Test_HandleAccountCellType(t *testing.T) {
 	log.Warn("resp.err:-->", resp.err)
 }
 
+func Test_HandleConfirmProposeTx(t *testing.T) {
+	celltype.UseVersionReleaseSystemScriptCodeHash()
+	fmt.Println(celltype.DasProposeCellScript.Out.CodeHash.String())
+	p, infoDb := buildP("0xbc01e3ae6ce550c8d24dc6f7a819331cd525875340844a090b9fb4c50a12d152")
+	resp := HandleConfirmProposalTx("", p)
+	log.Warn("resp.err:-->", resp.err)
+	// ret1 := searchAccount(infoDb, "d55213.bit")
+	// fmt.Println(ret1.ErrNo)
+	// fmt.Println(ret1.Data)
+	//
+	ret := getAddressAccount("0x910a7b702388fe5a4a48933327b6b908b674969f", infoDb)
+	fmt.Println(ret.ErrMsg)
+	bys, _ := json.Marshal(ret.Data)
+	fmt.Println(string(bys))
+}
 func Test_HandleActionTx(t *testing.T) {
 	celltype.UseVersion3SystemScriptCodeHash()
 	p, infoDb := buildP("")

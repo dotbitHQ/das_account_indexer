@@ -86,7 +86,7 @@ var (
 	}
 
 	DasLockCellScript = DASCellBaseInfo{
-		Name: "das_lock_cell",
+		Name: "das-lock",
 		Dep: DASCellBaseInfoDep{
 			TxHash:  types.HexToHash("0x22b7e4a537b107b32d3e1c5704455b30e04a63f0e97347b32155be49510ae0d0"),
 			TxIndex: 0,
@@ -145,7 +145,7 @@ var (
 	// 	},
 	// }
 	DasApplyRegisterCellScript = DASCellBaseInfo{
-		Name: "apply_register_cell",
+		Name: "apply-register-type",
 		Dep: DASCellBaseInfoDep{
 			TxHash:  types.HexToHash("0xbc4dec1c2a3b1a9bf76df3a66357c62ec4b543abb595b3ed10fe64e126efc509"),
 			TxIndex: 0,
@@ -181,7 +181,7 @@ var (
 	// 	},
 	// }
 	DasPreAccountCellScript = DASCellBaseInfo{
-		Name: "preAccount_cell",
+		Name: "pre-account-cell-type",
 		Dep: DASCellBaseInfoDep{
 			TxHash:  types.HexToHash("0xb4353dd3ada2b41b8932edbd853a853e81d50b4c8648c1afd93384b946425d15"), //"0x21b25ab337cbbc7aad691f0f767ec5a852bbb8f6b9ff53dd00e0505f72f1f89a"
 			TxIndex: 0,
@@ -199,7 +199,7 @@ var (
 		},
 	}
 	DasProposeCellScript = DASCellBaseInfo{
-		Name: "propose_cell",
+		Name: "propose-cell-type",
 		Dep: DASCellBaseInfoDep{
 			TxHash:  types.HexToHash("0xf3cf92357436e6b6438e33c5d68521cac816baff6ef60e9bfc733453a335a8d4"),
 			TxIndex: 0,
@@ -217,7 +217,7 @@ var (
 		},
 	}
 	DasAccountCellScript = DASCellBaseInfo{
-		Name: "account_cell",
+		Name: "account-cell-type",
 		Dep: DASCellBaseInfoDep{
 			TxHash:  types.HexToHash("0x9e867e0b7bcbd329b8fe311c8839e10bacac7303280b8124932c66f726c38d8a"),
 			TxIndex: 0,
@@ -235,6 +235,7 @@ var (
 		},
 	}
 	DasBiddingCellScript = DASCellBaseInfo{
+		Name: "bidding-cell-type",
 		Dep: DASCellBaseInfoDep{
 			TxHash:  types.HexToHash("0x123"),
 			TxIndex: 0,
@@ -259,7 +260,7 @@ var (
 		},
 	}
 	DasIncomeCellScript = DASCellBaseInfo{
-		Name: "income_cell",
+		Name: "income-cell-type",
 		Dep: DASCellBaseInfoDep{
 			TxHash:  types.HexToHash("0xa411dc40662eaf2c43d165c071947e7440e5ec01193954dbf06670bc6bf221c4"),
 			TxIndex: 0,
@@ -276,8 +277,26 @@ var (
 			Args:     types.HexToHash(IncomeCellCodeArgs).Bytes(),
 		},
 	}
+	DasBalanceCellScript = DASCellBaseInfo{
+		Name: "balance-cell-type",
+		Dep: DASCellBaseInfoDep{
+			TxHash:  types.HexToHash("0xccceb579d41539fba16e5fd874c41d6370d51782e5336143bbf6c91c4b805dc3"),
+			TxIndex: 0,
+			DepType: types.DepTypeCode,
+		},
+		Out: DASCellBaseInfoOut{
+			CodeHash:     types.HexToHash("0xebafc1ebe95b88cac426f984ed5fce998089ecad0cd2f8b17755c9de4cb02162"),
+			CodeHashType: types.HashTypeType,
+			Args:         emptyHexToArgsBytes(),
+		},
+		ContractTypeScript: types.Script{
+			CodeHash: types.HexToHash(ContractCodeHash),
+			HashType: types.HashTypeType,
+			Args:     types.HexToHash(BalanceCellCodeArgs).Bytes(),
+		},
+	}
 	DasConfigCellScript = DASCellBaseInfo{
-		Name: "config_cell",
+		Name: "config-cell-type",
 		Dep: DASCellBaseInfoDep{
 			TxHash:  types.HexToHash("0x97cf78ef50809505bba4ac78d8ee7908eccd1119aa08775814202e7801f4895b"),
 			TxIndex: 0,
@@ -328,18 +347,17 @@ func initMap() {
 	SystemCodeScriptMap.Store(DasPreAccountCellScript.Out.CodeHash, &DasPreAccountCellScript)
 	SystemCodeScriptMap.Store(DasAccountCellScript.Out.CodeHash, &DasAccountCellScript)
 	SystemCodeScriptMap.Store(DasBiddingCellScript.Out.CodeHash, &DasBiddingCellScript)
-	SystemCodeScriptMap.Store(DasOnSaleCellScript.Out.CodeHash, &DasOnSaleCellScript)
 	SystemCodeScriptMap.Store(DasProposeCellScript.Out.CodeHash, &DasProposeCellScript)
 	SystemCodeScriptMap.Store(DasConfigCellScript.Out.CodeHash, &DasConfigCellScript)
 	SystemCodeScriptMap.Store(DasIncomeCellScript.Out.CodeHash, &DasIncomeCellScript)
-
+	SystemCodeScriptMap.Store(DasBalanceCellScript.Out.CodeHash, &DasBalanceCellScript)
 }
 
 // testnet version 2
 func UseVersion2SystemScriptCodeHash() {
 
 	CKBSoScriptDep.TxHash = types.HexToHash("0x209b35208da7d20d882f0871f3979c68c53981bcc4caa71274c035449074d082")
-	ETHSoScriptDep.TxHash = types.HexToHash("0xb035c200bf759537d3796edf49b5d6a8ec5f5d78326713f987f31ad24d0b0171")
+	ETHSoScriptDep.TxHash = types.HexToHash("0xf273e6c581ad6bda82315bc06f1b9df4efae20fc5394995231ea96ab2b0ee3dd")
 	TRONSoScriptDep.TxHash = types.HexToHash("0x7dc4ae8fe597045fbd7fe78f2bd26435644a69b755de3824a856f681bacb732b")
 
 	DasApplyRegisterCellScript.ContractTypeScript.Args = types.HexToHash("0xc78fa9066af1624e600ccfb21df9546f900b2afe5d7940d91aefc115653f90d9").Bytes()
@@ -358,7 +376,7 @@ func UseVersion2SystemScriptCodeHash() {
 	DasConfigCellScript.Out.CodeHash = types.HexToHash("0x030ac2acd9c016f9a4ab13d52c244d23aaea636e0cbd386ec660b79974946517")
 	DasIncomeCellScript.Out.CodeHash = types.HexToHash("0x08d1cdc6ab92d9cabe0096a2c7642f73d0ef1b24c94c43f21c6c3a32ffe0bb5e")
 	DasAnyOneCanSendCellInfo.Out.CodeHash = types.HexToHash("0xf1ef61b6977508d9ec56fe43399a01e576086a76cf0f7c687d1418335e8c401f")
-
+	DasBalanceCellScript.Out.CodeHash = types.HexToHash("0x4ff58f2c76b4ac26fdf675aa82541e02e4cf896279c6d6982d17b959788b2f0c")
 	initMap()
 }
 
@@ -391,6 +409,7 @@ func UseVersionReleaseSystemScriptCodeHash() {
 	DasLockCellScript.ContractTypeScript.Args = types.HexToHash("0xda22fd296682488687a6035b5fc97c269b72d7de128034389bd03041b40309c0").Bytes()
 	DasConfigCellScript.ContractTypeScript.Args = types.HexToHash("0x3775c65aabe8b79980c4933dd2f4347fa5ef03611cef64328685618aa7535794").Bytes()
 	DasIncomeCellScript.ContractTypeScript.Args = types.HexToHash("0x108fba6a9b9f2898b4cdf11383ba2a6ed3da951b458c48e5f5de0353bbca2d46").Bytes()
+	DasBalanceCellScript.ContractTypeScript.Args = types.HexToHash("0xbdc8f42643ccad23e8df3d2e8dbdea9201812cd1b7f84c46e69b020529629822").Bytes()
 
 	DasApplyRegisterCellScript.Out.CodeHash = types.HexToHash("0xc024b6efde8d49af665b3245223a8aa889e35ede15bc510392a7fea2dec0a758")
 	DasPreAccountCellScript.Out.CodeHash = types.HexToHash("0x18ab87147e8e81000ab1b9f319a5784d4c7b6c98a9cec97d738a5c11f69e7254")
@@ -407,9 +426,11 @@ func UseVersionReleaseSystemScriptCodeHash() {
 	}
 	DasAnyOneCanSendCellInfo.Out.CodeHash = types.HexToHash("0x303ead37be5eebfcf3504847155538cb623a26f237609df24bd296750c123078")
 
-	DasHeightCellScript.Out.CodeHash = types.HexToHash("0x2e0e5b790cfb346bddc0e82a70f785e90d1537bbfdbdd25f6a3617cc760f887b")
-	DasTimeCellScript.Out.CodeHash = types.HexToHash("0x2e0e5b790cfb346bddc0e82a70f785e90d1537bbfdbdd25f6a3617cc760f887b")
-	DasQuoteCellScript.Out.CodeHash = types.HexToHash("0x2e0e5b790cfb346bddc0e82a70f785e90d1537bbfdbdd25f6a3617cc760f887b")
+	DasHeightCellScript.Out.CodeHash = types.HexToHash("0x9e537bf5b8ec044ca3f53355e879f3fd8832217e4a9b41d9994cf0c547241a79")
+	DasTimeCellScript.Out.CodeHash = types.HexToHash("0x9e537bf5b8ec044ca3f53355e879f3fd8832217e4a9b41d9994cf0c547241a79")
+	DasQuoteCellScript.Out.CodeHash = types.HexToHash("0x9e537bf5b8ec044ca3f53355e879f3fd8832217e4a9b41d9994cf0c547241a79")
+
+	DasBalanceCellScript.Out.CodeHash = types.HexToHash("0xebafc1ebe95b88cac426f984ed5fce998089ecad0cd2f8b17755c9de4cb02162")
 
 	initMap()
 }

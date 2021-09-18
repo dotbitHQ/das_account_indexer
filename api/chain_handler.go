@@ -36,16 +36,17 @@ var (
 const maxAccountNumber = 100000
 
 type RpcHandler struct {
+	testNet       bool
 	rpcClient     rpc.Client
 	systemScripts *utils.SystemScripts
 }
 
-func NewRpcHandler(client rpc.Client) *RpcHandler {
+func NewRpcHandler(testNet bool, client rpc.Client) *RpcHandler {
 	systemScripts, err := utils.NewSystemScripts(client)
 	if err != nil {
 		panic(fmt.Errorf("init NewSystemScripts err: %s", err.Error()))
 	}
-	return &RpcHandler{rpcClient: client, systemScripts: systemScripts}
+	return &RpcHandler{testNet: testNet, rpcClient: client, systemScripts: systemScripts}
 }
 
 func (r *RpcHandler) Hello() string {
@@ -67,7 +68,7 @@ func (r *RpcHandler) SearchAccount(ctx context.Context, account string) common.R
 		return common.ReqResp{ErrNo: dascode.Err_BaseParamInvalid, ErrMsg: fmt.Sprintf("loadOneAccountCellById err: %s", err.Error())}
 	}
 	log.Info("time spend:", time.Since(timeStart).String())
-	return common.ReqResp{ErrNo: dascode.DAS_SUCCESS, Data: accountInfo.ToAccountReturnObj1()}
+	return common.ReqResp{ErrNo: dascode.DAS_SUCCESS, Data: accountInfo.ToAccountReturnObj1(r.testNet)}
 }
 
 func (r *RpcHandler) GetAddressAccount(address string) common.ReqResp {
@@ -79,7 +80,7 @@ func (r *RpcHandler) GetAddressAccount(address string) common.ReqResp {
 		}
 		return common.ReqResp{ErrNo: dascode.Err_BaseParamInvalid, ErrMsg: fmt.Sprintf("loadOneAccountCellByLockScript err: %s", err.Error())}
 	}
-	return common.ReqResp{ErrNo: dascode.DAS_SUCCESS, Data: accountInfo.ToAccountReturnObjList1List()}
+	return common.ReqResp{ErrNo: dascode.DAS_SUCCESS, Data: accountInfo.ToAccountReturnObjList1List(r.testNet)}
 }
 
 func (r *RpcHandler) Close() {

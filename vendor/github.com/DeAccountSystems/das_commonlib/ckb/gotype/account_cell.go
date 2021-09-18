@@ -156,7 +156,7 @@ func (a *AccountCell) GetNewAccountCellData() (*celltype.VersionAccountCell, err
 
 func compatibleParse(cellData *celltype.DataEntity) (*celltype.VersionAccountCell, error) {
 	var accountCellData *celltype.VersionAccountCell
-	version,err := celltype.MoleculeU32ToGo(cellData.Version().RawData())
+	version, err := celltype.MoleculeU32ToGo(cellData.Version().RawData())
 	if err != nil {
 		return nil, fmt.Errorf("compatibleParse MoleculeU32ToGo index err: %s", err.Error())
 	}
@@ -194,14 +194,14 @@ func compatibleParse(cellData *celltype.DataEntity) (*celltype.VersionAccountCel
 		}
 		break
 	default:
-		return nil, fmt.Errorf("compatibleParse invalid version: %d",version)
+		return nil, fmt.Errorf("compatibleParse invalid version: %d", version)
 	}
 	return accountCellData, nil
 }
 
 func (a *AccountCell) ParseDasLockArgsIndexType() (celltype.DasLockCodeHashIndexType, celltype.DasLockCodeHashIndexType) {
 	tempBytes := make([]byte, len(a.DasLockArgs))
-	copy(tempBytes,a.DasLockArgs)
+	copy(tempBytes, a.DasLockArgs)
 	ownerType := celltype.DasLockCodeHashIndexType(tempBytes[0])
 	managerTypeStartIndex := celltype.DasLockArgsMinBytesLen / 2
 	managerType := celltype.DasLockCodeHashIndexType(tempBytes[managerTypeStartIndex : managerTypeStartIndex+1][0])
@@ -230,8 +230,16 @@ func (a *AccountCell) SameOwner(indexHashType celltype.DasLockCodeHashIndexType,
 	end := celltype.DasLockArgsMinBytesLen / 2
 	if len(args) == celltype.DasLockArgsMinBytesLen {
 		// das-lock
-		if ownerType == indexHashType && bytes.Compare(a.DasLockArgs[1:end], args[1:end]) == 0 {
-			return nil
+		if indexHashType == celltype.DasLockCodeHashIndexType_712_Normal {
+			if ownerType == indexHashType && bytes.Compare(a.DasLockArgs[1:end], args[1:end]) == 0 {
+				return nil
+			} else if ownerType == celltype.DasLockCodeHashIndexType_ETH_Normal && bytes.Compare(a.DasLockArgs[1:end], args[1:end]) == 0 {
+				return nil
+			}
+		} else {
+			if ownerType == indexHashType && bytes.Compare(a.DasLockArgs[1:end], args[1:end]) == 0 {
+				return nil
+			}
 		}
 	} else {
 		// other, such as pw-lock
@@ -250,8 +258,16 @@ func (a *AccountCell) SameManager(indexHashType celltype.DasLockCodeHashIndexTyp
 	start := celltype.DasLockArgsMinBytesLen/2 + 1
 	if len(args) == celltype.DasLockArgsMinBytesLen {
 		// das-lock
-		if managerType == indexHashType && bytes.Compare(a.DasLockArgs[start:], args[start:]) == 0 {
-			return nil
+		if indexHashType == celltype.DasLockCodeHashIndexType_712_Normal {
+			if managerType == indexHashType && bytes.Compare(a.DasLockArgs[start:], args[start:]) == 0 {
+				return nil
+			} else if managerType == celltype.DasLockCodeHashIndexType_ETH_Normal && bytes.Compare(a.DasLockArgs[start:], args[start:]) == 0 {
+				return nil
+			}
+		} else {
+			if managerType == indexHashType && bytes.Compare(a.DasLockArgs[start:], args[start:]) == 0 {
+				return nil
+			}
 		}
 	} else {
 		// other, such as pw-lock
@@ -297,13 +313,13 @@ type UpdateAccountCellInfo struct {
 
 func (a *AccountCell) setOwner(indexType celltype.DasLockCodeHashIndexType, args []byte) {
 	rawBytes := make([]byte, len(args))
-	copy(rawBytes,args)
-	halfEnd := celltype.DasLockArgsMinBytesLen/2
+	copy(rawBytes, args)
+	halfEnd := celltype.DasLockArgsMinBytesLen / 2
 	var appendBytes = make([]byte, halfEnd-1)
 	if len(rawBytes) == celltype.DasLockArgsMinBytesLen {
-		copy(appendBytes,rawBytes[1:halfEnd]) // das-lock
+		copy(appendBytes, rawBytes[1:halfEnd]) // das-lock
 	} else {
-		copy(appendBytes,rawBytes) // other, such as pw-lock
+		copy(appendBytes, rawBytes) // other, such as pw-lock
 	}
 	tempBytes := make([]byte, 0, celltype.DasLockArgsMinBytesLen)
 	tempBytes = append(tempBytes, indexType.Bytes()...)
@@ -314,13 +330,13 @@ func (a *AccountCell) setOwner(indexType celltype.DasLockCodeHashIndexType, args
 
 func (a *AccountCell) setManager(indexType celltype.DasLockCodeHashIndexType, args []byte) {
 	rawBytes := make([]byte, len(args))
-	copy(rawBytes,args)
-	halfEnd := celltype.DasLockArgsMinBytesLen/2
+	copy(rawBytes, args)
+	halfEnd := celltype.DasLockArgsMinBytesLen / 2
 	var appendBytes = make([]byte, halfEnd-1)
 	if len(rawBytes) == celltype.DasLockArgsMinBytesLen {
-		copy(appendBytes,rawBytes[halfEnd+1:]) // das-lock
+		copy(appendBytes, rawBytes[halfEnd+1:]) // das-lock
 	} else {
-		copy(appendBytes,rawBytes) // other, such as pw-lock
+		copy(appendBytes, rawBytes) // other, such as pw-lock
 	}
 	tempBytes := make([]byte, 0, celltype.DasLockArgsMinBytesLen)
 	tempBytes = append(tempBytes, a.DasLockArgs[0:halfEnd]...)
@@ -347,6 +363,7 @@ type InOutputWitnessCallbackParam struct {
 	NewBuilder *celltype.AccountCellDataBuilder
 	ExpiredAt  *int64
 }
+
 // callback method return 'true' means use the oldData to newData
 func (a *AccountCell) UpdateAccountCellInfos(
 	testNet bool,
@@ -371,7 +388,7 @@ func (a *AccountCell) UpdateAccountCellInfos(
 	}
 	var (
 		newData celltype.AccountCellData
-		useOld = false
+		useOld  = false
 	)
 	if callback != nil {
 		cbp.NewBuilder.
@@ -397,7 +414,7 @@ func (a *AccountCell) UpdateAccountCellInfos(
 	newFullData := &celltype.AccountCellTxDataParam{
 		NextAccountId: nextId,
 		ExpiredAt:     uint64(*cbp.ExpiredAt),
-		AccountInfo:   celltype.VersionAccountCell{
+		AccountInfo: celltype.VersionAccountCell{
 			Version:     celltype.LatestVersion(),
 			OriginSlice: newData.AsSlice(),
 			CellData:    &newData,
@@ -416,8 +433,8 @@ func (a *AccountCell) UpdateAccountCellInfos(
 	}
 	return &UpdateAccountCellInfo{
 		OldData:           oldData,
-		OutputAccountCell: celltype.NewAccountCell(celltype.DefaultAccountCellParam(testNet,newFullData, a.ToDasLockArgParam(),nil)),
-		NewData: 		   &celltype.VersionAccountCell{
+		OutputAccountCell: celltype.NewAccountCell(celltype.DefaultAccountCellParam(testNet, newFullData, a.ToDasLockArgParam(), nil)),
+		NewData: &celltype.VersionAccountCell{
 			Version:     celltype.LatestVersion(),
 			OriginSlice: newData.AsSlice(),
 			CellData:    &newData,
@@ -425,7 +442,7 @@ func (a *AccountCell) UpdateAccountCellInfos(
 	}, nil
 }
 
-func (a *AccountCell) UpdateAccountCellNextId(testNet bool,nextAccountId celltype.DasAccountId) (*UpdateAccountCellInfo, error) {
+func (a *AccountCell) UpdateAccountCellNextId(testNet bool, nextAccountId celltype.DasAccountId) (*UpdateAccountCellInfo, error) {
 	oldData, err := a.GetOldAccountCellData()
 	if err != nil {
 		return nil, fmt.Errorf("GetOldAccountCellData err: %s", err.Error())
@@ -441,12 +458,12 @@ func (a *AccountCell) UpdateAccountCellNextId(testNet bool,nextAccountId celltyp
 	}
 	return &UpdateAccountCellInfo{
 		OldData:           oldData,
-		OutputAccountCell: celltype.NewAccountCell(celltype.DefaultAccountCellParam(testNet,newData, a.ToDasLockArgParam(),a.Data)),
+		OutputAccountCell: celltype.NewAccountCell(celltype.DefaultAccountCellParam(testNet, newData, a.ToDasLockArgParam(), a.Data)),
 		NewData:           oldData,
 	}, nil
 }
 
-func (a *AccountCell) JudgeExpireStatus(expiredCheck, frozenCheck bool,frozenRange int64) (bool, bool, error) {
+func (a *AccountCell) JudgeExpireStatus(expiredCheck, frozenCheck bool, frozenRange int64) (bool, bool, error) {
 	var (
 		frozen  bool
 		expired bool
@@ -487,4 +504,3 @@ func CalDasAwardCap(cap uint64, rate float64) (uint64, error) {
 func CalAccountSpend(account celltype.DasAccount) uint64 {
 	return uint64(len([]byte(account))) * celltype.OneCkb
 }
-

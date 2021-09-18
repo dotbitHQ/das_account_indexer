@@ -57,6 +57,7 @@ func NewDefaultConfigCell(neyType celltype.DasNetType) *ConfigCell {
 	c.ConfigCellChildMap.Store(celltype.TableType_ConfigCell_Income, &configcells.CfgIncome{})
 	c.ConfigCellChildMap.Store(celltype.TableType_ConfigCell_RecordNamespace, &configcells.CfgNameSpace{})
 	c.ConfigCellChildMap.Store(celltype.TableType_ConfigCell_Release, &configcells.CfgRelease{})
+	c.ConfigCellChildMap.Store(celltype.TableType_ConfigCell_Unavailable, &configcells.CfgUnavailable{})
 
 	c.StorePreservedAccountMap(configcells.NewCfgPreservedAccount(celltype.TableType_ConfigCell_PreservedAccount00, "PreservedAccount00"))
 	c.StorePreservedAccountMap(configcells.NewCfgPreservedAccount(celltype.TableType_ConfigCell_PreservedAccount01, "PreservedAccount01"))
@@ -348,6 +349,16 @@ func (c *ConfigCell) GetProfitOfInviter() (decimal.Decimal, error) {
 		return decimal.Zero, err
 	}
 	dec := decimal.NewFromInt(int64(profitRateOfInviter))
+	return dec.Div(decimal.NewFromInt(int64(celltype.DiscountRateBase))), nil
+}
+
+func (c *ConfigCell) GetProfitOfChannel() (decimal.Decimal, error) {
+	profit := c.GetRegisterProfitConfig()
+	profitRateOfChannel, err := celltype.MoleculeU32ToGo(profit.Channel().RawData())
+	if err != nil {
+		return decimal.Zero, err
+	}
+	dec := decimal.NewFromInt(int64(profitRateOfChannel))
 	return dec.Div(decimal.NewFromInt(int64(celltype.DiscountRateBase))), nil
 }
 

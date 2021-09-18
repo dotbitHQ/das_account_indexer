@@ -22,11 +22,12 @@ import (
  */
 
 type PayTypeLockScriptsRet struct {
-	FeeCellScript    *ckbTypes.Script
-	UserScript       *ckbTypes.Script
-	ScriptType       celltype.LockScriptType
-	DasLockArgsParam celltype.DasLockArgsPairParam
-	Err              error
+	FeeCellScript       *ckbTypes.Script
+	UserScript          *ckbTypes.Script
+	ScriptType          celltype.LockScriptType
+	DasLockArgsParam    celltype.DasLockArgsPairParam
+	DasLockArgsParam712 celltype.DasLockArgsPairParam
+	Err                 error
 }
 
 // ckb argsHexStr, eth address
@@ -41,7 +42,7 @@ func GetOwnerArgsFromDasLockArgs(args []byte) (celltype.ChainType, string) {
 		return celltype.ChainType_CKB, hex.EncodeToString(ownerArgsBytes)
 	case celltype.DasLockCodeHashIndexType_CKB_AnyOne:
 		return celltype.ChainType_CKB, hex.EncodeToString(ownerArgsBytes)
-	case celltype.DasLockCodeHashIndexType_ETH_Normal:
+	case celltype.DasLockCodeHashIndexType_ETH_Normal, celltype.DasLockCodeHashIndexType_712_Normal:
 		return celltype.ChainType_ETH, "0x" + hex.EncodeToString(ownerArgsBytes)
 	case celltype.DasLockCodeHashIndexType_TRON_Normal:
 		return celltype.ChainType_TRON, tron_chain.TronAddrHexPrefix + hex.EncodeToString(ownerArgsBytes)
@@ -64,12 +65,27 @@ func GetDasLockScript(chainType celltype.ChainType, address Address) (*ckbTypes.
 	return nil, fmt.Errorf("unknow chain type:%d %s", chainType, address)
 }
 
+func GetDasLockScript712(chainType celltype.ChainType, address Address) (*ckbTypes.Script, error) {
+	switch chainType {
+	case celltype.ChainType_CKB:
+		return address.DasLockScript_CKB()
+	case celltype.ChainType_ETH:
+		return address.DasLockScript(celltype.DasLockCodeHashIndexType_712_Normal)
+	case celltype.ChainType_BTC:
+		return address.DasLockScript(celltype.ScriptType_BTC.ToDasLockCodeHashIndexType())
+	case celltype.ChainType_TRON:
+		return address.DasLockScript(celltype.DasLockCodeHashIndexType_TRON_Normal)
+	}
+	return nil, fmt.Errorf("unknow chain type:%d %s", chainType, address)
+}
+
 func PayTypeLockScripts(sysWallet *ckbTypes.Script, sysScripts *utils.SystemScripts, payType celltype.ChainType, address Address) PayTypeLockScriptsRet {
 	var (
 		feeCellProviderScript *ckbTypes.Script
 		userScript            *ckbTypes.Script
 		scriptType            celltype.LockScriptType
 		dasLockParam          celltype.DasLockArgsPairParam
+		dasLockParam712       celltype.DasLockArgsPairParam
 		err                   error
 	)
 	if payType == celltype.ChainType_CKB {
@@ -83,29 +99,39 @@ func PayTypeLockScripts(sysWallet *ckbTypes.Script, sysScripts *utils.SystemScri
 		indexType := scriptType.ToDasLockCodeHashIndexType()
 		userScript, err = address.DasLockScript(indexType)
 		dasLockParam = celltype.DasLockArgsPairParam{HashIndexType: scriptType.ToDasLockCodeHashIndexType(), Script: *userScript}
+		dasLockParam712 = dasLockParam
 		break
 	case celltype.ChainType_ETH:
 		scriptType = celltype.ScriptType_ETH
 		indexType := scriptType.ToDasLockCodeHashIndexType()
 		userScript, err = address.DasLockScript(indexType)
 		dasLockParam = celltype.DasLockArgsPairParam{HashIndexType: indexType, Script: *userScript}
+
+		indexType712 := scriptType.ToDasLockCodeHashIndexType712()
+		userScript712, _ := address.DasLockScript(indexType712)
+		dasLockParam712 = celltype.DasLockArgsPairParam{
+			HashIndexType: indexType712,
+			Script:        *userScript712,
+		}
 		break
 	case celltype.ChainType_TRON:
 		scriptType = celltype.ScriptType_TRON
 		indexType := scriptType.ToDasLockCodeHashIndexType()
 		userScript, err = address.DasLockScript(indexType)
 		dasLockParam = celltype.DasLockArgsPairParam{HashIndexType: indexType, Script: *userScript}
+		dasLockParam712 = dasLockParam
 		break
 	case celltype.ChainType_BTC:
 		scriptType = celltype.ScriptType_BTC
 		indexType := scriptType.ToDasLockCodeHashIndexType()
 		userScript, err = address.DasLockScript(indexType)
 		dasLockParam = celltype.DasLockArgsPairParam{HashIndexType: indexType, Script: *userScript}
+		dasLockParam712 = dasLockParam
 		break
 	default:
-		return PayTypeLockScriptsRet{nil, nil, -1, dasLockParam, errors.New("invalid payType")}
+		return PayTypeLockScriptsRet{nil, nil, -1, dasLockParam, dasLockParam712, errors.New("invalid payType")}
 	}
-	return PayTypeLockScriptsRet{feeCellProviderScript, userScript, scriptType, dasLockParam, err}
+	return PayTypeLockScriptsRet{feeCellProviderScript, userScript, scriptType, dasLockParam, dasLockParam712, err}
 }
 
 func GetScriptTypeFromLockScript(ckbSysScript *utils.SystemScripts, lockScript *ckbTypes.Script) (celltype.LockScriptType, error) {
@@ -132,9 +158,9 @@ type ReqFindTargetTypeScriptParam struct {
 	CodeHash  ckbTypes.Hash
 }
 type FindTargetTypeScriptRet struct {
-	Output *ckbTypes.CellOutput
-	Data   []byte
-	Tx     *ckbTypes.Transaction
+	Output        *ckbTypes.CellOutput
+	Data          []byte
+	Tx            *ckbTypes.Transaction
 	PreviousIndex uint
 }
 
@@ -152,9 +178,9 @@ func FindTargetTypeScriptByInputList(p *ReqFindTargetTypeScriptParam) (*FindTarg
 				if output.Lock != nil && output.Lock.CodeHash == codeHash &&
 					output.Lock.HashType == ckbTypes.HashTypeType && item.PreviousOutput.Index == uint(i) {
 					return &FindTargetTypeScriptRet{
-						Output: output,
-						Data:   tx.Transaction.OutputsData[i],
-						Tx:     tx.Transaction,
+						Output:        output,
+						Data:          tx.Transaction.OutputsData[i],
+						Tx:            tx.Transaction,
 						PreviousIndex: item.PreviousOutput.Index,
 					}, nil
 				}
@@ -164,9 +190,9 @@ func FindTargetTypeScriptByInputList(p *ReqFindTargetTypeScriptParam) (*FindTarg
 					output.Type.HashType == ckbTypes.HashTypeType &&
 					item.PreviousOutput.Index == uint(i) {
 					return &FindTargetTypeScriptRet{
-						Output: output,
-						Data:   tx.Transaction.OutputsData[i],
-						Tx:     tx.Transaction,
+						Output:        output,
+						Data:          tx.Transaction.OutputsData[i],
+						Tx:            tx.Transaction,
 						PreviousIndex: item.PreviousOutput.Index,
 					}, nil
 				}

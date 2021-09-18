@@ -6,6 +6,7 @@ import (
 	"das_account_indexer/parser"
 	"fmt"
 	blockparser "github.com/DeAccountSystems/das_commonlib/chain/ckb_rocksdb_parser"
+	"github.com/DeAccountSystems/das_commonlib/ckb/celltype"
 	"github.com/DeAccountSystems/das_commonlib/db"
 	"github.com/af913337456/blockparser/scanner"
 	blockparserTypes "github.com/af913337456/blockparser/types"
@@ -113,7 +114,9 @@ func runServer(ctx *cli.Context) error {
 
 	listenAndHandleInterrupt()
 
-	if err := base.SetSystemCodeHash(base.ReadNetType(ctx)); err != nil {
+	netType := base.ReadNetType(ctx)
+	isTestNet := netType != celltype.DasNetType_Mainnet
+	if err := base.SetSystemCodeHash(netType); err != nil {
 		panic(fmt.Errorf("setSystemCodeHash err: %s", err.Error()))
 	}
 	rpcClient, err := rpc.DialWithIndexer(config.Cfg.Chain.CKB.NodeUrl, config.Cfg.Chain.CKB.IndexerUrl)
@@ -151,7 +154,7 @@ func runServer(ctx *cli.Context) error {
 							close(rpcWait)
 							rpcWait = nil
 						}
-						if err = runRpcServer(rpcClient, infoDb); err != nil {
+						if err = runRpcServer(isTestNet, rpcClient, infoDb); err != nil {
 							log.Error(fmt.Sprintf("runRpcServer err: %s", err.Error()))
 						}
 					}
@@ -160,7 +163,7 @@ func runServer(ctx *cli.Context) error {
 			}
 		}()
 	} else {
-		if err = runRpcServer(rpcClient, nil); err != nil {
+		if err = runRpcServer(isTestNet, rpcClient, nil); err != nil {
 			return fmt.Errorf("runRpcServer err: %s", err.Error())
 		}
 	}
@@ -168,14 +171,14 @@ func runServer(ctx *cli.Context) error {
 	return nil
 }
 
-func runRpcServer(client rpc.Client, accountDb *gorocksdb.DB) error {
+func runRpcServer(testNet bool, client rpc.Client, accountDb *gorocksdb.DB) error {
 	methodPrefix := "das"
 	publicPort := config.Cfg.Rpc.Port
 	var rpcHandler api.IApi
 	if accountDb == nil {
-		rpcHandler = api.NewRpcHandler(client)
+		rpcHandler = api.NewRpcHandler(testNet, client)
 	} else {
-		rpcHandler = api.NewRpcLocalHandler(client, accountDb)
+		rpcHandler = api.NewRpcLocalHandler(testNet, client, accountDb)
 	}
 	rpcImpl = dasrpc.NewJsonrpcService(publicPort, &dasrpc.RpcServiceDelegate{
 		Name:    methodPrefix,

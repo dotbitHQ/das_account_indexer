@@ -27,16 +27,17 @@ import (
  */
 
 type RpcLocalHandler struct {
+	testNet       bool
 	rocksDb       *gorocksdb.DB
 	systemScripts *utils.SystemScripts
 }
 
-func NewRpcLocalHandler(rpcClient rpc.Client, rocksDb *gorocksdb.DB) *RpcLocalHandler {
+func NewRpcLocalHandler(testNet bool, rpcClient rpc.Client, rocksDb *gorocksdb.DB) *RpcLocalHandler {
 	systemScripts, err := utils.NewSystemScripts(rpcClient)
 	if err != nil {
 		panic(fmt.Errorf("init NewSystemScripts err: %s", err.Error()))
 	}
-	return &RpcLocalHandler{rocksDb: rocksDb, systemScripts: systemScripts}
+	return &RpcLocalHandler{testNet: testNet, rocksDb: rocksDb, systemScripts: systemScripts}
 }
 
 func (r *RpcLocalHandler) SearchAccount(ctx context.Context, account string) common.ReqResp {
@@ -57,7 +58,7 @@ func (r *RpcLocalHandler) SearchAccount(ctx context.Context, account string) com
 		return common.ReqResp{ErrNo: dascode.Err_Internal, ErrMsg: fmt.Errorf("unmarshal err: %s", err.Error()).Error()}
 	}
 	log.Info("time spend:", time.Since(timeStart).String())
-	return common.ReqResp{ErrNo: dascode.DAS_SUCCESS, Data: returnRet.ToAccountReturnObj1()}
+	return common.ReqResp{ErrNo: dascode.DAS_SUCCESS, Data: returnRet.ToAccountReturnObj1(r.testNet)}
 }
 
 func (r *RpcLocalHandler) GetAddressAccount(address string) common.ReqResp {
@@ -76,7 +77,7 @@ func (r *RpcLocalHandler) GetAddressAccount(address string) common.ReqResp {
 	if err != nil {
 		return common.ReqResp{ErrNo: dascode.Err_Internal, ErrMsg: fmt.Errorf("AccountReturnObjListFromBys err: %s", err.Error()).Error()}
 	}
-	return common.ReqResp{ErrNo: dascode.DAS_SUCCESS, Data: accountList.ToAccountReturnObjList1List()}
+	return common.ReqResp{ErrNo: dascode.DAS_SUCCESS, Data: accountList.ToAccountReturnObjList1List(r.testNet)}
 }
 
 func (r *RpcLocalHandler) Close() {
