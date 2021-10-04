@@ -71,10 +71,7 @@ func HandleAccountCellType(actionName string, p *DASActionHandleFuncParam) DASAc
 	if err != nil {
 		return resp.SetErr(fmt.Errorf("ParseChainAccountToJsonFormat err: %s", err.Error()))
 	}
-	accountSizeNew, err := storeAccountInfoToRocksDb(p.Rocksdb, writeBatch, accountListNew)
-	if err != nil {
-		return resp.SetErr(fmt.Errorf("storeAccountInfoToRocksDb err: %s", err.Error()))
-	}
+	accountSizeNew := len(accountListNew)
 	// try update owner info
 	if accountListOldNumber = len(accountListOld); accountListOldNumber > 0 {
 		shouldExecuteDelete := false
@@ -83,9 +80,6 @@ func HandleAccountCellType(actionName string, p *DASActionHandleFuncParam) DASAc
 			log.Info("this maybe some kind of recycle account type tx")
 			shouldExecuteDelete = true
 		} else {
-			if accountListOldNumber != accountSizeNew { // for now, DAS accountCell edit type tx's input account number must equal output account number
-				return resp.SetErr(fmt.Errorf("accountCell number not equal, old: %d, new: %d", accountListOldNumber, accountSizeNew))
-			}
 			// The judgment of start with outputs is whether the accountId is equal, but the owner is different
 			for i := 0; i < accountListOldNumber; i++ {
 				newAccountData := accountListNew[i].AccountData
@@ -111,6 +105,12 @@ func HandleAccountCellType(actionName string, p *DASActionHandleFuncParam) DASAc
 		}
 	}
 	if accountListOldNumber > 0 || accountSizeNew > 0 {
+		if accountListOldNumber != 0 && accountListOldNumber != accountSizeNew { // for now, DAS accountCell edit type tx's input account number must equal output account number
+			return resp.SetErr(fmt.Errorf("accountCell number not equal, old: %d, new: %d", accountListOldNumber, accountSizeNew))
+		}
+		if _, err := storeAccountInfoToRocksDb(p.Rocksdb, writeBatch, accountListNew); err != nil {
+			return resp.SetErr(fmt.Errorf("storeAccountInfoToRocksDb err: %s", err.Error()))
+		}
 		if err = p.Rocksdb.Write(writeOpt, writeBatch); err != nil {
 			resp.Rollback = true
 			return resp.SetErr(fmt.Errorf("rocksdb write data err: %s", err.Error()))
