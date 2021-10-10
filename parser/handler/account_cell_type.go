@@ -80,12 +80,16 @@ func HandleAccountCellType(actionName string, p *DASActionHandleFuncParam) DASAc
 			log.Info("this maybe some kind of recycle account type tx")
 			shouldExecuteDelete = true
 		} else {
+			if accountListOldNumber != accountSizeNew { // for now, DAS accountCell edit type tx's input account number must equal output account number
+				return resp.SetErr(fmt.Errorf("accountCell number not equal, old: %d, new: %d", accountListOldNumber, accountSizeNew))
+			}
 			// The judgment of start with outputs is whether the accountId is equal, but the owner is different
 			for i := 0; i < accountListOldNumber; i++ {
 				newAccountData := accountListNew[i].AccountData
 				oldAccountData := accountListOld[i].AccountData
 				if newAccountData.AccountIdHex == oldAccountData.AccountIdHex {
 					shouldExecuteDelete = newAccountData.OwnerLockArgsHex != oldAccountData.OwnerLockArgsHex
+					break
 				}
 			}
 		}
@@ -105,9 +109,6 @@ func HandleAccountCellType(actionName string, p *DASActionHandleFuncParam) DASAc
 		}
 	}
 	if accountListOldNumber > 0 || accountSizeNew > 0 {
-		if accountListOldNumber != 0 && accountListOldNumber != accountSizeNew { // for now, DAS accountCell edit type tx's input account number must equal output account number
-			return resp.SetErr(fmt.Errorf("accountCell number not equal, old: %d, new: %d", accountListOldNumber, accountSizeNew))
-		}
 		if _, err := storeAccountInfoToRocksDb(p.Rocksdb, writeBatch, accountListNew); err != nil {
 			return resp.SetErr(fmt.Errorf("storeAccountInfoToRocksDb err: %s", err.Error()))
 		}
