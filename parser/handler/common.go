@@ -16,6 +16,8 @@ import (
  * Description:
  */
 
+const genesisAccountIdHex = "0x0000000000000000000000000000000000000000"
+
 func deleteAccountInfoToRocksDb(db *gorocksdb.DB, writeBatch *gorocksdb.WriteBatch, accountList types.AccountReturnObjList) (int, error) {
 	accountSize := len(accountList)
 	for i := 0; i < accountSize; i++ {
@@ -91,6 +93,10 @@ func storeAccountInfoToRocksDb(db *gorocksdb.DB, writeBatch *gorocksdb.WriteBatc
 				mapKey := storeItem.AccountData.AccountIdHex
 				if newItem := ownerListMap[mapKey]; newItem.AccountData.Account != "" {
 					// oldList exist, use the new record
+					storeItem = newItem
+					delete(ownerListMap, mapKey)
+				} else if newItem.AccountData.AccountIdHex == genesisAccountIdHex {
+					// genesis account storage
 					storeItem = newItem
 					delete(ownerListMap, mapKey)
 				} else {

@@ -57,9 +57,10 @@ func buildP(txHash string) (*DASActionHandleFuncParam, *gorocksdb.DB) {
 }
 
 func Test_HandleAccountCellType(t *testing.T) {
-	celltype.UseVersion3SystemScriptCodeHash()
-	celltype.DasAccountCellScript.Out.CodeHash = ckbTypes.HexToHash("0x334540e23ec513f691cdd9490818237cbc9675861e4f19c480e0c520c715fd34")
-	p, _ := buildP("0x04fb0e4260139adfe411ea1f4a783a4ba63e09a0502b57479bcd0772c07c0228")
+	// celltype.UseVersion3SystemScriptCodeHash()
+	// celltype.DasAccountCellScript.Out.CodeHash = ckbTypes.HexToHash("0x334540e23ec513f691cdd9490818237cbc9675861e4f19c480e0c520c715fd34")
+	celltype.UseVersionReleaseSystemScriptCodeHash()
+	p, _ := buildP("0x00a660fd0eeecf8386e1c5712fce893c1c3b9f908e4f8372c0e83867471ea87c")
 	resp := HandleAccountCellType("", p)
 	log.Warn("resp.err:-->", resp.err)
 }
