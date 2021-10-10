@@ -19,7 +19,7 @@ import (
  * Description:
  */
 
-func isInputOldAccountCellNotExist(errMsg string) bool {
+func isAccountCellNotExist(errMsg string) bool {
 	return strings.Contains(errMsg, "not found")
 }
 
@@ -49,7 +49,7 @@ func HandleAccountCellType(actionName string, p *DASActionHandleFuncParam) DASAc
 		}
 		inputAccountCellRet, err := gotype.FindTargetTypeScriptByInputList(param)
 		if err != nil {
-			if !isInputOldAccountCellNotExist(err.Error()) {
+			if !isAccountCellNotExist(err.Error()) {
 				return resp.SetErr(fmt.Errorf("FindTargetTypeScriptByInputList err: %s", err))
 			} else {
 				// this tx has no input accountCell
@@ -66,14 +66,19 @@ func HandleAccountCellType(actionName string, p *DASActionHandleFuncParam) DASAc
 			}
 		}
 	}
+	accountListOldNumber = len(accountListOld)
 	// try storage new
 	accountListNew, err := util.ParseChainAccountToJsonFormat(&tx, nil)
 	if err != nil {
-		return resp.SetErr(fmt.Errorf("ParseChainAccountToJsonFormat err: %s", err.Error()))
+		if !isAccountCellNotExist(err.Error()) {
+			return resp.SetErr(fmt.Errorf("ParseChainAccountToJsonFormat err, action:[%s],err msg: %s", actionName, err.Error()))
+		} else if accountListOldNumber != 0 {
+			// recycle account tx
+		}
 	}
 	accountSizeNew := len(accountListNew)
 	// try update owner info
-	if accountListOldNumber = len(accountListOld); accountListOldNumber > 0 {
+	if accountListOldNumber > 0 {
 		shouldExecuteDelete := false
 		if accountSizeNew == 0 {
 			// output does not have a new accountCell, this tx maybe is a recycle type tx.
