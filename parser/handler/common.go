@@ -53,116 +53,120 @@ func removeItemFromOwnerList(db *gorocksdb.DB, writeBatch *gorocksdb.WriteBatch,
 	}
 	return nil
 }
-func storeAccountInfoToRocksDb(db *gorocksdb.DB, writeBatch *gorocksdb.WriteBatch, accountList types.AccountReturnObjList) (int, error) {
-	accountSize := len(accountList)
-	sameOwnerMap := map[string]types.AccountReturnObjList{}
-	// make group and replace the AccountKey_AccountId data
-	for i := 0; i < accountSize; i++ {
-		item := accountList[i]
-		jsonBys := item.JsonBys()
-		writeBatch.Put(AccountKey_AccountId(item.AccountData.AccountId()), jsonBys)
-		ownerLockArgsKey := AccountKey_OwnerArgHex(item.AccountData.OwnerLockArgsHex)
-		ownerHexKey := hex.EncodeToString(ownerLockArgsKey)
-		if preList := sameOwnerMap[ownerHexKey]; len(preList) > 0 {
-			preList = append(preList, item)
-			sameOwnerMap[ownerHexKey] = preList
-		} else {
-			newList := types.AccountReturnObjList{}
-			newList = append(newList, item)
-			sameOwnerMap[ownerHexKey] = newList
-		}
-	}
-	// replace owner data
-	for ownerHexKey, ownerItemList := range sameOwnerMap {
-		ownerLockArgsKey, _ := hex.DecodeString(ownerHexKey)
-		jsonArrBys, err := rocksdb.RocksDbSafeGet(db, ownerLockArgsKey)
-		if err != nil {
-			return 0, fmt.Errorf("RocksDbSafeGet err: %s", err.Error())
-		} else if jsonArrBys == nil {
-			writeBatch.Put(ownerLockArgsKey, ownerItemList.JsonBys())
-		} else {
-			oldList, err := types.AccountReturnObjListFromBys(jsonArrBys)
-			if err != nil {
-				return 0, fmt.Errorf("AccountReturnObjListFromBys err: %s", err.Error())
-			}
-			newList := types.AccountReturnObjList{}
-			ownerListMap := ownerItemList.ToAccountIdMap()
-			oldListSize := len(oldList)
-			for i := 0; i < oldListSize; i++ {
-				storeItem := oldList[i]
-				mapKey := storeItem.AccountData.AccountIdHex
-				if newItem := ownerListMap[mapKey]; newItem.AccountData.Account != "" {
-					// oldList exist, use the new record
-					storeItem = newItem
-					delete(ownerListMap, mapKey)
-				} else if newItem.AccountData.AccountIdHex == genesisAccountIdHex {
-					// genesis account storage
-					storeItem = newItem
-					delete(ownerListMap, mapKey)
-				} else {
-					// not exist, keep the old record
-				}
-				newList = append(newList, storeItem)
-			}
-			for _, absNewItem := range ownerListMap {
-				newList = append(newList, absNewItem)
-			}
-			if len(newList) == 0 {
-				continue
-			}
-			// print log
-			for _, newItem := range newList {
-				log.Info(fmt.Sprintf(
-					"storeAccountInfoToRocksDb, add new item, account: %s, id: %s, owner: %s",
-					newItem.AccountData.Account, newItem.AccountData.AccountIdHex, newItem.AccountData.OwnerLockArgsHex))
-			}
-			writeBatch.Put(ownerLockArgsKey, newList.JsonBys())
-		}
-	}
-	return accountSize, nil
-}
 
 // func storeAccountInfoToRocksDb(db *gorocksdb.DB, writeBatch *gorocksdb.WriteBatch, accountList types.AccountReturnObjList) (int, error) {
 // 	accountSize := len(accountList)
-// 	sameOwnerMap := map[string]*types.AccountReturnObjList{}
-// 	putsItem := func(ownerLockArgsHexKey []byte,newAddItem *types.AccountReturnObj,currentList *types.AccountReturnObjList) {
-// 		ownerHexKey := hex.EncodeToString(ownerLockArgsHexKey)
-// 		if preList := sameOwnerMap[ownerHexKey]; preList != nil {
-// 			*currentList = append(*currentList, *preList...)
-// 		}
-// 		writeBatch.Put(ownerLockArgsHexKey, (*currentList).JsonBys())
-// 		sameOwnerMap[ownerHexKey] = currentList
-// 	}
+// 	sameOwnerMap := map[string]types.AccountReturnObjList{}
+// 	// make group and replace the AccountKey_AccountId data
 // 	for i := 0; i < accountSize; i++ {
 // 		item := accountList[i]
 // 		jsonBys := item.JsonBys()
 // 		writeBatch.Put(AccountKey_AccountId(item.AccountData.AccountId()), jsonBys)
-// 		ownerLockArgsHexKey := AccountKey_OwnerArgHex(item.AccountData.OwnerLockArgsHex)
-// 		jsonArrBys, err := rocksdb.RocksDbSafeGet(db, ownerLockArgsHexKey)
+// 		ownerLockArgsKey := AccountKey_OwnerArgHex(item.AccountData.OwnerLockArgsHex)
+// 		ownerHexKey := hex.EncodeToString(ownerLockArgsKey)
+// 		if preList := sameOwnerMap[ownerHexKey]; len(preList) > 0 {
+// 			preList = append(preList, item)
+// 			sameOwnerMap[ownerHexKey] = preList
+// 			for _, o := range preList {
+// 				fmt.Println("---->",o.AccountData.OwnerLockArgsHex,string(o.JsonBys()))
+// 			}
+// 		} else {
+// 			newList := types.AccountReturnObjList{}
+// 			newList = append(newList, item)
+// 			sameOwnerMap[ownerHexKey] = newList
+// 		}
+// 	}
+// 	// replace owner data
+// 	for ownerHexKey, ownerItemList := range sameOwnerMap {
+// 		ownerLockArgsKey, _ := hex.DecodeString(ownerHexKey)
+// 		jsonArrBys, err := rocksdb.RocksDbSafeGet(db, ownerLockArgsKey)
 // 		if err != nil {
 // 			return 0, fmt.Errorf("RocksDbSafeGet err: %s", err.Error())
 // 		} else if jsonArrBys == nil {
-// 			dbList := types.AccountReturnObjList{}
-// 			dbList = append(dbList, item)
-// 			putsItem(ownerLockArgsHexKey,&item,&dbList)
+// 			writeBatch.Put(ownerLockArgsKey, ownerItemList.JsonBys())
 // 		} else {
 // 			oldList, err := types.AccountReturnObjListFromBys(jsonArrBys)
 // 			if err != nil {
 // 				return 0, fmt.Errorf("AccountReturnObjListFromBys err: %s", err.Error())
 // 			}
-// 			oldListSize := len(oldList)
 // 			newList := types.AccountReturnObjList{}
+// 			ownerListMap := ownerItemList.ToAccountIdMap()
+// 			oldListSize := len(oldList)
 // 			for i := 0; i < oldListSize; i++ {
-// 				if oldList[i].AccountData.AccountIdHex != item.AccountData.AccountIdHex { // skip old record
-// 					newList = append(newList, oldList[i])
+// 				storeItem := oldList[i]
+// 				mapKey := storeItem.AccountData.AccountIdHex
+// 				if newItem := ownerListMap[mapKey]; newItem.AccountData.Account != "" {
+// 					// oldList exist, use the new record
+// 					storeItem = newItem
+// 					delete(ownerListMap, mapKey)
+// 				} else if newItem.AccountData.AccountIdHex == genesisAccountIdHex {
+// 					// genesis account storage
+// 					storeItem = newItem
+// 					delete(ownerListMap, mapKey)
+// 				} else {
+// 					// not exist, keep the old record
 // 				}
+// 				newList = append(newList, storeItem)
 // 			}
-// 			newList = append(newList, item)
-// 			log.Info(fmt.Sprintf(
-// 				"storeAccountInfoToRocksDb, add new item, account: %s, id: %s, owner: %s",
-// 				item.AccountData.Account, item.AccountData.AccountIdHex,item.AccountData.OwnerLockArgsHex))
-// 			putsItem(ownerLockArgsHexKey,&item,&newList)
+// 			for _, absNewItem := range ownerListMap {
+// 				newList = append(newList, absNewItem)
+// 			}
+// 			if len(newList) == 0 {
+// 				continue
+// 			}
+// 			// print log
+// 			for _, newItem := range newList {
+// 				log.Info(fmt.Sprintf(
+// 					"storeAccountInfoToRocksDb, add new item, account: %s, id: %s, owner: %s",
+// 					newItem.AccountData.Account, newItem.AccountData.AccountIdHex, newItem.AccountData.OwnerLockArgsHex))
+// 			}
+// 			writeBatch.Put(ownerLockArgsKey, newList.JsonBys())
 // 		}
 // 	}
 // 	return accountSize, nil
 // }
+
+func storeAccountInfoToRocksDb(db *gorocksdb.DB, writeBatch *gorocksdb.WriteBatch, accountList types.AccountReturnObjList) (int, error) {
+	accountSize := len(accountList)
+	sameOwnerMap := map[string]*types.AccountReturnObjList{}
+	putsItem := func(ownerLockArgsHexKey []byte, newAddItem *types.AccountReturnObj, currentList *types.AccountReturnObjList) {
+		ownerHexKey := hex.EncodeToString(ownerLockArgsHexKey)
+		if preList := sameOwnerMap[ownerHexKey]; preList != nil {
+			*currentList = append(*currentList, *preList...)
+		}
+		writeBatch.Put(ownerLockArgsHexKey, (*currentList).JsonBys())
+		sameOwnerMap[ownerHexKey] = currentList
+	}
+	for i := 0; i < accountSize; i++ {
+		item := accountList[i]
+		jsonBys := item.JsonBys()
+		writeBatch.Put(AccountKey_AccountId(item.AccountData.AccountId()), jsonBys)
+		ownerLockArgsHexKey := AccountKey_OwnerArgHex(item.AccountData.OwnerLockArgsHex)
+		jsonArrBys, err := rocksdb.RocksDbSafeGet(db, ownerLockArgsHexKey)
+		if err != nil {
+			return 0, fmt.Errorf("RocksDbSafeGet err: %s", err.Error())
+		} else if jsonArrBys == nil {
+			dbList := types.AccountReturnObjList{}
+			dbList = append(dbList, item)
+			putsItem(ownerLockArgsHexKey, &item, &dbList)
+		} else {
+			oldList, err := types.AccountReturnObjListFromBys(jsonArrBys)
+			if err != nil {
+				return 0, fmt.Errorf("AccountReturnObjListFromBys err: %s", err.Error())
+			}
+			oldListSize := len(oldList)
+			newList := types.AccountReturnObjList{}
+			for i := 0; i < oldListSize; i++ {
+				if oldList[i].AccountData.AccountIdHex != item.AccountData.AccountIdHex { // skip old record
+					newList = append(newList, oldList[i])
+				}
+			}
+			newList = append(newList, item)
+			log.Info(fmt.Sprintf(
+				"storeAccountInfoToRocksDb, add new item, account: %s, id: %s, owner: %s",
+				item.AccountData.Account, item.AccountData.AccountIdHex, item.AccountData.OwnerLockArgsHex))
+			putsItem(ownerLockArgsHexKey, &item, &newList)
+		}
+	}
+	return accountSize, nil
+}

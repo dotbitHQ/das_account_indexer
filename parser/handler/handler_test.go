@@ -60,8 +60,8 @@ func Test_HandleAccountCellType(t *testing.T) {
 	// celltype.UseVersion3SystemScriptCodeHash()
 	// celltype.DasAccountCellScript.Out.CodeHash = ckbTypes.HexToHash("0x334540e23ec513f691cdd9490818237cbc9675861e4f19c480e0c520c715fd34")
 	celltype.UseVersionReleaseSystemScriptCodeHash()
-	p, _ := buildP("0x00a660fd0eeecf8386e1c5712fce893c1c3b9f908e4f8372c0e83867471ea87c")
-	resp := HandleAccountCellType("", p)
+	p, _ := buildP("0xa0d957793b3f7c0fe7335e9c8aa309c7344d3cafd0bcee257825b1ce1cdda323")
+	resp := HandleAccountCellType(celltype.Action_ConfirmProposal, p)
 	log.Warn("resp.err:-->", resp.err)
 }
 
