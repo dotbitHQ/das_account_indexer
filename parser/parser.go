@@ -74,16 +74,20 @@ func (p *TxParser) BlockSyncFinish() bool {
 }
 
 func (p *TxParser) getChainLatestBlockNumber(blockFontNumber uint64) {
+	ticker := time.NewTicker(time.Second)
+	defer ticker.Stop()
 	for {
-		if p.context != nil && p.context.Err() != nil {
-			return
+		select {
+		case <-ticker.C:
+			if p.context != nil && p.context.Err() != nil {
+				return
+			}
+			if blockNumber, err := p.rpcClient.GetTipBlockNumber(context.TODO()); err != nil {
+				log.Error(fmt.Sprintf("getChainLatestBlockNumber err: %s", err.Error()))
+			} else {
+				p.latestBlockNumber = blockNumber - blockFontNumber
+			}
 		}
-		if blockNumber, err := p.rpcClient.GetTipBlockNumber(context.TODO()); err != nil {
-			log.Error(fmt.Sprintf("getChainLatestBlockNumber err: %s", err.Error()))
-		} else {
-			p.latestBlockNumber = blockNumber - blockFontNumber
-		}
-		time.Sleep(time.Second)
 	}
 }
 
