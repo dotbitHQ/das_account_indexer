@@ -143,14 +143,12 @@ func runServer(ctx *cli.Context) error {
 			}
 		}
 		log.Info("rpc server need to wait for block info finish sync, stopping ...")
-		ticker := time.NewTicker(time.Second)
-		defer ticker.Stop()
 		go func() {
 			for {
 				select {
 				case <-rpcWait:
 					return
-				case <-ticker.C:
+				default:
 					if txParser.BlockSyncFinish() {
 						if rpcWait != nil {
 							close(rpcWait)
@@ -161,6 +159,7 @@ func runServer(ctx *cli.Context) error {
 						}
 					}
 				}
+				time.Sleep(time.Second)
 			}
 		}()
 	} else {
