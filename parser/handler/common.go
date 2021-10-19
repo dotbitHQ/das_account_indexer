@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/DeAccountSystems/das_commonlib/common/rocksdb"
 	"github.com/tecbot/gorocksdb"
+	"runtime"
 )
 
 /**
@@ -165,6 +166,7 @@ func storeAccountInfoToRocksDb(db *gorocksdb.DB, writeBatch *gorocksdb.WriteBatc
 			log.Info(fmt.Sprintf(
 				"storeAccountInfoToRocksDb, add new item, account: %s, id: %s, owner: %s",
 				item.AccountData.Account, item.AccountData.AccountIdHex, item.AccountData.OwnerLockArgsHex))
+			runtime.Gosched()
 			putsItem(ownerLockArgsHexKey, &item, &newList)
 		}
 	}

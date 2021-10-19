@@ -159,7 +159,6 @@ func runServer(ctx *cli.Context) error {
 						}
 					}
 				}
-				runtime.Gosched()
 				time.Sleep(time.Second)
 			}
 		}()
