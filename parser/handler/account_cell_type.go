@@ -68,7 +68,9 @@ func HandleAccountCellType(actionName string, p *DASActionHandleFuncParam) DASAc
 	}
 	accountListOldNumber = len(accountListOld)
 	// try storage new
-	accountListNew, err := util.ParseChainAccountToJsonFormat(&tx, nil)
+	accountListNew, err := util.ParseChainAccountToJsonFormat(&tx, func(cellData *celltype.AccountCellData, outputIndex uint32) bool {
+		return tx.Outputs[outputIndex].Type.CodeHash == celltype.DasAccountCellScript.Out.CodeHash
+	})
 	if err != nil {
 		if !isAccountCellNotExist(err.Error()) {
 			return resp.SetErr(fmt.Errorf("ParseChainAccountToJsonFormat err, action:[%s],err msg: %s", actionName, err.Error()))
@@ -124,6 +126,8 @@ func HandleAccountCellType(actionName string, p *DASActionHandleFuncParam) DASAc
 				"HandleAccountCellType success, total number, old: %d, new: %d",
 				accountListOldNumber, accountSizeNew))
 		}
+	} else {
+		log.Warn("invalid DAS accountCell type tx, input and output cells both zero")
 	}
 	return resp
 }
