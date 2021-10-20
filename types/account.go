@@ -170,9 +170,9 @@ func (a AccountReturnObjList) ToAccountReturnObjList1List(testNet bool) []Accoun
 	return retList
 }
 
-func AccountReturnObjListFromBys(listBys []byte) (AccountReturnObjList, error) {
+func AccountReturnObjListFromBys(listBys *[]byte) (AccountReturnObjList, error) {
 	list := &AccountReturnObjList{}
-	if err := json.Unmarshal(listBys, list); err != nil {
+	if err := json.Unmarshal(*listBys, list); err != nil {
 		return nil, err
 	}
 	return *list, nil
