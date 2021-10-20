@@ -133,13 +133,13 @@ func removeItemFromOwnerList(db *gorocksdb.DB, writeBatch *gorocksdb.WriteBatch,
 
 func storeAccountInfoToRocksDb(db *gorocksdb.DB, writeBatch *gorocksdb.WriteBatch, accountList types.AccountReturnObjList) (int, error) {
 	accountSize := len(accountList)
-	sameOwnerMap := map[string]*types.AccountReturnObjList{}
-	putsItem := func(ownerLockArgsHexKey []byte, currentList *types.AccountReturnObjList) {
+	sameOwnerMap := map[string]types.AccountReturnObjList{}
+	putsItem := func(ownerLockArgsHexKey []byte, currentList types.AccountReturnObjList) {
 		ownerHexKey := hex.EncodeToString(ownerLockArgsHexKey)
 		if preList := sameOwnerMap[ownerHexKey]; preList != nil {
-			*currentList = append(*currentList, *preList...)
+			currentList = append(currentList, preList...)
 		}
-		writeBatch.Put(ownerLockArgsHexKey, (*currentList).JsonBys())
+		writeBatch.Put(ownerLockArgsHexKey, currentList.JsonBys())
 		sameOwnerMap[ownerHexKey] = currentList
 	}
 	for i := 0; i < accountSize; i++ {
@@ -153,7 +153,7 @@ func storeAccountInfoToRocksDb(db *gorocksdb.DB, writeBatch *gorocksdb.WriteBatc
 		} else if jsonArrBys == nil {
 			dbList := types.AccountReturnObjList{}
 			dbList = append(dbList, item)
-			putsItem(ownerLockArgsHexKey, &dbList)
+			putsItem(ownerLockArgsHexKey, dbList)
 		} else {
 			oldList, err := types.AccountReturnObjListFromBys(&jsonArrBys)
 			if err != nil {
@@ -163,14 +163,14 @@ func storeAccountInfoToRocksDb(db *gorocksdb.DB, writeBatch *gorocksdb.WriteBatc
 			newList := types.AccountReturnObjList{}
 			for i := 0; i < oldListSize; i++ {
 				if oldList[i].AccountData.AccountIdHex != item.AccountData.AccountIdHex { // skip old record
-					// newList = append(newList, oldList[i])
+					newList = append(newList, oldList[i])
 				}
 			}
-			// newList = append(newList, item)
+			newList = append(newList, item)
 			log.Info(fmt.Sprintf(
 				"storeAccountInfoToRocksDb, add new item, account: %s, id: %s, owner: %s",
 				item.AccountData.Account, item.AccountData.AccountIdHex, item.AccountData.OwnerLockArgsHex))
-			putsItem(ownerLockArgsHexKey, &newList)
+			putsItem(ownerLockArgsHexKey, newList)
 			jsonArrBys = nil
 		}
 	}
