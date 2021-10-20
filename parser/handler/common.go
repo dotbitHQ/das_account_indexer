@@ -170,10 +170,7 @@ func storeAccountInfoToRocksDb(db *gorocksdb.DB, writeBatch *gorocksdb.WriteBatc
 			log.Info(fmt.Sprintf(
 				"storeAccountInfoToRocksDb, add new item, account: %s, id: %s, owner: %s",
 				item.AccountData.Account, item.AccountData.AccountIdHex, item.AccountData.OwnerLockArgsHex))
-			putsItem(ownerLockArgsHexKey, newList)
-			oldList = nil
-			newList = nil
-			jsonArrBys = nil
+			// putsItem(ownerLockArgsHexKey, newList)
 		}
 	}
 	return accountSize, nil
