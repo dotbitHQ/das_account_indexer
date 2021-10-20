@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/DeAccountSystems/das_commonlib/common/rocksdb"
 	"github.com/tecbot/gorocksdb"
-	"time"
 )
 
 /**
@@ -156,24 +155,23 @@ func storeAccountInfoToRocksDb(db *gorocksdb.DB, writeBatch *gorocksdb.WriteBatc
 			dbList = append(dbList, item)
 			putsItem(ownerLockArgsHexKey, &dbList)
 		} else {
-			time.Sleep(100 * time.Millisecond)
-			// oldList, err := types.AccountReturnObjListFromBys(&jsonArrBys)
-			// if err != nil {
-			// 	return 0, fmt.Errorf("AccountReturnObjListFromBys err: %s", err.Error())
-			// }
-			// oldListSize := len(oldList)
-			// newList := types.AccountReturnObjList{}
-			// for i := 0; i < oldListSize; i++ {
-			// 	if oldList[i].AccountData.AccountIdHex != item.AccountData.AccountIdHex { // skip old record
-			// 		newList = append(newList, oldList[i])
-			// 	}
-			// }
+			oldList, err := types.AccountReturnObjListFromBys(&jsonArrBys)
+			if err != nil {
+				return 0, fmt.Errorf("AccountReturnObjListFromBys err: %s", err.Error())
+			}
+			oldListSize := len(oldList)
+			newList := types.AccountReturnObjList{}
+			for i := 0; i < oldListSize; i++ {
+				if oldList[i].AccountData.AccountIdHex != item.AccountData.AccountIdHex { // skip old record
+					// newList = append(newList, oldList[i])
+				}
+			}
 			// newList = append(newList, item)
-			// log.Info(fmt.Sprintf(
-			// 	"storeAccountInfoToRocksDb, add new item, account: %s, id: %s, owner: %s",
-			// 	item.AccountData.Account, item.AccountData.AccountIdHex, item.AccountData.OwnerLockArgsHex))
-			// putsItem(ownerLockArgsHexKey, &newList)
-			// jsonArrBys = nil
+			log.Info(fmt.Sprintf(
+				"storeAccountInfoToRocksDb, add new item, account: %s, id: %s, owner: %s",
+				item.AccountData.Account, item.AccountData.AccountIdHex, item.AccountData.OwnerLockArgsHex))
+			putsItem(ownerLockArgsHexKey, &newList)
+			jsonArrBys = nil
 		}
 	}
 	return accountSize, nil
