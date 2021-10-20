@@ -32,6 +32,6 @@ rpc-linux: export GOARCH=amd64
 rpc-linux:
 	$(GOBUILD) -o $(SERVER_NAME) cmd/main.go
 	mv $(SERVER_NAME) bin/linux/
-	$(GOBUILD) -o $(CLI_NAME) cmd/cli/main.go
-	mv $(CLI_NAME) bin/linux/
+	#$(GOBUILD) -o $(CLI_NAME) cmd/cli/main.go
+	#mv $(CLI_NAME) bin/linux/
 	@echo "Build $(SERVER_NAME) successfully. You can run bin/$(SERVER_NAME) now.If you can't see it soon,wait some seconds"

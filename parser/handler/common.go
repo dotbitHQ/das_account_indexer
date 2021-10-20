@@ -134,7 +134,7 @@ func removeItemFromOwnerList(db *gorocksdb.DB, writeBatch *gorocksdb.WriteBatch,
 func storeAccountInfoToRocksDb(db *gorocksdb.DB, writeBatch *gorocksdb.WriteBatch, accountList types.AccountReturnObjList) (int, error) {
 	accountSize := len(accountList)
 	sameOwnerMap := map[string]*types.AccountReturnObjList{}
-	putsItem := func(ownerLockArgsHexKey []byte, newAddItem *types.AccountReturnObj, currentList *types.AccountReturnObjList) {
+	putsItem := func(ownerLockArgsHexKey []byte, currentList *types.AccountReturnObjList) {
 		ownerHexKey := hex.EncodeToString(ownerLockArgsHexKey)
 		if preList := sameOwnerMap[ownerHexKey]; preList != nil {
 			*currentList = append(*currentList, *preList...)
@@ -153,7 +153,7 @@ func storeAccountInfoToRocksDb(db *gorocksdb.DB, writeBatch *gorocksdb.WriteBatc
 		} else if jsonArrBys == nil {
 			dbList := types.AccountReturnObjList{}
 			dbList = append(dbList, item)
-			putsItem(ownerLockArgsHexKey, &item, &dbList)
+			putsItem(ownerLockArgsHexKey, &dbList)
 		} else {
 			oldList, err := types.AccountReturnObjListFromBys(&jsonArrBys)
 			if err != nil {
@@ -170,7 +170,8 @@ func storeAccountInfoToRocksDb(db *gorocksdb.DB, writeBatch *gorocksdb.WriteBatc
 			log.Info(fmt.Sprintf(
 				"storeAccountInfoToRocksDb, add new item, account: %s, id: %s, owner: %s",
 				item.AccountData.Account, item.AccountData.AccountIdHex, item.AccountData.OwnerLockArgsHex))
-			putsItem(ownerLockArgsHexKey, &item, &newList)
+			putsItem(ownerLockArgsHexKey, &newList)
+			jsonArrBys = nil
 		}
 	}
 	return accountSize, nil
