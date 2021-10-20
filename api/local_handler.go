@@ -73,7 +73,7 @@ func (r *RpcLocalHandler) GetAddressAccount(address string) common.ReqResp {
 	} else if jsonArrBys == nil {
 		return common.ReqResp{ErrNo: dascode.Err_AccountNotExist, ErrMsg: "account not exist, it may not be stored in the local database yet"}
 	}
-	accountList, err := types.AccountReturnObjListFromBys(&jsonArrBys)
+	accountList, err := types.AccountReturnObjListFromBys(jsonArrBys)
 	if err != nil {
 		return common.ReqResp{ErrNo: dascode.Err_Internal, ErrMsg: fmt.Errorf("AccountReturnObjListFromBys err: %s", err.Error()).Error()}
 	}

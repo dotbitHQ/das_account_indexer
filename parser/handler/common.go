@@ -36,7 +36,7 @@ func removeItemFromOwnerList(db *gorocksdb.DB, writeBatch *gorocksdb.WriteBatch,
 	if err != nil {
 		return fmt.Errorf("RocksDbSafeGet err: %s", err.Error())
 	} else if jsonArrBys != nil {
-		oldList, err := types.AccountReturnObjListFromBys(&jsonArrBys)
+		oldList, err := types.AccountReturnObjListFromBys(jsonArrBys)
 		if err != nil {
 			return fmt.Errorf("AccountReturnObjListFromBys err: %s", err.Error())
 		}
@@ -155,7 +155,7 @@ func storeAccountInfoToRocksDb(db *gorocksdb.DB, writeBatch *gorocksdb.WriteBatc
 			dbList = append(dbList, item)
 			putsItem(ownerLockArgsHexKey, dbList)
 		} else {
-			oldList, err := types.AccountReturnObjListFromBys(&jsonArrBys)
+			oldList, err := types.AccountReturnObjListFromBys(jsonArrBys)
 			if err != nil {
 				return 0, fmt.Errorf("AccountReturnObjListFromBys err: %s", err.Error())
 			}
@@ -171,6 +171,8 @@ func storeAccountInfoToRocksDb(db *gorocksdb.DB, writeBatch *gorocksdb.WriteBatc
 				"storeAccountInfoToRocksDb, add new item, account: %s, id: %s, owner: %s",
 				item.AccountData.Account, item.AccountData.AccountIdHex, item.AccountData.OwnerLockArgsHex))
 			putsItem(ownerLockArgsHexKey, newList)
+			oldList = nil
+			newList = nil
 			jsonArrBys = nil
 		}
 	}
